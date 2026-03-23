@@ -15,6 +15,107 @@
         <p>You are actually playing</p>
 
 
+        <div id="me">
+            <!-- So that the info of a player are on a line and not on columns -->
+            <div>
+                <p>Player 2 : Kimi</p>
+                <p id="nbCardsMe"></p>
+            </div>
+            
+            <div id="myHand">
+            </div>
+        </div>
+
+
+        <div id="enemyTop">
+            <!-- So that the info of a player are on a line and not on columns -->
+            <div>
+                <p>Player 1 : Luc </p>
+                <p id="nbCardsEneny1"></p>
+            </div>
+
+            <div id="enemyTopHand">
+            </div>
+        </div>
+        
+
+        <!---------------------------------------------- LIBRARIES -------------------------------------------------->
+        <!-- React and React DOM -->
+        <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"> </script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"> </script>
+
+
+        
+
+
+        <!--------------------------------------------- SCRIPT REACT ------------------------------------------------>
+        <script>         
+            // Creating obj json ti create fake card wating for the server   
+            var cards = [
+                { value: 1, color: "red" },
+                { value: 5, color: "blue" },
+                { value: 9, color: "green" },
+                { value: "+ 4", color: "black" },
+            ];
+            var nbCardsMe = $("#nbCardsMe");
+            nbCardsMe.html("Number of cards : " + cards.length);
+
+
+            const myCards = cards.map((card, index) =>
+                React.createElement("div", {
+                    className: "cardInnerWhite"
+                },
+                    React.createElement("div", {
+                        className: "cardInnerColor",
+                        style: {
+                            backgroundColor: card.color,
+                            Index: index
+                        }
+                    }, card.value)
+                )    
+            );
+
+
+
+            /* ---------------------------------- Enemy's top hand -----------------------------------*/
+            var enemyCards = [1,2,3,4,5,6]; // juste le nombre de cartes
+            var nbCardsEnemy1 = $("#nbCardsEneny1");
+            nbCardsEnemy1.html("Number of cards : " +enemyCards.length);
+            
+            /*var nbCards = document.getElementById("nbCardsEmeny1");
+            var nbEnemyCards = enemyCards.length.toString();
+            nbCards.innerHTML(nbEnemyCards);*/
+
+            const enemy = enemyCards.map((_, index) =>
+                React.createElement("div", {
+                    key: index,
+                    className: "enemyCard",
+                    style: {
+                        marginLeft: index === 0 ? "0px" : "-50px",
+                        zIndex: index
+                    }
+                })
+            );
+
+
+
+
+            console.log(myCards);
+            const myRoot = ReactDOM.createRoot(document.getElementById("myHand"));
+            myRoot.render(myCards);
+
+            const enemyRoot = ReactDOM.createRoot(document.getElementById("enemyTopHand"));
+            enemyRoot.render(enemy);
+
+            
+        
+            
+        </script>
+
+
     </body>
 
 

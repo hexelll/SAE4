@@ -11,12 +11,13 @@
     
     
     <body>
+        <!---------------------------------------------- HTML -------------------------------------------------->
         <h1>Welcome to the play</h1>
         <p>You are actually playing</p>
 
 
+        <!---------- Me ----------->
         <div id="me">
-            <!-- So that the info of a player are on a line and not on columns -->
             <div>
                 <p>Player 2 : Kimi</p>
                 <p id="nbCardsMe"></p>
@@ -27,6 +28,15 @@
         </div>
 
 
+        <!--------- Darw Pile ---------->
+        <div id="assets">
+            <div id="playedPile"></div>
+            <button id="drawPile"> Pioche </button>
+        </div>
+
+
+
+        <!----------- Enemy ------------>
         <div id="enemyTop">
             <!-- So that the info of a player are on a line and not on columns -->
             <div>
@@ -38,6 +48,10 @@
             </div>
         </div>
         
+
+
+
+
 
         <!---------------------------------------------- LIBRARIES -------------------------------------------------->
         <!-- React and React DOM -->
@@ -52,7 +66,10 @@
 
 
         <!--------------------------------------------- SCRIPT REACT ------------------------------------------------>
-        <script>         
+        <script>  
+    
+
+    /* ------------------------------------------- ACTUAL PLAYER -------------------------------------------------*/
             // Creating obj json ti create fake card wating for the server   
             var cards = [
                 { value: 1, color: "red" },
@@ -60,59 +77,105 @@
                 { value: 9, color: "green" },
                 { value: "+ 4", color: "black" },
             ];
+            // Get the number of cards and print it
             var nbCardsMe = $("#nbCardsMe");
             nbCardsMe.html("Number of cards : " + cards.length);
 
 
-            const myCards = cards.map((card, index) =>
-                React.createElement("div", {
-                    className: "cardInnerWhite"
-                },
-                    React.createElement("div", {
-                        className: "cardInnerColor",
-                        style: {
-                            backgroundColor: card.color,
-                            Index: index
-                        }
-                    }, card.value)
-                )    
-            );
-
-
-
-            /* ---------------------------------- Enemy's top hand -----------------------------------*/
-            var enemyCards = [1,2,3,4,5,6]; // juste le nombre de cartes
-            var nbCardsEnemy1 = $("#nbCardsEneny1");
-            nbCardsEnemy1.html("Number of cards : " +enemyCards.length);
-            
-            /*var nbCards = document.getElementById("nbCardsEmeny1");
-            var nbEnemyCards = enemyCards.length.toString();
-            nbCards.innerHTML(nbEnemyCards);*/
-
-            const enemy = enemyCards.map((_, index) =>
-                React.createElement("div", {
-                    key: index,
-                    className: "enemyCard",
-                    style: {
-                        marginLeft: index === 0 ? "0px" : "-50px",
-                        zIndex: index
-                    }
-                })
-            );
-
-
-
-
-            console.log(myCards);
+            // Create the root w/ the DOM
             const myRoot = ReactDOM.createRoot(document.getElementById("myHand"));
-            myRoot.render(myCards);
 
+            // Create the cards (print)
+            function makeCards() {
+                var myCards = cards.map((card, index) =>
+                    React.createElement("div", {
+                        key: index,
+                        className: "cardInnerWhite",
+                        onClick: () => play(card, index)
+                    },
+                        React.createElement("div", {
+                            className: "cardInnerColor",
+                            style: {
+                                backgroundColor: card.color,
+                                Index: index
+                            }
+                        }, card.value)
+                    )    
+                );
+                myRoot.render(myCards);
+                console.log(myCards);
+            }
+
+            
+            
+
+    /* --------------------------------------------- ENEMIES -------------------------------------------------*/
+            /* ---------------------------------- Enemy's top hand -----------------------------------*/
+            // Get the number of cards and print it
+            var nbCardsEnemyTop = 2; // Gotten form server request
+            $("#nbCardsEneny1").html("Number of cards : " + nbCardsEnemyTop);
+
+
+            // Create the root w/ the DOM
             const enemyRoot = ReactDOM.createRoot(document.getElementById("enemyTopHand"));
-            enemyRoot.render(enemy);
+
+            // Create the cards (print) 
+            // Different than for the actual player : because we don't know the cards the enemy has, only how many
+            function makeEnemysCards() {
+                var enemyCards = [];
+                for (i = 0; i < nbCardsEnemyTop; i ++) {
+                    enemyCards.push(React.createElement("div", {
+                        key: i,
+                        className: "enemyCard",
+                        style: {
+                            marginLeft: i === 0 ? "0px" : "-50px",
+                            zIndex: i
+                        }
+                    })
+                    )
+                }
+                    
+                enemyRoot.render(enemyCards);
+            }
+
+
+
+
+
+            /* ---------------------------------- Actions -----------------------------------*/
+            function play(card, indexToRemove) {
+                /* Create new tab from tab cards w/ function filter, the value inside the new tab are the one not played */
+                cards = cards.filter((card, index) => index !== indexToRemove); 
+
+                $("#playedPile").html("Played : " + card.value + " " + card.color);
+                console.log("test play");
+                makeCards();
+
+            }
+
+            function draw() {
+                var colors = ["red", "blue", "green", "yellow"];
+                var values = [1, 2, 3, 4 , 5, 6, 7, 8, 9, "+2", "change"];
+                var randomColor = Math.floor(Math.random() * colors.length);
+                var randomValue = Math.floor(Math.random() * values.length);
+                console.log("Random color : " + colors[randomColor]);
+                console.log("Random value : " + values[randomValue]);
+                
+                var newCard = { value: values[randomValue], color: colors[randomColor] };
+                cards.push(newCard);
+
+                console.log("test draw", cards);
+                makeCards(); 
+            }
+             
+
+            makeEnemysCards();
+            makeCards();
+            $("#drawPile").click(draw);
+            
 
             
-        
-            
+
         </script>
 
 

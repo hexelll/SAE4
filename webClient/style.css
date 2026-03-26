@@ -7,6 +7,11 @@ body{
     width: 100vw;
 }
 
+p{
+    margin-top: 0%;
+    margin-bottom: 0%;
+}
+
 
 .center{
     display: flex;
@@ -102,9 +107,12 @@ button a{
 /* ----------------------------------------------- ENEMIES --------------------------------------------------- */
 
 .enemyCard {
-    height: 16vh;
-    max-height: 180px;
+    /*height: 16vh;
+    max-height: 180px;*/
+    width: 9vw;
+    max-width: 120px;
     aspect-ratio: 2 / 3;
+    /*flex-shrink: 0;*/
 
     display: flex;
     justify-content: center;
@@ -121,8 +129,6 @@ button a{
     background: rgb(209, 2, 2);
 
     box-shadow: inset 0 0 3px rgba(0,0,0,0.4);
-
-    
 }
 
 
@@ -139,7 +145,6 @@ button a{
     left: 0;
     width: 100vw;
 
-    width: 100vw;
     height: 25vh;
     margin-top: 0%;
     margin-bottom: 0%;
@@ -152,11 +157,13 @@ button a{
 
 
 #enemyTopHand {
-    left: 0;
+    width: 50vw;
+    height: 25vh;
 
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden; /* Cards can't get out of the div */
 }
 
 

@@ -41,10 +41,32 @@
             <!-- So that the info of a player are on a line and not on columns -->
             <div>
                 <p>Player 1 : Luc </p>
-                <p id="nbCardsEneny1"></p>
+                <p id="nbCardsEnenyTop"></p>
             </div>
 
-            <div id="enemyTopHand">
+            <div id="enemyTopHand"></div>
+        </div>
+
+        <div id="enemyLeft">
+            <!-- So that the info of a player are on a line and not on columns -->
+            <div>
+                <p>Player 3 : Théo </p>
+                <p id="nbCardsEnemyLeft"></p>
+                <p id="nbCardsLeft"></p>
+            </div>
+
+            <div id="enemyLeftHand">
+            </div>
+        </div>
+
+        <div id="enemyRight">
+            <!-- So that the info of a player are on a line and not on columns -->
+            <div>
+                <p>Player 4 : Alex </p>
+                <p id="nbCardsEnenyRight"></p>
+            </div>
+
+            <div id="enemyRightHand">
             </div>
         </div>
         
@@ -69,7 +91,7 @@
         <script>  
     
 
-    /* ------------------------------------------- ACTUAL PLAYER -------------------------------------------------*/
+        /* ------------------------------------------- ACTUAL PLAYER -------------------------------------------------*/
             // Creating obj json ti create fake card wating for the server   
             var cards = [
                 { value: 1, color: "red" },
@@ -109,22 +131,22 @@
             
             
 
-    /* --------------------------------------------- ENEMIES -------------------------------------------------*/
+        /* --------------------------------------------- ENEMIES -------------------------------------------------*/
             /* ---------------------------------- Enemy's top hand -----------------------------------*/
             // Get the number of cards and print it
             var nbCardsEnemyTop = 2; // Gotten form server request
-            $("#nbCardsEneny1").html("Number of cards : " + nbCardsEnemyTop);
+            $("#nbCardsEnenyTop").html("Number of cards : " + nbCardsEnemyTop);
 
 
             // Create the root w/ the DOM
-            const enemyRoot = ReactDOM.createRoot(document.getElementById("enemyTopHand"));
+            const enemyTopRoot = ReactDOM.createRoot(document.getElementById("enemyTopHand"));
 
             // Create the cards (print) 
             // Different than for the actual player : because we don't know the cards the enemy has, only how many
-            function makeEnemysCards() {
-                var enemyCards = [];
+            function makeTopEnemysCards() {
+                var enemyTopCards = [];
                 for (i = 0; i < nbCardsEnemyTop; i ++) {
-                    enemyCards.push(React.createElement("div", {
+                    enemyTopCards.push(React.createElement("div", {
                         key: i,
                         className: "enemyCard",
                         style: {
@@ -135,14 +157,96 @@
                     )
                 }
                     
-                enemyRoot.render(enemyCards);
+                enemyTopRoot.render(enemyTopCards);
+            }
+
+
+
+            /* ---------------------------------- Left enemy's hand -----------------------------------*/
+            // Get the number of cards and print it
+            var nbCardsEnemyLeft = 16; // Gotten form server request
+            $("#nbCardsEnemyLeft").html("Number of cards : " + nbCardsEnemyLeft);
+
+
+            // Create the root w/ the DOM
+            const enemyLeftRoot = ReactDOM.createRoot(document.getElementById("enemyLeftHand"));
+
+            // Create the cards (print) 
+            // Different than for the actual player : because we don't know the cards the enemy has, only how many
+            function makeLeftEnemysCards() {
+                var enemyLeftCards = [];
+                var overlap;
+
+                /* If there is to much card to print */
+                if(nbCardsEnemyLeft > 10) { 
+                    nbCardsLeftVisible = 10; /* How much card to print */
+                    nbCardLeftRemaining = nbCardsEnemyLeft - 10; /* How much card left to print */
+                    $("#nbCardsLeft").html(nbCardLeftRemaining);
+                
+                    for (i = 0; i < nbCardsLeftVisible-1; i ++) {
+                        enemyLeftCards.push(React.createElement("div", {
+                            key: i,
+                            className: "enemyCard",
+                            style: {
+                                marginLeft: i === 0 ? "0px" : "-50px",
+                                zIndex: i
+                            }
+                            })
+                        )
+                    }
+                    
+                    /* Print the 10th card with how much card the player has in more */
+                    enemyLeftCards.push(React.createElement("div", {
+                        key: (nbCardsLeftVisible-1),
+                        className: "enemyCard",
+                        style: {
+                            marginLeft: (nbCardsLeftVisible-1) === 0 ? "0px" : "-50px",
+                            zIndex: (nbCardsLeftVisible-1)
+                        }
+                        }, "+" + nbCardLeftRemaining)
+                    )     
+                    
+                }
+                enemyLeftRoot.render(enemyLeftCards);
+            }
+
+
+
+            /* ---------------------------------- Right enemy's hand -----------------------------------*/
+            // Get the number of cards and print it
+            var nbCardsEnemyRight = 7; // Gotten form server request
+            $("#nbCardsEnenyRight").html("Number of cards : " + nbCardsEnemyRight);
+
+
+            // Create the root w/ the DOM
+            const enemyRightRoot = ReactDOM.createRoot(document.getElementById("enemyRightHand"));
+
+            // Create the cards (print) 
+            // Different than for the actual player : because we don't know the cards the enemy has, only how many
+            function makeRightEnemysCards() {
+                var enemyRightCards = [];
+                for (j = 0; j < nbCardsEnemyRight; j ++) {
+                    enemyRightCards.push(React.createElement("div", {
+                        key: j,
+                        className: "enemyCard",
+                        style: {
+                            marginLeft: j === 0 ? "0px" : "-50px",
+                            zIndex: j
+                        }
+                    }) 
+                    )
+                }
+                    
+                enemyRightRoot.render(enemyRightCards);
             }
 
 
 
 
 
-            /* ---------------------------------- Actions -----------------------------------*/
+
+        /* --------------------------------------------- ACTIONS -------------------------------------------------*/ 
+            /* Create new tab from tab cards w/ function filter, the value inside the new tab are the one not played */
             function play(card, indexToRemove) {
                 /* Create new tab from tab cards w/ function filter, the value inside the new tab are the one not played */
                 cards = cards.filter((card, index) => index !== indexToRemove); 
@@ -150,8 +254,8 @@
                 $("#playedPile").html("Played : " + card.value + " " + card.color);
                 console.log("test play");
                 makeCards();
-
             }
+    
 
             function draw() {
                 var colors = ["red", "blue", "green", "yellow"];
@@ -169,13 +273,14 @@
             }
              
 
-            makeEnemysCards();
+            makeTopEnemysCards();
+            makeLeftEnemysCards();
+            //makeRightEnemysCards();
             makeCards();
             $("#drawPile").click(draw);
             
-
-            
-
+    
+        
         </script>
 
 

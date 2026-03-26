@@ -23,6 +23,7 @@ button a{
 
 /* ----------------------------------------------- Me --------------------------------------------------- */
 
+/* size allowed to the actual player info (name, nb of cards, cards)*/
 #me {
     position: fixed;
     bottom: 3vh; /* So that it's not to close tp the bottom */
@@ -38,15 +39,11 @@ button a{
     padding: 10px;
 }
 
-
 /* div of my hand */
 #myHand {
     display: flex;
     justify-content: center;
     align-items: center;
-    /*gap: 10px;*/
-
-    /*padding: 10px;*/
 }
 
 
@@ -102,6 +99,38 @@ button a{
 
 
 
+/* ----------------------------------------------- ENEMIES --------------------------------------------------- */
+
+.enemyCard {
+    height: 16vh;
+    max-height: 180px;
+    aspect-ratio: 2 / 3;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 2.5vh;
+    font-weight: bold;
+    color: white;
+
+    border-radius: 20px;
+    border: 3px solid rgb(0, 0, 0);
+
+    /*background: linear-gradient(135deg, red, yellow); /* style UNO-ish */
+    background: rgb(209, 2, 2);
+
+    box-shadow: inset 0 0 3px rgba(0,0,0,0.4);
+
+    
+}
+
+
+.enemyCard:not(:first-child) {
+    margin-left: -50px;
+}
+
+
 
 /* ----------------------------------------------- Enenmy's top --------------------------------------------------- */
 #enemyTop {
@@ -131,24 +160,67 @@ button a{
 }
 
 
-.enemyCard {
-    height: 16vh;
-    max-height: 180px;
-    aspect-ratio: 2 / 3;
 
-    border-radius: 20px;
-    border: 3px solid rgb(0, 0, 0);
 
-    /*background: linear-gradient(135deg, red, yellow); /* style UNO-ish */
-    background: rgb(209, 2, 2);
 
-    box-shadow: inset 0 0 3px rgba(0,0,0,0.4);
+/* ----------------------------------------------- Enenmy's left --------------------------------------------------- */
+#enemyLeft {
+    position: fixed;
+    top: 30vh;
+    right: -30vw;
+
+    width: 100vw;
+    height: 25vh;
+    margin-top: 0%;
+    margin-bottom: 0%;
+
+
+    display: flex;
+    flex-direction: column; /* Align the content varticaly */
+    align-items: center; 
 }
 
 
-.enemyCard:not(:first-child) {
-    margin-left: -50px;
+#enemyLeftHand {
+    left: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
+
+
+/* ----------------------------------------------- Enenmy's right --------------------------------------------------- */
+#enemyRight {
+    position: fixed;
+    top: 30vh;
+    right: 35vw;
+
+    width: 100vw;
+    height: 25vh;
+    margin-top: 0%;
+    margin-bottom: 0%;
+
+
+    display: flex;
+    flex-direction: column; /* Align the content varticaly */
+    align-items: center; 
+}
+
+
+#enemyRightHand {
+    left: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+
+
 
 
 

@@ -1,0 +1,30 @@
+services:
+  unoserver:
+    build: .
+    ports:
+      - 42069:9999
+    volumes:
+      - ./src/:/myserver/
+    command: 
+      bash -c "cd /myserver && gcc -O3 serverUno.c -o serverUno -lm -I/usr/include/postgresql -lpq && ./serverUno"
+    depends_on:
+      - unodb
+  unodb:
+    image: postgres:18.3
+    restart: always
+    shm_size: 128mb
+    ports:
+      - 5432:5432
+    volumes:
+      - db-data:/var/lib/postgresql
+    environment:
+      POSTGRES_PASSWORD: pass4root
+      POSTGRES_USER: root
+  unoadminer:
+    image: adminer:5.4.2
+    restart: always
+    ports:
+      - 8080:8080
+
+volumes:
+  db-data: {}

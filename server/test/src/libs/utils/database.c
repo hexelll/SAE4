@@ -53,12 +53,31 @@ QueryResult ConnectionGetAll(Connection connection, String table){
 //Insert a User in the database, you only need to specify the username.
 QueryResult ConnectionInsertQuery(Connection connection,String table, String data){
     String sqlRequest = StringFormat(&connection.arena, StringFrom("Insert into %S values(\'%S\')", &connection.arena), table, data);
-    FILE* fp = fopen("./logFile.txt", "a");
+    FILE* fp = fopen("./logFile.txt", "w");
     fprintf(fp, StringToChar(sqlRequest, &connection.arena));
     fclose(fp);
     PGresult* res2 = PQexec(connection.con , StringToChar(sqlRequest, &connection.arena));
     PQclear(res2);
     return newQueryResultInsert(connection, res2);
+}
+
+QueryResult ConnectionRawQuerySelect(Connection connection, String SQL){
+    String sqlRequest = StringFormat(&connection.arena, StringFrom("%s", &connection.arena), SQL);
+    FILE* fp = fopen("./logFile.txt", "w");
+    fprintf(fp, StringToChar(sqlRequest, &connection.arena));
+    fclose(fp);
+    PGresult* resRAW = PQexec(connection.con, StringToChar(sqlRequest, &connection.arena));
+    return newQueryResultSelect(connection, resRAW);
+}
+
+QueryResult ConnectionRawQueryInsert(Connection connection, String SQL){
+    String sqlRequest = StringFormat(&connection.arena, StringFrom("%s",&connection.arena), SQL);
+    FILE* fp = fopen("./logFile.txt", "w");
+    fprintf(fp, StringToChar(sqlRequest, &connection.arena));
+    fclose(fp);
+    PGresult* resRAW = PQexec(connection.con, StringToChar(sqlRequest, &connection.arena));
+    PQclear(resRAW);
+    return newQueryResultInsert(connection, resRAW);
 }
 
 //Retrive the information provided by the SELECT query provided.
@@ -82,6 +101,7 @@ String QueryResultRetrieveinfo(QueryResult query, struct Arena* arena){
     PQclear(query.res);
     return textRet;
 };
+
 
 
 

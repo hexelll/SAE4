@@ -33,3 +33,7 @@ QueryResult ConnectionInsertQuery(Connection connection,String table,String data
 
 //Retrive the information provided by the SELECT query provided.
 String QueryResultRetrieveinfo(QueryResult query, struct Arena* arena);
+
+QueryResult ConnectionRawQuery(Connection connection, String SQL);
+
+

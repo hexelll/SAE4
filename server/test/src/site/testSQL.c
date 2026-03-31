@@ -15,9 +15,9 @@ int main(int argc,char** argv) {
     /*
     if the two next lines are switched the message of succesfull query and connection will be doubled somehow.
     */
+       text = StringConcat(text, result.message, &sarena);
     text = StringConcat(text, QueryResultRetrieveinfo(result, &sarena),  &sarena);
 
-    text = StringConcat(text, result.message, &sarena);
 
 
 

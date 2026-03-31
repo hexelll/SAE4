@@ -82,7 +82,7 @@ QueryResult ConnectionRawQueryInsert(Connection connection, String SQL){
 
 //Retrive the information provided by the SELECT query provided.
 String QueryResultRetrieveinfo(QueryResult query, struct Arena* arena){
-    String textRet;
+    String textRet= StringFrom("", arena);
     int rows = PQntuples(query.res);
     int cols = PQnfields(query.res);
     for(int i=0;i<rows;i++) {

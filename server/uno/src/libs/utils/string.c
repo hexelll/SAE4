@@ -658,6 +658,61 @@ String StringEscape(String str,struct Arena* arena) {
     return new;
 }
 
+String StringFormatChar(struct Arena* arena,char* charformat,...) {
+    va_list args;
+    va_start(args,charformat);
+    String format = StringFrom(charformat,arena);
+    int i = StringFind(format,StringFrom("%",arena),0);
+    int j = 0;
+    String str = StringFrom("",arena);
+    while(i >= 0) {
+        int size = 2;
+        if (!(i > 0 && format.text[i-1] == '\\')) {
+            str = StringConcat(str,StringSub(format,j,i,arena),arena);
+            char c = format.text[i+1];
+            switch (c) {
+                case 'S':{
+                    str = StringConcat(str,va_arg(args,String),arena);
+                    break;}
+                case 's':{
+                    String sc = StringFrom(va_arg(args,char*),arena);
+                    str = StringConcat(str,sc,arena);
+                    break;}
+                case 'c': {
+                    String s = StringAlloc(1,arena);
+                    s.text[0] = va_arg(args,int);
+                    str = StringConcat(str,s,arena);
+                    break;}
+                case 'd':{
+                    String d = StringFromInt(va_arg(args,int),arena);
+                    str = StringConcat(str,d,arena);
+                    break;}
+                case 'f':{
+                    float f = va_arg(args,double);
+                    str = StringConcat(str,StringFromFloat(f,2,arena),arena);
+                    break;}
+                case 'l':{
+                    size = 3;
+                    char cnext = format.text[i+2];
+                    switch(cnext) {
+                        case 'd':{
+                            str = StringConcat(str,StringFromInt(va_arg(args,long),arena),arena);
+                            break;}
+                        case 'f':{
+                            str = StringConcat(str,StringFromDouble(va_arg(args,double),10,arena),arena);
+                            break;}
+                    }
+                    break;}
+            }
+            j = i+size;
+        }
+        i = StringFind(format,StringFrom("%",arena),i+1);
+    }
+    va_end(args);
+    str = StringConcat(str,StringSub(format,j,format.size,arena),arena);
+    return str;
+}
+
 void StringResize(String* str) {
     int newsize = 0;
     for(char* c=(str->text);*c;c++)

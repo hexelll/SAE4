@@ -102,6 +102,31 @@ String QueryResultRetrieveinfo(QueryResult query, struct Arena* arena){
     return textRet;
 };
 
+Hashmap QueryResultRetrieveinfoHash(QueryResult query, struct Arena* arena){
+    Hashmap map = HashmapNew(sizeof(Hashmap), arena);
+    int rows = PQntuples(query.res);
+    int cols = PQnfields(query.res);
+    FILE* fp = fopen("./logFile.txt", "w");
+    fprintf(fp, StringToChar( StringFromInt(rows, arena), arena));
+    fprintf(fp ,"\n");
+    fprintf(fp, StringToChar( StringFromInt(cols, arena), arena));
+    fclose(fp);
+    for(int i=0;i<rows;i++){
+        Hashmap mapString = HashmapNew(sizeof(String), arena);
+        for(int j=0;j<cols;j++){
+            String resText = StringFormat(arena, StringFrom("%s", arena),PQfname(query.res, j));
+            String s = StringFrom((char*)PQgetvalue(query.res, i, j),arena);
+            HashmapSet(&mapString, StringToChar(resText, arena),&s);
+        }
+        String letext = StringFormat(arena, StringFrom("line %d", arena),i);
+        HashmapSet(&map, StringToChar(letext, arena), &mapString);
+    }
+    return map;
+}
+
+
+
+
 
 
 

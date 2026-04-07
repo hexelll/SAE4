@@ -112,7 +112,7 @@ button a{
     width: 9vw;
     max-width: 120px;
     aspect-ratio: 2 / 3;
-    /*flex-shrink: 0;*/
+    flex-shrink: 0;
 
     display: flex;
     justify-content: center;
@@ -157,7 +157,7 @@ button a{
 
 
 #enemyTopHand {
-    width: 50vw;
+    width: 40vw;
     height: 25vh;
 
     display: flex;
@@ -170,41 +170,13 @@ button a{
 
 
 
-/* ----------------------------------------------- Enenmy's left --------------------------------------------------- */
-#enemyLeft {
-    position: fixed;
-    top: 30vh;
-    right: -30vw;
-
-    width: 100vw;
-    height: 25vh;
-    margin-top: 0%;
-    margin-bottom: 0%;
-
-
-    display: flex;
-    flex-direction: column; /* Align the content varticaly */
-    align-items: center; 
-}
-
-
-#enemyLeftHand {
-    left: 0;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-
-
 /* ----------------------------------------------- Enenmy's right --------------------------------------------------- */
 #enemyRight {
     position: fixed;
     top: 30vh;
-    right: 35vw;
+    right: -10vw;
 
-    width: 100vw;
+    width: 50vw;
     height: 25vh;
     margin-top: 0%;
     margin-bottom: 0%;
@@ -217,11 +189,43 @@ button a{
 
 
 #enemyRightHand {
-    left: 0;
+    width: 40vw;
+    height: 25vh;
 
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden; /* Cards can't get out of the div */
+}
+
+
+
+/* ----------------------------------------------- Enenmy's left --------------------------------------------------- */
+#enemyLeft {
+    position: fixed;
+    top: 30vh;
+    right: 55vw;
+
+    width: 50vw;
+    height: 25vh;
+    margin-top: 0%;
+    margin-bottom: 0%;
+
+
+    display: flex;
+    flex-direction: column; /* Align the content varticaly */
+    align-items: center; 
+}
+
+
+#enemyLeftHand {
+    width: 40vw;
+    height: 25vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Cards can't get out of the div */
 }
 
 
@@ -235,7 +239,7 @@ button a{
 /* ---------------------------------------------- Draw Pile --------------------------------------------------- */
 #assets {
     position: fixed;
-    top: 50vh;
+    top: 40vh;
     left: 0;
     width: 100vw;
 
@@ -253,10 +257,15 @@ button a{
 #playedPile {
     position: fixed;
     left: 45vw;
+    top: 45vh;
 }
 
 #drawPile {
     position: fixed;
-    left: 2vw;
+    left: 45vw;
 }
 
+#uno {
+    position: fixed;
+    left: 50vw;
+}

@@ -3,11 +3,15 @@ create table deck(
     deckname text
 );
 
+
 create table game(
     gameid int primary key,
     code varchar(6),
     deckid int,
     creatorid int,
+    currentPlayerIndex int,
+    playerOrder text,
+    isReversed int,
     foreign key(deckid) references deck(deckid)
 );
 

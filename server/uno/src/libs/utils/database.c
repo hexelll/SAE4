@@ -5,9 +5,9 @@ Connection ConnectionNew(char* host,char* database, char* user, char* passwd,cha
     connection.arena = ArenaCreate(1024);
     connection.con = PQconnectdb(StringToChar(StringFormatChar(&connection.arena,"user=%s password=%s host=%s port=%s dbname=%s connect_timeout=10",user,passwd,host,port,database),&connection.arena));
     if (PQstatus(connection.con) == CONNECTION_OK) 
-        connection.message = StringFrom("connection successfull </br>", &connection.arena);
+        connection.message = StringFrom("",&connection.arena);
     else {
-        connection.message = StringFormat(&connection.arena,StringFrom("Erreur : %s </br>", &connection.arena),PQerrorMessage(connection.con));
+        connection.message = StringFormat(&connection.arena,StringFrom("%s", &connection.arena),PQerrorMessage(connection.con));
     }
     return connection;
 }
@@ -22,9 +22,9 @@ QueryResult QueryResultExecNew(Connection connection , PGresult* resI){
     QueryResult newResult;
     newResult.res = resI;
     if (PQresultStatus(resI) != PGRES_COMMAND_OK){
-        newResult.message = StringFormat(&connection.arena , StringFrom("Error : %s </br>", &connection.arena), PQerrorMessage(connection.con));
+        newResult.message = StringFormat(&connection.arena , StringFrom("%s", &connection.arena), PQerrorMessage(connection.con));
     }else{
-        newResult.message = StringFrom("Insertion successfully executed </br>", &connection.arena);
+        newResult.message = StringFrom("", &connection.arena);
     }
     return newResult;
 }
@@ -32,9 +32,9 @@ QueryResult QueryResultSelectNew(Connection connection , PGresult* res){
     QueryResult newResult;
     newResult.res = res;
     if (PQresultStatus(newResult.res) != PGRES_TUPLES_OK){
-        newResult.message = StringFormat(&connection.arena , StringFrom("Error : %s </br>", &connection.arena), PQerrorMessage(connection.con));
+        newResult.message = StringFormat(&connection.arena , StringFrom("%s", &connection.arena), PQerrorMessage(connection.con));
     }else{
-        newResult.message = StringFrom("Select successfull </br>", &connection.arena);
+        newResult.message = StringFrom("", &connection.arena);
     }
     return newResult;
 }
@@ -62,20 +62,18 @@ QueryResult ConnectionInsert(Connection connection,String table, String data){
 }
 
 QueryResult ConnectionSelect(Connection connection, String SQL){
-    String sqlRequest = StringFormat(&connection.arena, StringFrom("%s", &connection.arena), SQL);
     FILE* fp = fopen("./logFile.txt", "w");
-    fprintf(fp, StringToChar(sqlRequest, &connection.arena));
+    fprintf(fp, StringToChar(SQL,&connection.arena));
     fclose(fp);
-    PGresult* resRAW = PQexec(connection.con, StringToChar(sqlRequest, &connection.arena));
+    PGresult* resRAW = PQexec(connection.con, StringToChar(SQL,&connection.arena));
     return QueryResultSelectNew(connection, resRAW);
 }
 
 QueryResult ConnectionExec(Connection connection, String SQL){
-    String sqlRequest = StringFormat(&connection.arena, StringFrom("%s",&connection.arena), SQL);
     FILE* fp = fopen("./logFile.txt", "w");
-    fprintf(fp, StringToChar(sqlRequest, &connection.arena));
+    fprintf(fp, StringToChar(SQL,&connection.arena));
     fclose(fp);
-    PGresult* resRAW = PQexec(connection.con, StringToChar(sqlRequest, &connection.arena));
+    PGresult* resRAW = PQexec(connection.con, StringToChar(SQL,&connection.arena));
     PQclear(resRAW);
     return QueryResultExecNew(connection, resRAW);
 }

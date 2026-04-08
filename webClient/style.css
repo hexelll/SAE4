@@ -132,11 +132,6 @@ button a{
 }
 
 
-.enemyCard:not(:first-child) {
-    margin-left: -50px;
-}
-
-
 
 /* ----------------------------------------------- Enenmy's top --------------------------------------------------- */
 #enemyTop {
@@ -163,7 +158,7 @@ button a{
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden; /* Cards can't get out of the div */
+    flex-wrap: nowrap;
 }
 
 
@@ -174,7 +169,7 @@ button a{
 #enemyRight {
     position: fixed;
     top: 30vh;
-    right: -10vw;
+    right: -5vw;
 
     width: 50vw;
     height: 25vh;
@@ -195,7 +190,7 @@ button a{
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden; /* Cards can't get out of the div */
+    flex-wrap: nowrap;
 }
 
 
@@ -225,7 +220,7 @@ button a{
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden; /* Cards can't get out of the div */
+    flex-wrap: nowrap;
 }
 
 

@@ -114,7 +114,7 @@
             ];
             // Get the number of cards and print it
             var nbCardsMe =  cards.length
-            $("#nbCardsMe").html("Number of cards : " + cards.length);
+           
 
 
             // Create the root w/ the DOM
@@ -145,6 +145,11 @@
             
 
         /* --------------------------------------------- ENEMIES -------------------------------------------------*/
+            /* Width calculations and value for the overlap of all the enemies */
+            const cardWidthVw = 9; /* Card width set in vw in css */
+            //const cardWidthPx = Math.min(window.innerWidth * 0.09, 120); 
+            //const cardWidthVw = (cardWidthPx / window.innerWidth) * 100;
+
             /* ---------------------------------- Enemy's top hand -----------------------------------*/
             // Get the number of cards and display it
             var nbCardsEnemyTop = 12; // Gotten form server request
@@ -158,21 +163,21 @@
             function makeTopEnemysCards() {
                 var enemyTopCards = [];
 
-                const containerWidthTop = document.getElementById("enemyTopHand").offsetWidth; /* Get the width of the div of the hand */
-                const cardWidth = Math.min(window.innerWidth * 0.09, 120); 
+                /* Create the overlap dynamicaly */
+                const containerWidthTopVw = 40; /* Container width set in vw in css */
                 const totalCardsTop = nbCardsEnemyTop;
-                
 
-                let overlapEnemyTop;
+                let overlapEnemyTopVw;
                 if (totalCardsTop > 1) {
-                    // cardwidth*n-overlap*n = containerwidth
-                    const step = (containerWidthTop - cardWidth) / (totalCardsTop - 1);
+                    const stepVw = (containerWidthTopVw - cardWidthVw) / (totalCardsTop - 1);
                     
-                    overlapEnemyTop = step - cardWidth;
+                    overlapEnemyTopVw = stepVw - cardWidthVw;
                 } else {
-                    overlapEnemyTop = 0; /* Usual overlap */
+                    overlapEnemyTopVw = 0; /* Usual overlap */
                 }
 
+                // Ensure minimum overlap of -5vw for better display
+                overlapEnemyTopVw = Math.min(overlapEnemyTopVw, -5);
 
                 /* Display cards */
                 for (let i = 0; i < nbCardsEnemyTop; i ++) {
@@ -181,7 +186,7 @@
                             key: i,
                             className: "enemyCard",
                             style: {
-                                marginLeft: i === 0 ? "0px" : overlapEnemyTop + "px",
+                                marginLeft: i === 0 ? "0vw" : overlapEnemyTopVw + "vw",
                                 zIndex: i
                             }
                         }, i === totalCardsTop - 1 ? totalCardsTop : "")
@@ -196,7 +201,7 @@
 
             /* ---------------------------------- Right enemy's hand -----------------------------------*/
             // Get the number of cards and display it
-            var nbCardsEnemyRight = 7; // Gotten form server request
+            var nbCardsEnemyRight = 4; // Gotten form server request
 
             // Create the root w/ the DOM
             const enemyRightRoot = ReactDOM.createRoot(document.getElementById("enemyRightHand"));
@@ -207,17 +212,19 @@
             function makeRightEnemysCards() {
                 var enemyRightCards = [];
 
-                const containerWidthRight = document.getElementById("enemyRightHand").offsetWidth; /* Get the width of the div of the hand */
-                const cardWidth = Math.min(window.innerWidth * 0.09, 120); 
+                const containerWidthRightVw = 40; /* Container width in vw */
                 const totalCardsRight = nbCardsEnemyRight;
                 
-                let overlapEnemyRight;
+                let overlapEnemyRightVw;
                 if (totalCardsRight > 1) {
-                    const step = (containerWidthRight - cardWidth) / (totalCardsRight - 1);                    
-                    overlapEnemyRight = step - cardWidth;
+                    const stepVw = (containerWidthRightVw - cardWidthVw) / (totalCardsRight - 1);                    
+                    overlapEnemyRightVw = stepVw - cardWidthVw;
                 } else {
-                    overlapEnemyRight = 0; /* Usual overlap */
+                    overlapEnemyRightVw = 0; /* Usual overlap */
                 }
+
+                // Ensure minimum overlap of -5vw for better display
+                overlapEnemyRightVw = Math.min(overlapEnemyRightVw, -5);
 
 
                 /* Display cards */
@@ -227,7 +234,7 @@
                             key: i,
                             className: "enemyCard",
                             style: {
-                                marginLeft: i === 0 ? "0px" : overlapEnemyRight + "px",
+                                marginLeft: i === 0 ? "0vw" : overlapEnemyRightVw + "vw",
                                 zIndex: i
                             }
                         }, i === totalCardsRight - 1 ? totalCardsRight : "")
@@ -314,18 +321,19 @@
                 var enemyLeftCards = [];
                 // let overlapEnemyTop = 0; /* To define the overlap of the cards */
 
-                const containerWidthLeft = document.getElementById("enemyLeftHand").offsetWidth; /* Get the width of the div of the hand */
-                const cardWidth = Math.min(window.innerWidth * 0.09, 120); 
+                const containerWidthLeftVw = 40; /* Container width in vw */
                 const totalCardsLeft = nbCardsEnemyLeft;
                 
-                let overlapEnemyLeft;
+                let overlapEnemyLeftVw;
                 if (totalCardsLeft > 1) {
-                    const step = (containerWidthLeft - cardWidth) / (totalCardsLeft - 1);                    
-                    overlapEnemyLeft = step - cardWidth;
+                    const stepVw = (containerWidthLeftVw - cardWidthVw) / (totalCardsLeft - 1);                    
+                    overlapEnemyLeftVw = stepVw - cardWidthVw;
                 } else {
-                    overlapEnemyLeft = 0; /* Usual overlap */
+                    overlapEnemyLeftVw = 0; /* Usual overlap */
                 }
 
+                // Ensure minimum overlap of -5vw for better display
+                overlapEnemyLeftVw = Math.min(overlapEnemyLeftVw, -5);
 
                 /* Display cards */
                 for (let i = 0; i < nbCardsEnemyLeft; i ++) {
@@ -334,7 +342,7 @@
                             key: i,
                             className: "enemyCard",
                             style: {
-                                marginLeft: i === 0 ? "0px" : overlapEnemyLeft + "px",
+                                marginLeft: i === 0 ? "0vw" : overlapEnemyLeftVw + "vw",
                                 zIndex: i
                             }
                         }, i === totalCardsLeft - 1 ? totalCardsLeft : "")

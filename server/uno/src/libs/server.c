@@ -24,7 +24,8 @@ void ServerInitDefault() {
     Hashmap* jsonDefaultHeaders = (Hashmap*)JsonParse(StringFrom(
 "{\
     \"Content-Type\":\"text/html\",\
-    \"Connection\":\"Closed\"\
+    \"Connection\":\"Closed\",\
+    \"Access-Control-Allow-Origin\":\"*\"\
 }"
         ,&globalArena),&globalArena)->ptr;
     defaultHeaders = ArenaAlloc(&globalArena,sizeof(Hashmap));

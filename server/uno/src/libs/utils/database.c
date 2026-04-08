@@ -1,9 +1,9 @@
 #include "database.h"
 
-Connection getConnection(String database, String user, String passwd){
+Connection ConnectionNew(char* host,char* database, char* user, char* passwd,char* port){
     Connection connection;
     connection.arena = ArenaCreate(1024);
-    connection.con = PQconnectdb("user=root password=pass4root host=db port=5432 dbname=testdb connect_timeout=10");
+    connection.con = PQconnectdb(StringToChar(StringFormatChar(&connection.arena,"user=%s password=%s host=%s port=%s dbname=%s connect_timeout=10",user,passwd,host,port,database),&connection.arena));
     if (PQstatus(connection.con) == CONNECTION_OK) 
         connection.message = StringFrom("connection successfull </br>", &connection.arena);
     else {
@@ -18,7 +18,7 @@ void ConnectionClose(Connection connection){
 }
 
 
-QueryResult newQueryResultInsert(Connection connection , PGresult* resI){
+QueryResult QueryResultExecNew(Connection connection , PGresult* resI){
     QueryResult newResult;
     newResult.res = resI;
     if (PQresultStatus(resI) != PGRES_COMMAND_OK){
@@ -28,7 +28,7 @@ QueryResult newQueryResultInsert(Connection connection , PGresult* resI){
     }
     return newResult;
 }
-QueryResult newQueryResultSelect(Connection connection , PGresult* res){
+QueryResult QueryResultSelectNew(Connection connection , PGresult* res){
     QueryResult newResult;
     newResult.res = res;
     if (PQresultStatus(newResult.res) != PGRES_TUPLES_OK){
@@ -46,42 +46,42 @@ QueryResult ConnectionGetAll(Connection connection, String table){
     fprintf(fp, StringToChar(sqlRequest, &connection.arena));
     fclose(fp);
     PGresult* res = PQexec(connection.con , StringToChar(sqlRequest, &connection.arena));
-    return newQueryResultSelect(connection, res);
+    return QueryResultSelectNew(connection, res);
 }
 
 
 //Insert a User in the database, you only need to specify the username.
-QueryResult ConnectionInsertQuery(Connection connection,String table, String data){
+QueryResult ConnectionInsert(Connection connection,String table, String data){
     String sqlRequest = StringFormat(&connection.arena, StringFrom("Insert into %S values(\'%S\')", &connection.arena), table, data);
     FILE* fp = fopen("./logFile.txt", "w");
     fprintf(fp, StringToChar(sqlRequest, &connection.arena));
     fclose(fp);
     PGresult* res2 = PQexec(connection.con , StringToChar(sqlRequest, &connection.arena));
     PQclear(res2);
-    return newQueryResultInsert(connection, res2);
+    return QueryResultExecNew(connection, res2);
 }
 
-QueryResult ConnectionRawQuerySelect(Connection connection, String SQL){
+QueryResult ConnectionSelect(Connection connection, String SQL){
     String sqlRequest = StringFormat(&connection.arena, StringFrom("%s", &connection.arena), SQL);
     FILE* fp = fopen("./logFile.txt", "w");
     fprintf(fp, StringToChar(sqlRequest, &connection.arena));
     fclose(fp);
     PGresult* resRAW = PQexec(connection.con, StringToChar(sqlRequest, &connection.arena));
-    return newQueryResultSelect(connection, resRAW);
+    return QueryResultSelectNew(connection, resRAW);
 }
 
-QueryResult ConnectionRawQueryInsert(Connection connection, String SQL){
+QueryResult ConnectionExec(Connection connection, String SQL){
     String sqlRequest = StringFormat(&connection.arena, StringFrom("%s",&connection.arena), SQL);
     FILE* fp = fopen("./logFile.txt", "w");
     fprintf(fp, StringToChar(sqlRequest, &connection.arena));
     fclose(fp);
     PGresult* resRAW = PQexec(connection.con, StringToChar(sqlRequest, &connection.arena));
     PQclear(resRAW);
-    return newQueryResultInsert(connection, resRAW);
+    return QueryResultExecNew(connection, resRAW);
 }
 
 //Retrive the information provided by the SELECT query provided.
-String QueryResultRetrieveinfo(QueryResult query, struct Arena* arena){
+String QueryResultToString(QueryResult query, struct Arena* arena){
     String textRet = StringFrom("", arena);
     int rows = PQntuples(query.res);
     int cols = PQnfields(query.res);
@@ -102,7 +102,7 @@ String QueryResultRetrieveinfo(QueryResult query, struct Arena* arena){
     return textRet;
 };
 
-Hashmap QueryResultRetrieveinfoHash(QueryResult query, struct Arena* arena){
+Hashmap QueryResultToMap(QueryResult query, struct Arena* arena){
     Hashmap map = HashmapNew(sizeof(Hashmap), arena);
     int rows = PQntuples(query.res);
     int cols = PQnfields(query.res);
@@ -123,10 +123,3 @@ Hashmap QueryResultRetrieveinfoHash(QueryResult query, struct Arena* arena){
     }
     return map;
 }
-
-
-
-
-
-
-

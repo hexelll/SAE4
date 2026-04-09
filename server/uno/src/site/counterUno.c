@@ -8,14 +8,18 @@ List getCardsForPlayer(String playerid,struct Arena* arena, Connection theconnec
     return QueryResultToList(resnb,arena);
 }
 
+List getAllPlayersByGameId(int gameId , struct Arena* arena, Connection theconnection){
+    QueryResult resAllPlayers = ConnectionSelect(theconnection, StringFormatChar(arena, "select * from player where joinedgameid = %d", gameId));
+    return QueryResultToList(resAllPlayers, arena);
+}
+
 int getPlayerGameId(String playerid, struct Arena* arena, Connection theconnection){
-    QueryResult resPlayers = ConnectionSelect(theconnection, StringFormatChar(arena, "select joinedgameid from player where playerid =%S", playerid));
+    QueryResult resPlayers = ConnectionSelect(theconnection, StringFormatChar(arena, "select * from player where playerid =%S", playerid));
     List tuples = QueryResultToList(resPlayers,arena);
     Hashmap* user = ListGetVal(&tuples,0)->ptr;
     String* gameId = HashmapGet(user,"joinedgameid");
     int gameIdNumber = -1;
-    StringToInt(*gameId , &gameIdNumber);
-    return gameIdNumber;
+    return StringToInt(*gameId , &gameIdNumber);
 }
 
 String makeResponse(struct Arena* arena,Hashmap map) {
@@ -26,7 +30,6 @@ String makeResponse(struct Arena* arena,Hashmap map) {
     int userIdnb = 0;
     err = userId ? err : StringConcat(err,StringFrom("missing userId in request ",arena),arena);
     userIdnb = userId ? StringToInt(*userId, &userIdnb) : -1;
-
     String* userPwd = HashmapGet(&map,"userPwd");
     err = userPwd ? err : StringConcat(err,StringFrom("missing userPwd in request ",arena),arena);
 
@@ -45,17 +48,19 @@ String makeResponse(struct Arena* arena,Hashmap map) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"no user with this id and password\"}");
     }
 
-    List nbCards = getCardsForPlayer(*userId, arena, con);
-    if(!(nbCards.size > 0)){
-        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"couldn't retrieve number of card in the player's current hand\"}");
+    List players = getAllPlayersByGameId(gameId, arena, con);
+    for (int i=0; i < players.size; i++){
+            Hashmap* user = ListGetVal(&players,i)->ptr;
+            String* playerId = HashmapGet(user,"playerid");
+            List cards = getCardsForPlayer(*playerId, arena, con);
+            if (cards.size == 1){
+                return StringFormatChar(arena,"{\"ok\":true}");
+            }
     }
 
-    if(nbCards.size > 1){
-        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"player does not have 1 card left in hand\"}");
-    }
 
     ConnectionClose(con);
-    return StringFormatChar(arena,"{\"ok\":true}");
+    return StringFormatChar(arena,"{\"ok\":false,\"error\":\"no players with 1 card left\"}");
 }
 
 int main(int argc,char** argv) {

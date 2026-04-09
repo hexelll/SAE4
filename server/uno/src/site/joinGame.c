@@ -25,10 +25,13 @@ int main(int argc,char** argv) {
         response = StringFormatChar(arena,"{\"ok\":false,\"error\":\"%S\"}",err);
     }else {
         QueryResult res = ConnectionSelect(con,StringFormatChar(arena,"select * from game where code = '%S'",*gameCode));
-        if (PQntuples(res.res) > 0 && res.message.size == 0) {
+        if (res.count > 0 && res.message.size == 0) {
+            List tuples = QueryResultToList(res,arena);
+            String* gameId = (String*)HashmapGet(ListGetVal(&tuples,0)->ptr,"gameid");
             res = ConnectionSelect(con,StringFormatChar(arena,"select * from player where playerid = %S and userpwd = '%S'",*userId,*userPwd));
-            if (PQntuples(res.res) > 0 && res.message.size == 0) {
+            if (res.count > 0 && res.message.size == 0) {
                 response = StringFormatChar(arena,"{\"ok\":true}");
+                res = ConnectionExec(con,StringFormatChar(arena,"update player set joinedgameid = %S where playerid = %S",*gameId,*userId));
             }else {
                 response = StringFormatChar(arena,"{\"ok\":false,\"error\":\"no user with this id and password\"}");
             }

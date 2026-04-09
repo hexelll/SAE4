@@ -1,4 +1,5 @@
 #include "database.h"
+#include "list.c"
 
 Connection ConnectionNew(char* host,char* database, char* user, char* passwd,char* port){
     Connection connection;
@@ -34,6 +35,7 @@ QueryResult QueryResultSelectNew(Connection connection , PGresult* res){
     if (PQresultStatus(newResult.res) != PGRES_TUPLES_OK){
         newResult.message = StringFormat(&connection.arena , StringFrom("%s", &connection.arena), PQerrorMessage(connection.con));
     }else{
+        newResult.count = PQntuples(res);
         newResult.message = StringFrom("", &connection.arena);
     }
     return newResult;
@@ -100,8 +102,8 @@ String QueryResultToString(QueryResult query, struct Arena* arena){
     return textRet;
 };
 
-Hashmap QueryResultToMap(QueryResult query, struct Arena* arena){
-    Hashmap map = HashmapNew(sizeof(Hashmap), arena);
+List QueryResultToList(QueryResult query, struct Arena* arena){
+    List list = ListNew(arena);
     int rows = PQntuples(query.res);
     int cols = PQnfields(query.res);
     FILE* fp = fopen("./logFile.txt", "w");
@@ -110,14 +112,15 @@ Hashmap QueryResultToMap(QueryResult query, struct Arena* arena){
     fprintf(fp, StringToChar( StringFromInt(cols, arena), arena));
     fclose(fp);
     for(int i=0;i<rows;i++){
-        Hashmap mapString = HashmapNew(sizeof(String), arena);
+        Hashmap* map = ArenaAlloc(arena,sizeof(Hashmap));
+        *map = HashmapNew(sizeof(String), arena);
         for(int j=0;j<cols;j++){
             String resText = StringFormat(arena, StringFrom("%s", arena),PQfname(query.res, j));
-            String s = StringFrom((char*)PQgetvalue(query.res, i, j),arena);
-            HashmapSet(&mapString, StringToChar(resText, arena),&s);
+            String* s = ArenaAlloc(arena,sizeof(String));
+            *s = StringFrom((char*)PQgetvalue(query.res, i, j),arena);
+            HashmapSet(map, StringToChar(resText, arena),s);
         }
-        String letext = StringFormat(arena, StringFrom("line %d", arena),i);
-        HashmapSet(&map, StringToChar(letext, arena), &mapString);
+        ListAppendVal(&list,(ListValue){.ptr=map});
     }
-    return map;
+    return list;
 }

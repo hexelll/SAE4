@@ -15,6 +15,7 @@ typedef struct{
 typedef struct{
     PGresult* res;
     String message;
+    int count;
 }QueryResult;
 
 //Retreive the connection to the database, if the connection is existing already return this connection.

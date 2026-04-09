@@ -4,27 +4,37 @@
 
 int main(int argc,char** argv) {   
     ServerInitDefault();
-    struct Arena* sarena = ArenaCreate(1024);
-    
-    Connexion con = ConnectionNew("unodb","uno","root","pass4root","5432");
-    Hashmap map = ServerParseRequest(argv,&sarena);
-    String* error = StringFrom("",&sarena); 
-    String* userID = HashmapGet(&map "userId");
-    error = userID ? error : StringConcat(error, StringFrom("error in the user ID recovery\n",&sarena));
-    String* passU = HashmapGet(&map,"userPwd");
-    error = passU ? error : StringConcat(error, StringFrom("error in the user password recovery",&sarena));
-    QueryResut gamecode = ConnectionSelect(con "Select gameid from game join player on creatorid = createdgameid");
-    // ^ a modifier
-    error = gamecode ? error : StringConcat(error, StringFrom("error in the game id recovery",&sarena));
+    struct Arena sarena = ArenaCreate(1024);
 
-    if (gamecode || userID || passU){
-        
+    struct Arena* arena = &sarena;
+
+    String response;
+
+    Connection con = ConnectionNew("unodb","uno","root","pass4root","5432");
+    
+    Hashmap map = ServerParseRequest(argv,arena);
+    String err = StringFrom("",arena);
+    String* userId = HashmapGet(&map,"userId");
+    err = userId ? err : StringConcat(err,StringFrom("missing userId in request ",arena),arena);
+    String* userPwd = HashmapGet(&map,"userPwd");
+    err = userPwd ? err : StringConcat(err,StringFrom("missing userPwd in request ",arena),arena);
+
+    if(!userId || !userPwd) {
+        response = StringFormatChar(arena,"{\"ok\":false,\"error\":\"%S\"}",err);
+    }else {
+        QueryResult res = ConnectionSelect(con,StringFormatChar(arena,"select * from player where playerid = %S",*userId));
+        List tuples = QueryResultToList(res,arena);
+        Hashmap user = ListGetVal(&tuples,0)->ptr;
+        String* gameId = HashmapGet(user,"gameid");
+        if (PQntuples(res.res) > 0 && res.message.size == 0) {
+            
+        }else {
+            response = StringFormatChar(arena,"{\"ok\":false,\"error\":\"no game with this code\"}");
+        }
     }
 
-
-
-    ServerRespond(200,StringFrom("{\"Content-Type\":\"text/html\"}",&sarena),text,&sarena);
-    ConnectionClose(con.con);
-    ArenaDelete(&sarena);
+    ServerRespond(200,StringFrom("{\"Content-Type\":\"application/json\"}",arena),response,arena);
+    ConnectionClose(con);
+    ArenaDelete(arena);
 
 }

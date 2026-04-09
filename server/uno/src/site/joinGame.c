@@ -24,10 +24,10 @@ int main(int argc,char** argv) {
     if(!userId || !userPwd || !gameCode) {
         response = StringFormatChar(arena,"{\"ok\":false,\"error\":\"%S\"}",err);
     }else {
-        QueryResult res = ConnectionSelect(con,StringFormatChar(arena,"select * from game where code like \"%S\"",*gameCode));
-        if (res.message.size == 0) {
-            res = ConnectionSelect(con,StringFormatChar(arena,"select * from user where userId like \"%S\" and userPwd like \"%S\"",*userId,*userPwd));
-            if (res.message.size == 0) {
+        QueryResult res = ConnectionSelect(con,StringFormatChar(arena,"select * from game where code = '%S'",*gameCode));
+        if (PQntuples(res.res) > 0 && res.message.size == 0) {
+            res = ConnectionSelect(con,StringFormatChar(arena,"select * from player where playerid = %S and userpwd = '%S'",*userId,*userPwd));
+            if (PQntuples(res.res) > 0 && res.message.size == 0) {
                 response = StringFormatChar(arena,"{\"ok\":true}");
             }else {
                 response = StringFormatChar(arena,"{\"ok\":false,\"error\":\"no user with this id and password\"}");

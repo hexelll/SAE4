@@ -1,5 +1,4 @@
 /* ----------------------------------------------- General --------------------------------------------------- */
-
 body{
     box-sizing: border-box;
     font-family: 'Arial', sans-serif;
@@ -12,13 +11,11 @@ p{
     margin-bottom: 0%;
 }
 
-
 .center{
     display: flex;
     flex-direction: center;
     align-items: center;
 }
-
 
 button a{
     color: white;
@@ -27,11 +24,10 @@ button a{
 
 
 /* ----------------------------------------------- Me --------------------------------------------------- */
-
 /* size allowed to the actual player info (name, nb of cards, cards)*/
 #me {
     position: fixed;
-    bottom: 3vh; /* So that it's not to close tp the bottom */
+    bottom: 1vh; /* So that it's not to close tp the bottom */
     left: 0;
     width: 100vw;
     height: 30vh;
@@ -55,8 +51,8 @@ button a{
 
 /* White line around card */
 .cardInnerWhite {
-    height: 18vh;
-    max-height: 180px;
+    height: 24vh;
+    max-height: 200px;
     aspect-ratio: 2 / 3;
 
     background-color: white;
@@ -97,7 +93,7 @@ button a{
 /* When you pass on a card it put itseft before all the other and show up so you can see it better before playing it */
 .cardInnerWhite:hover {
     transform: translateY(-20px);
-    z-index: 10;
+    z-index: 100;
     transition: 0.2s;
 }
 
@@ -109,8 +105,8 @@ button a{
 .enemyCard {
     /*height: 16vh;
     max-height: 180px;*/
-    width: 9vw;
-    max-width: 120px;
+    width: 7vw;
+    max-width: 100px;
     aspect-ratio: 2 / 3;
     flex-shrink: 0;
 
@@ -137,7 +133,6 @@ button a{
 #enemyTop {
     position: fixed;
     top: 5vh;
-    left: 0;
     width: 100vw;
 
     height: 25vh;
@@ -231,7 +226,7 @@ button a{
 
 
 
-/* ---------------------------------------------- Draw Pile --------------------------------------------------- */
+/* ---------------------------------------------- Assets Pile --------------------------------------------------- */
 #assets {
     position: fixed;
     top: 40vh;
@@ -249,18 +244,46 @@ button a{
 }
 
 
+
 #playedPile {
     position: fixed;
     left: 45vw;
     top: 45vh;
+    height: 20vh;
 }
 
 #drawPile {
     position: fixed;
-    left: 45vw;
+    left: 2vw;
+    top: 4vh;
+    background-color: #ffffff00;
+    border:none;
+    width:26vw;
+    height:26vh;
+}
+
+#drawPile:hover {
+    width:40vw;
+    height:20vh;
 }
 
 #uno {
+    /* Position */ 
     position: fixed;
-    left: 50vw;
+    right: 7vw;
+    bottom: 10vh;
+
+    /* Style*/
+    background-color: #de1414;
+    border: 2px solid #000000;
+    color: white;
+    width: 10vw;
+    height: 7vh;
+    border-radius: 50%;
+
+    text-align: center;
+    display: inline-block;
+    font-size: 2vh;
+
+    cursor: pointer;
 }

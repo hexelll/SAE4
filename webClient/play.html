@@ -7,13 +7,13 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="./style.css" type="text/css" rel="stylesheet"/>
+
     </head>
     
     
     <body>
         <!---------------------------------------------- HTML -------------------------------------------------->
-        <h1>Welcome to the play</h1>
-        <p>You are actually playing</p>
+        <h1>Playing UNO</h1>
         <p id="theConnexion"></p>
 
 
@@ -25,23 +25,21 @@
                 <p id="nbCardsMe"></p>
             </div>
             
-            <div id="myHand">
-            </div>
-        </div>
-
-
-        <!--------- Assets ---------->
-        <div id="assets">
-            <div id="playedPile"></div>
-            <button id="drawPile"> Pioche </button>
+            <div id="myHand"></div>
             <button id="uno" hidden>UNO!</button>
         </div>
+
+
+        <!--------- Assets ---------->            
+        <div id="playedPile"></div>
         
 
 
 
         <!----------- Enemy ------------>
         <div id="enemyTop">
+            <button id="drawPile"> <img style="width:100%;height:100%" src="./Assets/drawPile.png"> </button>
+
             <!-- So that the info of a player are on a line and not on columns -->
             <div>
                 <p>Player 1 : Luc </p>
@@ -49,6 +47,7 @@
 
             <div id="enemyTopHand"></div>
         </div>
+
 
         <div id="enemyLeft">
             <!-- So that the info of a player are on a line and not on columns -->
@@ -60,6 +59,7 @@
             <div id="enemyLeftHand">
             </div>
         </div>
+
 
         <div id="enemyRight">
             <!-- So that the info of a player are on a line and not on columns -->
@@ -85,367 +85,10 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"> </script>
         <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"> </script>
 
-
-        
-
-
-        <!--------------------------------------------- SCRIPT REACT ------------------------------------------------>
-        <script>  
-
-            /* Get the connexion to the server */
-            function getConnexion() {
-                $.ajax({
-                    type: 'GET',
-                    url: 'http://10.8.25.138:42069/index.html', 
-                    success: function(reponse) { console.log(reponse) },
-                    error: function() { alert("it's not working ")}
-                })
-            }
-
-    
-
-        /* ------------------------------------------- ACTUAL PLAYER -------------------------------------------------*/
-            // Creating obj json ti create fake card wating for the server   
-            var cards = [
-                { value: 1, color: "red" },
-                { value: 5, color: "blue" },
-                { value: 9, color: "green" },
-                { value: "+ 4", color: "black" },
-            ];
-            // Get the number of cards and print it
-            var nbCardsMe =  cards.length
-           
-
-
-            // Create the root w/ the DOM
-            const myRoot = ReactDOM.createRoot(document.getElementById("myHand"));
-
-            // Create the cards (print)
-            function makeCards() {
-                var myCards = cards.map((card, index) =>
-                    React.createElement("div", {
-                        key: index,
-                        className: "cardInnerWhite",
-                        onClick: () => play(card, index)
-                    },
-                        React.createElement("div", {
-                            className: "cardInnerColor",
-                            style: {
-                                backgroundColor: card.color,
-                                Index: index
-                            }
-                        }, card.value)
-                    )    
-                );
-                myRoot.render(myCards);
-                console.log(myCards);
-            }
-
-            
-            
-
-        /* --------------------------------------------- ENEMIES -------------------------------------------------*/
-            /* Width calculations and value for the overlap of all the enemies */
-            const cardWidthVw = 9; /* Card width set in vw in css */
-            //const cardWidthPx = Math.min(window.innerWidth * 0.09, 120); 
-            //const cardWidthVw = (cardWidthPx / window.innerWidth) * 100;
-
-            /* ---------------------------------- Enemy's top hand -----------------------------------*/
-            // Get the number of cards and display it
-            var nbCardsEnemyTop = 12; // Gotten form server request
-
-            // Create the root w/ the DOM
-            const enemyTopRoot = ReactDOM.createRoot(document.getElementById("enemyTopHand"));
-
-
-            // Create the cards (display) 
-            // Different than for the actual player : because we don't know the cards the enemy has, only how many
-            function makeTopEnemysCards() {
-                var enemyTopCards = [];
-
-                /* Create the overlap dynamicaly */
-                const containerWidthTopVw = 40; /* Container width set in vw in css */
-                const totalCardsTop = nbCardsEnemyTop;
-
-                let overlapEnemyTopVw;
-                if (totalCardsTop > 1) {
-                    const stepVw = (containerWidthTopVw - cardWidthVw) / (totalCardsTop - 1);
-                    
-                    overlapEnemyTopVw = stepVw - cardWidthVw;
-                } else {
-                    overlapEnemyTopVw = 0; /* Usual overlap */
-                }
-
-                // Ensure minimum overlap of -5vw for better display
-                overlapEnemyTopVw = Math.min(overlapEnemyTopVw, -5);
-
-                /* Display cards */
-                for (let i = 0; i < nbCardsEnemyTop; i ++) {
-                    enemyTopCards.push(
-                        React.createElement("div", {
-                            key: i,
-                            className: "enemyCard",
-                            style: {
-                                marginLeft: i === 0 ? "0vw" : overlapEnemyTopVw + "vw",
-                                zIndex: i
-                            }
-                        }, i === totalCardsTop - 1 ? totalCardsTop : "")
-                    )
-                }
-                    
-                enemyTopRoot.render(enemyTopCards);
-            }
-
-
-
-
-            /* ---------------------------------- Right enemy's hand -----------------------------------*/
-            // Get the number of cards and display it
-            var nbCardsEnemyRight = 4; // Gotten form server request
-
-            // Create the root w/ the DOM
-            const enemyRightRoot = ReactDOM.createRoot(document.getElementById("enemyRightHand"));
-
-
-            // Create the cards (display) 
-            // Different than for the actual player : because we don't know the cards the enemy has, only how many
-            function makeRightEnemysCards() {
-                var enemyRightCards = [];
-
-                const containerWidthRightVw = 40; /* Container width in vw */
-                const totalCardsRight = nbCardsEnemyRight;
-                
-                let overlapEnemyRightVw;
-                if (totalCardsRight > 1) {
-                    const stepVw = (containerWidthRightVw - cardWidthVw) / (totalCardsRight - 1);                    
-                    overlapEnemyRightVw = stepVw - cardWidthVw;
-                } else {
-                    overlapEnemyRightVw = 0; /* Usual overlap */
-                }
-
-                // Ensure minimum overlap of -5vw for better display
-                overlapEnemyRightVw = Math.min(overlapEnemyRightVw, -5);
-
-
-                /* Display cards */
-                for (let i = 0; i < nbCardsEnemyRight; i ++) {
-                    enemyRightCards.push(
-                        React.createElement("div", {
-                            key: i,
-                            className: "enemyCard",
-                            style: {
-                                marginLeft: i === 0 ? "0vw" : overlapEnemyRightVw + "vw",
-                                zIndex: i
-                            }
-                        }, i === totalCardsRight - 1 ? totalCardsRight : "")
-                    )
-                }
-                    
-                enemyRightRoot.render(enemyRightCards);
-            }
-
-            /*
-            // Get the number of cards and print it
-            var nbCardsEnemyRight = 3; // Gotten form server request
-
-            // Create the root w/ the DOM
-            const enemyRightRoot = ReactDOM.createRoot(document.getElementById("enemyRightHand"));
-
-
-            // Create the cards (display) 
-            // Different than for the actual player : because we don't know the cards the enemy has, only how many
-            function makeRightEnemysCards() {
-                var enemyRightCards = [];
-                let overlapEnemyRight = 0; /* To define the overlap of the cards 
-
-                const containerWidthRight = document.getElementById("enemyRightHand").offsetWidth; /* Get the width of the div of the hand 
-
-                const cardWidth = 100; 
-                const totalCardsLeft = nbCardsEnemyLeft;
-                const totalWidthLeft = totalCardsLeft * cardWidth; /* Full space needed without the overlap
-
-                if (totalWidthLeft > containerWidthLeft) {
-                    overlapEnemyLeft = (containerWidthLeft - cardWidth) / (totalCardsLeft - 1) - cardWidth;
-                } else {
-                    overlapEnemyLeft = -50; /* Usual overlap 
-                }
-
-
-                /* Display cards 
-                for (let i = 0; i < nbCardsEnemyLeft-1; i ++) {
-                    enemyLeftCards.push(
-                        React.createElement("div", {
-                            key: i,
-                            className: "enemyCard",
-                            style: {
-                                marginLeft: i === 0 ? "0px" : overlapEnemyLeft + "px",
-                                zIndex: i
-                            }
-                        })
-                    )
-                }
-                    
-                /* Display the last card with how much card the player has (cause it's easier to understand) 
-                enemyLeftCards.push(
-                    React.createElement("div", {
-                        key: (nbCardsEnemyLeft-1),
-                        className: "enemyCard",
-                        style: {
-                            marginLeft: (nbCardsEnemyLeft-1) === 0 ? "0px" : overlapEnemyLeft + "px",
-                            zIndex: (nbCardsEnemyLeft-1)
-                        }
-                    }, nbCardsEnemyLeft)
-                )     
-                    
-                enemyLeftRoot.render(enemyLeftCards);
-            }
-
-            */
-
-
-
-
-
-
-            /* ---------------------------------- Left enemy's hand -----------------------------------*/
-             // Get the number of cards and display it
-            var nbCardsEnemyLeft = 10; // Gotten form server request
-
-            // Create the root w/ the DOM
-            const enemyLeftRoot = ReactDOM.createRoot(document.getElementById("enemyLeftHand"));
-
-
-            // Create the cards (display) 
-            // Different than for the actual player : because we don't know the cards the enemy has, only how many
-            function makeLeftEnemysCards() {
-                var enemyLeftCards = [];
-                // let overlapEnemyTop = 0; /* To define the overlap of the cards */
-
-                const containerWidthLeftVw = 40; /* Container width in vw */
-                const totalCardsLeft = nbCardsEnemyLeft;
-                
-                let overlapEnemyLeftVw;
-                if (totalCardsLeft > 1) {
-                    const stepVw = (containerWidthLeftVw - cardWidthVw) / (totalCardsLeft - 1);                    
-                    overlapEnemyLeftVw = stepVw - cardWidthVw;
-                } else {
-                    overlapEnemyLeftVw = 0; /* Usual overlap */
-                }
-
-                // Ensure minimum overlap of -5vw for better display
-                overlapEnemyLeftVw = Math.min(overlapEnemyLeftVw, -5);
-
-                /* Display cards */
-                for (let i = 0; i < nbCardsEnemyLeft; i ++) {
-                    enemyLeftCards.push(
-                        React.createElement("div", {
-                            key: i,
-                            className: "enemyCard",
-                            style: {
-                                marginLeft: i === 0 ? "0vw" : overlapEnemyLeftVw + "vw",
-                                zIndex: i
-                            }
-                        }, i === totalCardsLeft - 1 ? totalCardsLeft : "")
-                    )
-                }
-               
-                enemyLeftRoot.render(enemyLeftCards);
-            }
-            
-            
-            /*
-            // Get the number of cards and display it
-            var nbCardsEnemyRight = 7; // Gotten form server request
-            $("#nbCardsEnenyRight").html("Number of cards : " + nbCardsEnemyRight);
-
-
-            // Create the root w/ the DOM
-            const enemyRightRoot = ReactDOM.createRoot(document.getElementById("enemyRightHand"));
-
-            // Create the cards (print) 
-            // Different than for the actual player : because we don't know the cards the enemy has, only how many
-            function makeRightEnemysCards() {
-                var enemyRightCards = [];
-                for (let j = 0; j < nbCardsEnemyRight; j ++) {
-                    enemyRightCards.push(
-                        React.createElement("div", {
-                            key: j,
-                            className: "enemyCard",
-                            style: {
-                                marginLeft: j === 0 ? "0px" : "-50px",
-                                zIndex: j
-                            }
-                        }) 
-                    )
-                }
-                    
-                enemyRightRoot.render(enemyRightCards);
-            }
-
-            */
-
-
-
-
-        /* --------------------------------------------- ACTIONS -------------------------------------------------*/ 
-            /* Create new tab from tab cards w/ function filter, the value inside the new tab are the one not played */
-            function play(card, indexToRemove) {
-                /* Create new tab from tab cards w/ function filter, the value inside the new tab are the one not played */
-                cards = cards.filter((card, index) => index !== indexToRemove); 
-
-                $("#playedPile").html("Played : " + card.value + " " + card.color);
-                console.log("I played a card");
-                -- nbCardsMe;
-
-                makeCards();
-
-                console.log(nbCardsMe);
-                if (nbCardsMe === 1) {
-                    $("#uno").removeAttr("hidden");
-                }
-            }
-    
-
-            /* "Create" a new card and add it to the hand of the actual player*/
-            function draw() {
-                var colors = ["red", "blue", "green", "yellow"];
-                var values = [1, 2, 3, 4 , 5, 6, 7, 8, 9, "+2", "change"];
-                var randomColor = Math.floor(Math.random() * colors.length);
-                var randomValue = Math.floor(Math.random() * values.length);
-                console.log("Random color : " + colors[randomColor]);
-                console.log("Random value : " + values[randomValue]);
-                
-                var newCard = { value: values[randomValue], color: colors[randomColor] };
-                cards.push(newCard);
-
-                console.log("I draw a card", cards);
-                nbCardsMe += 1;
-                makeCards(); 
-            }
-            
-
-            /* Scream UNO! */
-            function uno() {
-                alert("UNOOOOOO!!!");
-            }
-             
-
-
-            // Call the functions
-            getConnexion();
-            makeTopEnemysCards();
-            makeLeftEnemysCards();
-            makeRightEnemysCards();
-            makeCards();
-            $("#drawPile").click(draw);
-            $("#uno").click(uno);
-
-            
-        </script>
+        <script src="./script.js"></script>
 
 
     </body>
-
 
 
 </html>

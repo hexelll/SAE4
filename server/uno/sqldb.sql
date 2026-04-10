@@ -9,9 +9,9 @@ create table game(
     code varchar(6),
     deckid int,
     creatorid int,
-    currentPlayerIndex int,
-    playerOrder text,
-    isReversed int,
+    currentplayerindex int,
+    playerorder text,
+    isreversed int,
     foreign key(deckid) references deck(deckid)
 );
 
@@ -57,31 +57,19 @@ create table usercard(
     foreign key(cardid) references gamecard(cardid)
 );
 
-create table drawpile(
-    drawpileid int primary key,
-    gameid int,
-    foreign key(gameid) references game(gameid)
-);
-
 create table drawpilecard(
-    drawpileid int,
-    cardid int,
-    primary key(drawpileid,cardid),
-    foreign key(drawpileid) references drawpile(drawpileid),
-    foreign key(cardid) references gamecard(cardid)
-);
-
-create table playedpile(
-    playedpileid int primary key,
     gameid int,
-    foreign key(gameid) references game(gameid)
+    cardid int,
+    primary key(gameid,cardid),
+    foreign key(gameid) references game(gameid),
+    foreign key(cardid) references gamecard(cardid)
 );
 
 create table playedpilecard(
-    playedpileid int,
+    gameid int,
     cardid int,
-    primary key(playedpileid,cardid),
-    foreign key(playedpileid) references playedpile(playedpileid),
+    cardindex int,
+    primary key(gameid,cardid),
+    foreign key(gameid) references game(gameid),
     foreign key(cardid) references gamecard(cardid)
 );
-

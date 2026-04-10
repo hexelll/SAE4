@@ -377,6 +377,24 @@ void ListAppendJsonElem(List* list,JsonElem* elem) {
     ListAppendVal(list,val);
 }
 
+void ListAppendString(List* list,String s) {
+    String* ptr = ArenaAlloc(list->arena,sizeof(String));
+    *ptr = s;
+    JsonElem* elem = ArenaAlloc(list->arena,sizeof(JsonElem));
+    *elem = (JsonElem){.ptr=ptr,.type=STRING};
+    ListValue val = {.ptr=elem};
+    ListAppendVal(list,val);
+}
+
+void ListAppendMap(List* list,Hashmap map) {
+    Hashmap* ptr = ArenaAlloc(list->arena,sizeof(Hashmap));
+    *ptr = map;
+    JsonElem* elem = ArenaAlloc(list->arena,sizeof(JsonElem));
+    *elem = (JsonElem){.ptr=ptr,.type=OBJECT};
+    ListValue val = {.ptr=elem};
+    ListAppendVal(list,val);
+}
+
 void ListAppendInt(List* list,int n) {
     int* ptr = ArenaAlloc(list->arena,sizeof(int));
     *ptr = n;

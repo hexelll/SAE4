@@ -2,8 +2,7 @@
 #include "/myserver/libs/utils/database.c"
 #include "/myserver/libs/server.c"
 
-String makeResponse(struct Arena* arena,Hashmap map) {
-    Connection con = ConnectionNew("unodb","uno","root","pass4root","5432");
+String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
     
     String err = StringFrom("",arena);
     String* userId = HashmapGet(&map,"userId");
@@ -34,7 +33,6 @@ String makeResponse(struct Arena* arena,Hashmap map) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"an error occured in insertion\"}");
     }
 
-    ConnectionClose(con);
     return StringFormatChar(arena,"{\"ok\":true}");
 }
 
@@ -44,8 +42,12 @@ int main(int argc,char** argv) {
 
     struct Arena* arena = &sarena;
 
-    String response = makeResponse(arena,ServerParseRequest(argv,arena));
+    Connection con = ConnectionNew("unodb","uno","root","pass4root","5432");
+
+    String response = makeResponse(arena,con,ServerParseRequest(argv,arena));
 
     ServerRespond(200,StringFrom("{\"Content-Type\":\"application/json\"}",arena),response,arena);
+
+    ConnectionClose(con);
     ArenaDelete(arena);
 }

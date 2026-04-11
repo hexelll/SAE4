@@ -9,10 +9,7 @@ List getCardsForPlayer(String playerid,Connection con,struct Arena* arena) {
     return ListNew(arena);
 }
 
-String makeResponse(struct Arena* arena,char** argv) {
-
-    Connection con = ConnectionNew("unodb","uno","root","pass4root","5432");
-    
+String makeResponse(struct Arena* arena,Connection con,char** argv) {    
     Hashmap map = ServerParseRequest(argv,arena);
     String err = StringFrom("",arena);
     String* userId = HashmapGet(&map,"userId");
@@ -95,8 +92,6 @@ String makeResponse(struct Arena* arena,char** argv) {
     HashmapSetBool(&response,"ok",1);
 
     String jsonResponse = JsonFromHashmap(&response,arena);
-    //String jsonResponse = StringFrom("{\"ok\":true}",arena);
-    ConnectionClose(con);
 
     return jsonResponse;
 }
@@ -107,9 +102,12 @@ int main(int argc,char** argv) {
 
     struct Arena* arena = &sarena;
 
-    String response = makeResponse(arena,argv);
+    Connection con = ConnectionNew("unodb","uno","root","pass4root","5432");
+
+    String response = makeResponse(arena,con,argv);
 
     ServerRespond(200,StringFrom("{\"Content-Type\":\"application/json\"}",arena),response,arena);
+    ConnectionClose(con);
     ArenaDelete(arena);
 
 }

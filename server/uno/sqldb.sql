@@ -10,7 +10,6 @@ create table game(
     deckid int,
     creatorid int,
     currentplayerindex int,
-    playerorder text,
     isreversed int,
     foreign key(deckid) references deck(deckid)
 );
@@ -21,7 +20,8 @@ create table player(
     userpwd varchar(10),
     imagepath varchar(100),
     joinedgameid int,
-    createdgameid int
+    createdgameid int,
+    gameindex int
 );
 
 create table rule(

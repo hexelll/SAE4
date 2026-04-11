@@ -46,7 +46,8 @@ create table cardtype(
 create table gamecard(
     cardid int primary key,
     cardvalue int,
-    cardcolor varchar(6)
+    cardcolorid int,
+    foreign key(cardcolorid) references cardcolor(cardcolorid)
 );
 
 create table usercard(
@@ -55,6 +56,11 @@ create table usercard(
     primary key(playerid,cardid),
     foreign key(playerid) references player(playerid),
     foreign key(cardid) references gamecard(cardid)
+);
+
+create table cardcolor(
+    cardcolorid int primary key,
+    color varchar(6)
 );
 
 create table drawpilecard(

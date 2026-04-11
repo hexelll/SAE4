@@ -4,7 +4,8 @@
 
 List getCardsForPlayer(String playerid,Connection con,struct Arena* arena) {
     QueryResult res = ConnectionSelect(con,StringFormatChar(arena,"select * from gamecard,usercard where gamecard.cardid = usercard.cardid and usercard.playerid = %S",playerid));
-    if(res.count > 0 && res.message.size > 0) return QueryResultToList(res,arena);
+    
+    if(res.count > 0 && res.message.size == 0) return QueryResultToList(res,arena);
     return ListNew(arena);
 }
 
@@ -55,12 +56,10 @@ String makeResponse(struct Arena* arena,char** argv) {
     
     HashmapSetList(&response,"players",responsePlayers);
     List playercards = getCardsForPlayer(*userId,con,arena);
+
     List responseCards = ListNew(arena);
     Hashmap cardmap;
-    //return StringFormatChar(arena,"{\"size\":%d}",playercards.size);
-    //String s = StringFrom("",arena);
     for(int i=0;i<playercards.size;i++) {
-        
         cardmap = HashmapNew(sizeof(JsonElem),arena);
         Hashmap* playercard = ListGetVal(&playercards,i)->ptr;
         HashmapSetInt(&cardmap,"cardId",StringToInt(*(String*)HashmapGet(playercard,"cardid"),converr));

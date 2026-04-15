@@ -120,11 +120,36 @@ String jfrommap(Hashmap* map) {
 }
 
 String JsonToString(JsonElem* elem,struct Arena* arena) {
-    if( elem->type == OBJECT)
-        return JsonFromHashmap(elem->ptr,arena);
-    else if (elem->type == LIST)
-        return JsonFromList(elem->ptr,arena);
-    return StringFrom("",arena);
+    switch(elem->type) {
+        case INT: {
+            return StringFromInt(*(int*)elem->ptr,arena);
+            break;
+        }
+        case BOOL: {
+            if (*(int*)elem->ptr) {
+                return StringFrom("true",arena);
+            }
+            return StringFrom("false",arena);
+            break;
+        }
+        case FLOAT: {
+            int converr;
+            return StringFromFloat(*(float*)elem->ptr,10,arena);
+            break;
+        }
+        case STRING: {
+            return *(String*)elem->ptr;
+            break;
+        }
+        case LIST: {
+            return JsonFromList(elem->ptr,arena);
+            break;
+        }
+        case OBJECT: {
+            return JsonFromHashmap(elem->ptr,arena);
+            break;
+        }
+    }
 }
 
 String jtostring(JsonElem* elem) {
@@ -199,7 +224,6 @@ JsonElem* JsonParseElem(String str,int start,int*icurrent,Hashmap* map,struct Ar
                     int err;
                     *n = StringToFloat(StringSub(str,istart,iend,&scratch),&err);
                     if(err) {
-                        printf("<JsonParseElem> error in string to float\n");
                         ArenaDelete(&scratch);
                         return NULL;
                     }
@@ -213,7 +237,6 @@ JsonElem* JsonParseElem(String str,int start,int*icurrent,Hashmap* map,struct Ar
                     int err;
                     *n = StringToInt(StringSub(str,istart,iend,&scratch),&err);
                     if(err) {
-                        printf("<JsonParseElem> error in string to int\n");
                         ArenaDelete(&scratch);
                         return NULL;
                     }
@@ -250,13 +273,22 @@ JsonElem* JsonParseElem(String str,int start,int*icurrent,Hashmap* map,struct Ar
             List* list = ArenaAlloc(arena,sizeof(List));
             *list = ListNew(arena);
             int i = minj+1;
-            while (*icurrent < ilistend) {
+            int ok = 1;
+            while (ok) {
                 JsonElem* elem = JsonParseElem(str,i,icurrent,map,arena);
                 i = *icurrent+1;
-                if(!elem) 
+                if(!elem) {
                     return NULL;
+                }
                 ListAppendJsonElem(list,elem);
+                ok = str.text[*icurrent] != ']';
             }
+            icomma = StringFindCharEscape(str,',',*icurrent);
+            iobjectend = StringFindCharEscape(str,'}',*icurrent);
+            ilistend = StringFindCharEscape(str,']',*icurrent);
+            *icurrent = (icomma >= 0 && icomma < iobjectend) ? icomma : (iobjectend >= 0 ? iobjectend : *icurrent);
+            *icurrent = (ilistend >= 0 && *icurrent < ilistend) ? *icurrent : ilistend;
+            (*icurrent)++;
             JsonElem* elem = ArenaAlloc(arena,sizeof(JsonElem));
             elem->ptr = list;
             elem->type = LIST;
@@ -285,8 +317,8 @@ JsonElem* JsonParseElem(String str,int start,int*icurrent,Hashmap* map,struct Ar
                 elem->type = STRING;
                 ArenaDelete(&scratch);
                 return elem;
-            }else
-                return NULL;
+            }
+            return NULL;
             break;
         }
     }
@@ -302,12 +334,16 @@ Hashmap* JsonParseObject(String str,struct Arena* arena,int start,int* icurrent)
     int ok = *icurrent >= 0;
     while (ok) {
         int* stri = StringFindString(str,*icurrent+1,&scratch);
-        if(!stri) return NULL;
+        if(!stri) {
+            return NULL;
+        }
 
         String key = StringSub(str,stri[0],stri[1],&scratch);
         int i = StringFind(str,StringFrom(":",&scratch),stri[1]+1);
         JsonElem* elem = JsonParseElem(str,i+1,icurrent,map,arena);
-        if(!elem) return NULL;
+        if(!elem) {
+            return NULL;
+        }
         HashmapSet(map,StringToChar(key,arena),elem);
 
         ok = str.text[*icurrent] != '}';

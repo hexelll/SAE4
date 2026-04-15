@@ -47,7 +47,9 @@ create table gamecard(
     cardid int primary key,
     cardvalue int,
     cardcolorid int,
-    foreign key(cardcolorid) references cardcolor(cardcolorid)
+    cardtypeid int,
+    foreign key(cardcolorid) references cardcolor(cardcolorid),
+    foreign key(cardtypeid) references cardtype(cardtypeid)
 );
 
 create table usercard(

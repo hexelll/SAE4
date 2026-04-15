@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "/myserver/libs/server.c"
-#include "/myserver/libs/utils/database.c"
+#include "../libs/server.c"
+#include "../libs/utils/database.c"
 
 List getCardsForPlayer(String playerid,Connection con,struct Arena* arena) {
     QueryResult res = ConnectionSelect(con,StringFormatChar(arena,"select * from gamecard,usercard where gamecard.cardid = usercard.cardid and usercard.playerid = %S",playerid));
@@ -29,7 +29,7 @@ String makeResponse(struct Arena* arena,Connection con,char** argv) {
     Hashmap* user = ListGetVal(&currplayertuples,0)->ptr;
     String* gameId = HashmapGet(user,"joinedgameid");
 
-    res = ConnectionSelect(con,StringFormatChar(arena,"select * from player where joinedgameid = %S and not (playerid = %S)",*gameId,*userId));
+    res = ConnectionSelect(con,StringFormatChar(arena,"select * from player where joinedgameid = %S and not (playerid = %S) order by gameindex desc",*gameId,*userId));
     List playertuples = QueryResultToList(res,arena);
     
     Hashmap response = HashmapNew(sizeof(JsonElem),arena);
@@ -61,7 +61,12 @@ String makeResponse(struct Arena* arena,Connection con,char** argv) {
         Hashmap* playercard = ListGetVal(&playercards,i)->ptr;
         HashmapSetInt(&cardmap,"cardId",StringToInt(*(String*)HashmapGet(playercard,"cardid"),converr));
         HashmapSetInt(&cardmap,"cardValue",StringToInt(*(String*)HashmapGet(playercard,"cardvalue"),converr));
-        HashmapSetString(&cardmap,"cardColor",*(String*)HashmapGet(playercard,"cardcolor"));
+        String colorid = *(String*)HashmapGet(playercard,"cardcolorid");
+        res = ConnectionSelect(con,StringFormatChar(arena,"select color from cardcolor where cardcolorid = %S",colorid));
+        List colors = QueryResultToList(res,arena);
+        String color = *(String*)HashmapGet(ListGetVal(&colors,0)->ptr,"color");
+        HashmapSetInt(&cardmap,"cardColorId",StringToInt(colorid,converr));
+        HashmapSetString(&cardmap,"cardColorHex",color);
         ListAppendMap(&responseCards,cardmap);
     }
     
@@ -71,12 +76,19 @@ String makeResponse(struct Arena* arena,Connection con,char** argv) {
     if(!(res.count > 0 && res.message.size == 0)) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"no card in pile\"}");
     }
-    Hashmap* currCard = QueryResultToList(res,arena).head.val.ptr;
+    List cards = QueryResultToList(res,arena);
+
+    Hashmap* currCard = ListGetVal(&cards,0)->ptr;
     
     cardmap = HashmapNew(sizeof(JsonElem),arena);
     HashmapSetInt(&cardmap,"cardId",StringToInt(*(String*)HashmapGet(currCard,"cardid"),converr));
     HashmapSetInt(&cardmap,"cardValue",StringToInt(*(String*)HashmapGet(currCard,"cardvalue"),converr));
-    HashmapSetString(&cardmap,"cardColor",*(String*)HashmapGet(currCard,"cardcolor"));
+    String colorid = *(String*)HashmapGet(currCard,"cardcolorid");
+    res = ConnectionSelect(con,StringFormatChar(arena,"select color from cardcolor where cardcolorid = %S",colorid));
+    List colors = QueryResultToList(res,arena);
+    String color = *(String*)HashmapGet(ListGetVal(&colors,0)->ptr,"color");
+    HashmapSetInt(&cardmap,"cardColorId",StringToInt(colorid,converr));
+    HashmapSetString(&cardmap,"cardColorHex",color);
     HashmapSetMap(&response,"currentCard",cardmap);
     
     res = ConnectionSelect(con,StringFormatChar(arena,"select * from game where gameid = %S",*gameId));

@@ -81,3 +81,11 @@ create table playedpilecard(
     foreign key(gameid) references game(gameid),
     foreign key(cardid) references gamecard(cardid)
 );
+
+create table deckcard(
+    deckid int,
+    cardid int,
+    primary key(deckid,cardid),
+    foreign key(deckid) references deck(deckid),
+    foreign key(cardid) references gamecard(cardid)
+);

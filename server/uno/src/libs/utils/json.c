@@ -192,8 +192,7 @@ JsonElem* JsonParseElem(String str,int start,int*icurrent,Hashmap* map,struct Ar
                 if(c == '.')
                     isreal = 1;
                 if (istart >= 0) {
-                    
-                    if (c == ' ') {
+                    if (c == ' ' || c == '\n') {
                         break;
                     }
                     iend++;
@@ -278,6 +277,7 @@ JsonElem* JsonParseElem(String str,int start,int*icurrent,Hashmap* map,struct Ar
                 JsonElem* elem = JsonParseElem(str,i,icurrent,map,arena);
                 i = *icurrent+1;
                 if(!elem) {
+                    ArenaDelete(&scratch);
                     return NULL;
                 }
                 ListAppendJsonElem(list,elem);
@@ -285,10 +285,9 @@ JsonElem* JsonParseElem(String str,int start,int*icurrent,Hashmap* map,struct Ar
             }
             icomma = StringFindCharEscape(str,',',*icurrent);
             iobjectend = StringFindCharEscape(str,'}',*icurrent);
-            ilistend = StringFindCharEscape(str,']',*icurrent);
+            ilistend = StringFindCharEscape(str,']',*icurrent+1);
             *icurrent = (icomma >= 0 && icomma < iobjectend) ? icomma : (iobjectend >= 0 ? iobjectend : *icurrent);
-            *icurrent = (ilistend >= 0 && *icurrent < ilistend) ? *icurrent : ilistend;
-            (*icurrent)++;
+            *icurrent = (ilistend >= 0 && ilistend < *icurrent) ? ilistend : *icurrent;
             JsonElem* elem = ArenaAlloc(arena,sizeof(JsonElem));
             elem->ptr = list;
             elem->type = LIST;
@@ -318,10 +317,12 @@ JsonElem* JsonParseElem(String str,int start,int*icurrent,Hashmap* map,struct Ar
                 ArenaDelete(&scratch);
                 return elem;
             }
+            ArenaDelete(&scratch);
             return NULL;
             break;
         }
     }
+    ArenaDelete(&scratch);
     return NULL;
 }
 
@@ -335,6 +336,7 @@ Hashmap* JsonParseObject(String str,struct Arena* arena,int start,int* icurrent)
     while (ok) {
         int* stri = StringFindString(str,*icurrent+1,&scratch);
         if(!stri) {
+            ArenaDelete(&scratch);
             return NULL;
         }
 
@@ -342,13 +344,19 @@ Hashmap* JsonParseObject(String str,struct Arena* arena,int start,int* icurrent)
         int i = StringFind(str,StringFrom(":",&scratch),stri[1]+1);
         JsonElem* elem = JsonParseElem(str,i+1,icurrent,map,arena);
         if(!elem) {
+            ArenaDelete(&scratch);
             return NULL;
         }
         HashmapSet(map,StringToChar(key,arena),elem);
 
         ok = str.text[*icurrent] != '}';
     }
-    (*icurrent)++;
+    int icomma = StringFindCharEscape(str,',',*icurrent);
+    int ilistend = StringFindCharEscape(str,']',*icurrent);
+    int iobjectend = StringFindCharEscape(str,'}',*icurrent+1);
+    *icurrent = (icomma >= 0 && icomma < ilistend) ? icomma : (ilistend >= 0 ? ilistend : *icurrent);
+    *icurrent = (iobjectend >= 0 && iobjectend < *icurrent) ? iobjectend : *icurrent;
+    
     ArenaDelete(&scratch);
     return map;
 }

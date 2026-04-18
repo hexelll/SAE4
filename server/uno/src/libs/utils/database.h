@@ -3,6 +3,7 @@
 #include "arena.c"
 #include "hashmap.c"
 #include "arena.c"
+#include "list.c"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -43,7 +44,8 @@ QueryResult ConnectionSelect(Connection connection, String SQL);
 //Execute the query entered in the function, QUERY MUST NOT BE A SELECT
 QueryResult ConnectionExec(Connection connection, String SQL);
 
-//Parse a database request and return it in a Hashmap
-Hashmap QueryResultToMap(QueryResult query, struct Arena* arena);
+//Parses a QueryResult and returns it in a List of Hashmaps
+List QueryResultToList(QueryResult query, struct Arena* arena);
 
-
+//Parses a QueryResult and returns it in a Hashmap, this returns the first element of the query
+Hashmap* QueryResultToMap(QueryResult query, struct Arena* arena);

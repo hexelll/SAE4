@@ -3,6 +3,7 @@
 #include <time.h>
 #include "../libs/utils/database.c"
 #include "../libs/server.c"
+#include "../libs/utils/cards.c"
 
 String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
     int* converr = ArenaAlloc(arena,sizeof(int));
@@ -35,9 +36,9 @@ String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
 
     Hashmap* game = ListGetVal(&gameTuple,0)->ptr;
     String* playerindex =(String*)HashmapGet(game,"currentplayerindex");
-    /*if(playerindex->size > 0) {
-        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"this game is already started %S\"}",*playerindex);
-    }*/
+    if(playerindex->size > 0) {
+        //return StringFormatChar(arena,"{\"ok\":false,\"error\":\"this game is already started\"}");
+    }
 
     res = ConnectionSelect(con,StringFormatChar(arena,"select * from player where joinedgameid = %S",gameId));
     if(!(res.count > 0 && res.message.size == 0)) {
@@ -48,70 +49,33 @@ String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
 
     ConnectionExec(con,StringFormatChar(arena,"update game set currentplayerindex = 0,isReversed = 0 where gameid=%S",gameId));
 
-    String defaultCardsString = StringFrom("",arena);
-    FILE* fp = fopen("./defaultcards.json","r");
-
-    char c = fgetc(fp);
-    while(!feof(fp)) {
-        defaultCardsString = StringConcat(defaultCardsString,StringFromChar(c,arena),arena);
-        c=fgetc(fp);
-    }
-    fclose(fp);
+    List cardlst = QueryResultToList(ConnectionSelect(con,StringFrom("select * from deckcard where deckid = 1",arena)),arena);
     
-    JsonElem* defaultCardsJson = JsonParse(defaultCardsString,arena);
-    List* defaultCards = (List*)defaultCardsJson->ptr;
-
-    //return JsonToString(defaultCardsJson,arena);
-
-    int ncards = 7;
-
     srand(time(NULL));
 
-    
-    for(int i=0;i<players.size;i++) {
-        Hashmap* player = ListGetVal(&players,i)->ptr;
-        String playerId = *(String*)HashmapGet(player,"playerid");
-        ConnectionExec(con,StringFormatChar(arena,"delete from usercard where playerid=%S",playerId));
-        
-        for(int j=0;j<ncards;j++) {
-            int itype = rand()%defaultCards->size;
-            itype = itype < 0 ? itype + defaultCards->size : itype;
-            Hashmap* cardMap = ((JsonElem*)ListGetVal(defaultCards,itype)->ptr)->ptr;
-            String cardDesc = *(String*)(((JsonElem*)HashmapGet(cardMap,"cardDesc"))->ptr);
-            List* values = ((JsonElem*)HashmapGet(cardMap,"values"))->ptr;
-            List* colors = ((JsonElem*)HashmapGet(cardMap,"colors"))->ptr;
-            int ival = rand()%values->size;
-            ival = ival < 0 ? ival + values->size : ival;
-            int icol = rand()%colors->size;
-            icol = icol < 0 ? icol + colors->size : icol;
-            int value = *(int*)((JsonElem*)ListGetVal(values,ival)->ptr)->ptr;
-            int colorid = *(int*)((JsonElem*)ListGetVal(colors,icol)->ptr)->ptr;
-            res = ConnectionSelect(con,StringFrom("select max(cardid) as newid from gamecard",arena));
-            List cardTuple = QueryResultToList(res,arena);
-            int cardid = StringToInt(*(String*)HashmapGet((Hashmap*)ListGetVal(&cardTuple,0)->ptr,"newid"),converr)+1;
-            ConnectionExec(con,StringFormatChar(arena,"insert into gamecard(cardid,cardvalue,cardcolorid,cardtypeid) values(%d,%d,%d,(select cardtypeid from cardtype where carddesc like '%S'))",cardid,value,colorid,cardDesc));
-            ConnectionExec(con,StringFormatChar(arena,"insert into usercard(cardid,playerid) values(%d,%S)",cardid,playerId));
+    for(int i=0;i<players.size;i++){
+        Hashmap* playermap = ListGetVal(&players,i)->ptr;
+        int playerid = StringToInt(*(String*)HashmapGet(playermap,"playerid"),converr);
+        ConnectionExec(con,StringFormatChar(arena,"delete from usercard where playerid = %d",playerid));
+        for(int j=0;j<7;j++) {
+            int k = abs(rand())%cardlst.size;
+            int cardid = StringToInt(*(String*)HashmapGet(ListGetVal(&cardlst,k)->ptr,"cardid"),converr);
+            CardAddToPlayer(cardid,playerid,con);
+            ListRemoveNode(&cardlst,k);
         }
-        int itype = rand()%defaultCards->size;
-        itype = itype < 0 ? itype + defaultCards->size : itype;
-        Hashmap* cardMap = ((JsonElem*)ListGetVal(defaultCards,itype)->ptr)->ptr;
-        String cardDesc = *(String*)(((JsonElem*)HashmapGet(cardMap,"cardDesc"))->ptr);
-        List* values = ((JsonElem*)HashmapGet(cardMap,"values"))->ptr;
-        List* colors = ((JsonElem*)HashmapGet(cardMap,"colors"))->ptr;
-        int ival = rand()%values->size;
-        ival = ival < 0 ? ival + values->size : ival;
-        int icol = rand()%colors->size;
-        icol = icol < 0 ? icol + colors->size : icol;
-        int value = *(int*)((JsonElem*)ListGetVal(values,ival)->ptr)->ptr;
-        int colorid = *(int*)((JsonElem*)ListGetVal(colors,icol)->ptr)->ptr;
-        res = ConnectionSelect(con,StringFrom("select max(cardid) as newid from gamecard",arena));
-        List cardTuple = QueryResultToList(res,arena);
-        int cardid = StringToInt(*(String*)HashmapGet((Hashmap*)ListGetVal(&cardTuple,0)->ptr,"newid"),converr)+1;
-        ConnectionExec(con,StringFormatChar(arena,"delete from playedpilecard where gameid = %S",gameId));
-        ConnectionExec(con,StringFormatChar(arena,"insert into gamecard(cardid,cardvalue,cardcolorid,cardtypeid) values(%d,%d,%d,(select cardtypeid from cardtype where carddesc like '%S'))",cardid,value,colorid,cardDesc));
-        ConnectionExec(con,StringFormatChar(arena,"insert into playedpilecard(gameid,cardid,cardindex) values(%S,%d,0)",gameId,cardid));
     }
+    int gameIdInt = StringToInt(gameId,converr);
+    ConnectionExec(con,StringFormatChar(arena,"delete from playedpilecard where gameid = %S",gameId));
+    int k = abs(rand())%cardlst.size;
+    int cardid = StringToInt(*(String*)HashmapGet(ListGetVal(&cardlst,k)->ptr,"cardid"),converr);
+    CardAddToPlayed(cardid,gameIdInt,con);
+    ListRemoveNode(&cardlst,k);
 
+    ConnectionExec(con,StringFormatChar(arena,"delete from drawpilecard where gameid = %S",gameId));
+    for(int i=0;i<cardlst.size;i++) {
+        int cardid = StringToInt(*(String*)HashmapGet(ListGetVal(&cardlst,i)->ptr,"cardid"),converr);
+        CardAddToDraw(cardid,gameIdInt,con);
+    }
 
     return StringFormatChar(arena,"{\"ok\":true}");
 }

@@ -1,5 +1,6 @@
+#ifndef DATABASE
+#define DATABASE
 #include "database.h"
-#include "list.c"
 
 Connection ConnectionNew(char* host,char* database, char* user, char* passwd,char* port){
     Connection connection;
@@ -124,3 +125,8 @@ List QueryResultToList(QueryResult query, struct Arena* arena){
     }
     return list;
 }
+
+Hashmap* QueryResultToMap(QueryResult query,struct Arena* arena) {
+    return (Hashmap*)QueryResultToList(query,arena).head.val.ptr;
+}
+#endif

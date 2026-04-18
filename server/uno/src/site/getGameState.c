@@ -20,9 +20,9 @@ String makeResponse(struct Arena* arena,Connection con,char** argv) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"%S\"}",err);
     }
 
-    QueryResult res = ConnectionSelect(con,StringFormatChar(arena,"select * from player where playerid = %S",*userId));
+    QueryResult res = ConnectionSelect(con,StringFormatChar(arena,"select * from player where playerid = %S and userpwd like '%S'",*userId,*userPwd));
     if (!(res.count > 0 && res.message.size == 0)) {
-        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"no user with this id\"}");
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"no user with this id and password\"}");
     }
     
     List currplayertuples = QueryResultToList(res,arena);

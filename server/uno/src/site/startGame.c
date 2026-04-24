@@ -17,7 +17,7 @@ String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"%S\"}",err);
     }
 
-    QueryResult res = ConnectionSelect(con,StringFormatChar(arena,"select * from player where playerid = %S and userpwd = '%S'",*userId,*userPwd));
+    QueryResult res = ConnectionSelect(con,StringFormatChar(arena,"select * from player where playerid = %S and userpwd like '%S'",*userId,*userPwd));
     if(!(res.count > 0 && res.message.size == 0)) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"no user with this id and password\"}");
     }
@@ -37,7 +37,7 @@ String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
     Hashmap* game = ListGetVal(&gameTuple,0)->ptr;
     String* playerindex =(String*)HashmapGet(game,"currentplayerindex");
     if(playerindex->size > 0) {
-        //return StringFormatChar(arena,"{\"ok\":false,\"error\":\"this game is already started\"}");
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"this game is already started\"}");
     }
 
     res = ConnectionSelect(con,StringFormatChar(arena,"select * from player where joinedgameid = %S",gameId));

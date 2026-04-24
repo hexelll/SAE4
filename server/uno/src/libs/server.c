@@ -2,7 +2,7 @@
 
 #define MAXREQUESTSIZE 10000
 
-#define DEBUG 1
+#define DEBUG 0
 
 struct Arena globalArena;
 Hashmap* defaultHeaders;
@@ -24,7 +24,7 @@ void ServerInitDefault() {
     Hashmap* jsonDefaultHeaders = (Hashmap*)JsonParse(StringFrom(
 "{\
     \"Content-Type\":\"text/html\",\
-    \"Connection\":\"Closed\",\
+    \"Connection\":\"Close\",\
     \"Access-Control-Allow-Origin\":\"*\"\
 }"
         ,&globalArena),&globalArena)->ptr;
@@ -116,12 +116,17 @@ String ServerMakeHeader(int code,int contentLength,String headers,struct Arena* 
 
 String ServerGetRequest(int clientSocket,int maxRequestSize,struct Arena* arena) {
     String buffer = StringAlloc(maxRequestSize,arena);
-    int len = recv(clientSocket,buffer.text,maxRequestSize,0);
-    buffer.size = len;
+    buffer.size = 0;
+    int len = 1;
+        len = recv(clientSocket,buffer.text,maxRequestSize,0);
+        
+        buffer.size += len;
+
     FILE* fp = fopen("./log.txt","a");
     fprintf(fp,"\n[HTTP]\n");
     fprintf(fp,StringToChar(buffer,arena));
     fprintf(fp,"\n[/HTTP]");
+    printf("\n[LEN]len:%d[/LEN]",len);
     fclose(fp);
     return buffer;
 }
@@ -208,6 +213,8 @@ String ServerFindContent(String request,struct Arena* arena) {
     if (i == -1) {
         i = StringFind(request,StringFrom("\n\r\n",&scratch),0);
     }
+    if (i<0)
+        return StringFrom("",arena);
     content = StringSub(request,i,request.size,arena);
     ArenaDelete(&scratch);
     return content;
@@ -237,14 +244,6 @@ String ServerPathExtension(String path,struct Arena* arena) {
     if (iextension != -1)
         extension = StringSub(path,iextension+1,iend,arena);
     return extension;
-}
-
-String ServerRequestContent(String request,struct Arena* arena) {
-    int icontent = StringFind(request,StringFrom("\n\n",arena),0);
-    printf("icontent: %d %d\n",icontent,request.size);
-    if (icontent < 0)
-        return StringFrom("",arena);
-    return StringSub(request,icontent+2,request.size,arena);
 }
 
 void ServerRun(struct Server* server) {
@@ -283,7 +282,7 @@ void ServerRun(struct Server* server) {
         String extension = ServerPathExtension(path,&sarena);
         printf("extension: %s\n",StringToChar(extension,&sarena));
 
-        String content = ServerRequestContent(request,&sarena);
+        String content = ServerFindContent(request,&sarena);
         if(content.size <= 0) {
             content = StringFrom("",&sarena);
         }

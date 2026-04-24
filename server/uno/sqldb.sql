@@ -3,6 +3,15 @@ create table deck(
     deckname text
 );
 
+create table cardcolor(
+    cardcolorid int primary key,
+    color varchar(6)
+);
+
+create table cardtype(
+    cardtypeid int primary key,
+    carddesc varchar(100)
+);
 
 create table game(
     gameid int primary key,
@@ -38,11 +47,6 @@ create table ruleset(
     foreign key(creatorid) references player(playerid)
 );
 
-create table cardtype(
-    cardtypeid int primary key,
-    carddesc varchar(100)
-);
-
 create table gamecard(
     cardid int primary key,
     cardvalue int,
@@ -58,11 +62,6 @@ create table usercard(
     primary key(playerid,cardid),
     foreign key(playerid) references player(playerid),
     foreign key(cardid) references gamecard(cardid)
-);
-
-create table cardcolor(
-    cardcolorid int primary key,
-    color varchar(6)
 );
 
 create table drawpilecard(

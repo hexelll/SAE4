@@ -18,7 +18,7 @@ int main(void) {
 
     PQfinish(con);*/
     
-    struct Server server = ServerDefaultInit(9999,10);
+    struct Server server = ServerDefaultInit(9999,100);
     printf("starting server ... \n\n");
     ServerRun(&server);
 }

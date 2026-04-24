@@ -32,10 +32,11 @@ List CardGetListForPlayer(int id,Connection con) {
     QueryResult res = ConnectionSelect(con,StringFormatChar(&scratch,"select * from usercard where playerid = %d order by cardid",id));
     List cardTuples = QueryResultToList(res,&con.arena);
     List cards = ListNew(&con.arena);
+    int* converr = ArenaAlloc(&scratch,sizeof(int));
     for(int i = 0;i<cardTuples.size;i++) {
         Hashmap cardmap = *(Hashmap*)ListGetVal(&cardTuples,i)->ptr;
         Card* card = ArenaAlloc(&con.arena,sizeof(Card));
-        *card = CardFromMap(cardmap,con);
+        *card = CardFindById(StringToInt(*(String*)HashmapGet(&cardmap,"cardid"),converr),con);
         ListAppendVal(&cards,(ListValue){card});
     }
     ArenaDelete(&scratch);
@@ -51,7 +52,7 @@ List CardGetListForPlayedPile(int id,Connection con) {
     for(int i = 0;i<cardTuples.size;i++) {
         Hashmap cardmap = *(Hashmap*)ListGetVal(&cardTuples,i)->ptr;
         Card* card = ArenaAlloc(&con.arena,sizeof(Card));
-        *card = CardFindById(StringToInt(HashmapGet(&cardmap,"usercardid"),converr));
+        *card = CardFindById(StringToInt(*(String*)HashmapGet(&cardmap,"playedpilecardid"),converr),con);
         ListAppendVal(&cards,(ListValue){card});
     }
     ArenaDelete(&scratch);

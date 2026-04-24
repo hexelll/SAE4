@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "/myserver/libs/utils/database.c"
-#include "/myserver/libs/server.c"
-#include "/myserver/libs/utils/list.c"
+#include "../libs/utils/database.c"
+#include "../libs/server.c"
+#include "../libs/utils/list.c"
 
 List getCardsForPlayer(String playerid,struct Arena* arena, Connection theconnection) {
     QueryResult resnb = ConnectionSelect(theconnection, StringFormatChar(arena,"select * from gamecard,usercard,player where gamecard.cardid = usercard.cardid and usercard.playerid = player.playerid and player.playerid = %S",playerid));

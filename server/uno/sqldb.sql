@@ -10,7 +10,6 @@ create table game(
     deckid int,
     creatorid int,
     currentplayerindex int,
-    playerorder text,
     isreversed int,
     foreign key(deckid) references deck(deckid)
 );
@@ -21,7 +20,8 @@ create table player(
     userpwd varchar(10),
     imagepath varchar(100),
     joinedgameid int,
-    createdgameid int
+    createdgameid int,
+    gameindex int
 );
 
 create table rule(
@@ -46,7 +46,10 @@ create table cardtype(
 create table gamecard(
     cardid int primary key,
     cardvalue int,
-    cardcolor varchar(6)
+    cardcolorid int,
+    cardtypeid int,
+    foreign key(cardcolorid) references cardcolor(cardcolorid),
+    foreign key(cardtypeid) references cardtype(cardtypeid)
 );
 
 create table usercard(
@@ -55,6 +58,11 @@ create table usercard(
     primary key(playerid,cardid),
     foreign key(playerid) references player(playerid),
     foreign key(cardid) references gamecard(cardid)
+);
+
+create table cardcolor(
+    cardcolorid int primary key,
+    color varchar(6)
 );
 
 create table drawpilecard(
@@ -71,5 +79,13 @@ create table playedpilecard(
     cardindex int,
     primary key(gameid,cardid),
     foreign key(gameid) references game(gameid),
+    foreign key(cardid) references gamecard(cardid)
+);
+
+create table deckcard(
+    deckid int,
+    cardid int,
+    primary key(deckid,cardid),
+    foreign key(deckid) references deck(deckid),
     foreign key(cardid) references gamecard(cardid)
 );

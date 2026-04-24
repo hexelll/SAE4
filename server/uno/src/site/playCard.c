@@ -50,6 +50,21 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
 
     Card card = CardFindById(StringToInt(*cardId,converr),con);
 
+    Card currentCard = CardFindById(StringToInt(
+        *(String*)HashmapGet(
+            QueryResultToMap(
+                ConnectionSelect(con,StringFormatChar(arena,"select cardid from playedpilecard where gameid = %d order by gameIndex desc",gameId)),
+                arena
+            ),
+            "cardid"
+        ),
+        converr
+    ),con);
+
+    if(!(card.colorId == -1 || currentCard.colorId == -1 || currentCard.colorId == card.colorId || (currentCard.typeId == card.typeId && currentCard.value == card.value))) {
+        return StringFrom("{\"ok\":false,\"error\":\"incorrect card color\"}",arena);
+    }
+
     int skipid = StringToInt(
         *(String*)HashmapGet(
             QueryResultToMap(
@@ -65,6 +80,39 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
         *(String*)HashmapGet(
             QueryResultToMap(
                 ConnectionSelect(con,StringFrom("select cardtypeid from cardtype where carddesc like 'reverse'",arena)),
+                arena
+            ),
+            "cardtypeid"
+        ),
+        converr
+    );
+
+    int wildid = StringToInt(
+        *(String*)HashmapGet(
+            QueryResultToMap(
+                ConnectionSelect(con,StringFrom("select cardtypeid from cardtype where carddesc like 'wild'",arena)),
+                arena
+            ),
+            "cardtypeid"
+        ),
+        converr
+    );
+
+    int plusid = StringToInt(
+        *(String*)HashmapGet(
+            QueryResultToMap(
+                ConnectionSelect(con,StringFrom("select cardtypeid from cardtype where carddesc like 'plus'",arena)),
+                arena
+            ),
+            "cardtypeid"
+        ),
+        converr
+    );
+
+    int pluswildid = StringToInt(
+        *(String*)HashmapGet(
+            QueryResultToMap(
+                ConnectionSelect(con,StringFrom("select cardtypeid from cardtype where carddesc like 'pluswild'",arena)),
                 arena
             ),
             "cardtypeid"

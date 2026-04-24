@@ -282,7 +282,7 @@ button a{
     border-radius: 50%;
 
     text-align: center;
-    display: inline-block;
+   /*display: inline-block;*/
     font-size: 2vh;
 
     cursor: pointer;

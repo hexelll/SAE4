@@ -1,16 +1,5 @@
 /* -------------------------------------------- SCRIPT REACT ------------------------------------------------ */
-
-/* Get the connexion to the server */
-function getConnexion() {
-    $.ajax({
-        type: 'GET',
-        url: 'http://10.8.25.138:42069/index.html',
-        success: function (reponse) { console.log(reponse) },
-        error: function () { alert("it's not working ") }
-    })
-}
-
-
+//import ajaxRequests from "./ajaxRequests.js";
 
 /* ------------------------------------------- ACTUAL PLAYER -------------------------------------------------*/
 // Creating obj json to create fake cards while wating for the server to be done
@@ -31,6 +20,20 @@ var cards = [
 ];
 // Get the number of cards and print it
 var nbCardsMe = cards.length
+
+
+
+function organizeCards(cardsToOrganize) {
+    cardsToOrganize.sort((a,b) => {
+        const colorOrder = ["red", "blue", "green", "yellow", "black"];
+        if (a.color === b.color) {
+            return a.value-b.value;
+        }
+        return colorOrder.indexOf(a.color) - colorOrder.indexOf(b.color);
+    }
+    );
+    console.log("sorted cards:",cardsToOrganize);
+}
 
 
 
@@ -162,7 +165,7 @@ function makeEnemysCards(nbCards, emenyRoot) {
         )
     }
 
-    console.log("test : " + nbCards + " overlap : " + overlapEnemy);
+    //console.log("test : " + nbCards + " overlap : " + overlapEnemy);
     emenyRoot.render(enemyCards);
 }
 
@@ -178,7 +181,7 @@ function play(card, indexToRemove) {
     cards = cards.filter((card, index) => index !== indexToRemove);
 
     $("#playedPile").html("Played : " + card.value + " " + card.color);
-    console.log("I played a card");
+    //console.log("I played a card");
     --nbCardsMe;
 
     makeMyCards(nbCardsMe, myRoot);
@@ -201,9 +204,13 @@ function draw() {
 
     var newCard = { value: values[randomValue], color: colors[randomColor] };
     cards.push(newCard);
+    organizeCards(cards);
 
-    console.log("I draw a card", cards);
+    //console.log("I draw a card", cards);
     nbCardsMe += 1;
+    if (nbCardsMe > 1) {
+        $("#uno").attr("hidden", true);
+    }
     makeMyCards(nbCardsMe, myRoot);
 }
 
@@ -216,13 +223,16 @@ function uno() {
 
 
 // Call the functions
-getConnexion();
+ajaxRequests.getConnexion();
+ajaxRequests.getGameState();
+
 
 
 window.addEventListener("resize", displayCards);
 window.addEventListener("load", displayCards);
 
 function displayCards() {
+    organizeCards(cards);
     makeEnemysCards(nbCardsEnemyTop, enemyTopRoot);
     makeEnemysCards(nbCardsEnemyRight, enemyRightRoot);
     makeEnemysCards(nbCardsEnemyLeft, enemyLeftRoot);

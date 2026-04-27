@@ -52,7 +52,7 @@ List CardGetListForPlayedPile(int id,Connection con) {
     for(int i = 0;i<cardTuples.size;i++) {
         Hashmap cardmap = *(Hashmap*)ListGetVal(&cardTuples,i)->ptr;
         Card* card = ArenaAlloc(&con.arena,sizeof(Card));
-        *card = CardFindById(StringToInt(*(String*)HashmapGet(&cardmap,"playedpilecardid"),converr),con);
+        *card = CardFindById(StringToInt(*(String*)HashmapGet(&cardmap,"cardid"),converr),con);
         ListAppendVal(&cards,(ListValue){card});
     }
     ArenaDelete(&scratch);

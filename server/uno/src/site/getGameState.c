@@ -23,7 +23,7 @@ String makeResponse(struct Arena* arena,Connection con,char** argv) {
     Hashmap* user = ListGetVal(&currplayertuples,0)->ptr;
     String* gameId = HashmapGet(user,"joinedgameid");
 
-    res = ConnectionSelect(con,StringFormatChar(arena,"select * from player where joinedgameid = %S and not (playerid = %S) order by gameindex desc",*gameId,*userId));
+    res = ConnectionSelect(con,StringFormatChar(arena,"select * from player where joinedgameid = %S and not (playerid = %S) order by gameindex asc",*gameId,*userId));
     List playertuples = QueryResultToList(res,arena);
     
     Hashmap response = HashmapNew(sizeof(JsonElem),arena);
@@ -67,6 +67,7 @@ String makeResponse(struct Arena* arena,Connection con,char** argv) {
     List cards = CardGetListForPlayedPile(StringToInt(*gameId,converr),con);
 
     Card* currCard = ListGetVal(&cards,0)->ptr;
+    cardmap = HashmapNew(sizeof(JsonElem),arena);
     HashmapSetInt(&cardmap,"cardId",currCard->id);
     HashmapSetInt(&cardmap,"cardValue",currCard->value);
     HashmapSetInt(&cardmap,"cardColorId",currCard->colorId);

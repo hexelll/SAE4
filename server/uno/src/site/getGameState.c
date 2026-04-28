@@ -82,7 +82,7 @@ String makeResponse(struct Arena* arena,Connection con,char** argv) {
     
     Hashmap* gameMap = QueryResultToList(res,arena).head.val.ptr;
 
-    HashmapSetBool(&response,"isReserved",StringToInt(*(String*)HashmapGet(gameMap,"isreversed"),converr));
+    HashmapSetBool(&response,"isReversed",StringToInt(*(String*)HashmapGet(gameMap,"isreversed"),converr));
     HashmapSetInt(&response,"currentPlayerIndex",StringToInt(*(String*)HashmapGet(gameMap,"currentplayerindex"),converr));
 
     HashmapSetBool(&response,"ok",1);

@@ -2,7 +2,7 @@
 
 #define MAXREQUESTSIZE 10000
 
-#define DEBUG 0
+#define DEBUG 1
 
 struct Arena globalArena;
 Hashmap* defaultHeaders;
@@ -308,18 +308,13 @@ void ServerRun(struct Server* server) {
                 char* binpath = StringToChar(StringSub(path,0,StringFindLast(strippedPath,StringFrom(".",&sarena),0),&sarena),&sarena);
                 printf("binpath: %s\n",binpath);
                 FILE* fp = fopen(binpath,"r");
-                if(DEBUG) {
-                    if(fp) {
-                        remove(binpath);
-                    }
-                }
 
-                if(!fp) {
+                if(!fp || DEBUG) {
                     char* command = StringToChar(StringFormat(&sarena,StringFrom("cd /myserver && gcc %S -o %s -lm -I/usr/include/postgresql -lpq",&sarena),strippedPath,binpath),&sarena);
                     printf("command: %s\n",command);
                     FILE* pfp = popen(command,"r");
                     pclose(pfp);
-                    
+
                     fp = fopen(binpath,"r");
                 }
                 

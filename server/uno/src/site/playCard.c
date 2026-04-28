@@ -38,11 +38,14 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
 
     int gameIndex = StringToInt(*(String*)HashmapGet(game,"currentplayerindex"),converr);
 
-    res = ConnectionSelect(con,StringFormatChar(arena,"select * from player where joinedgameid = %d order by gameIndex asc",gameId));
+    
+
+    res = ConnectionSelect(con,StringFormatChar(arena,"select * from player where joinedgameid = %d order by gameindex asc",gameId));
     List players = QueryResultToList(res,arena);
+    
 
     Hashmap* currentplayer = ListGetVal(&players,gameIndex)->ptr;
-
+    
     int currentplayerid = StringToInt(*(String*)HashmapGet(currentplayer,"playerid"),converr);
     if (currentplayerid != StringToInt(*userId,converr)) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"it isn't this player's turn\"}");
@@ -53,7 +56,7 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
     Card currentCard = CardFindById(StringToInt(
         *(String*)HashmapGet(
             QueryResultToMap(
-                ConnectionSelect(con,StringFormatChar(arena,"select cardid from playedpilecard where gameid = %d order by gameIndex desc",gameId)),
+                ConnectionSelect(con,StringFormatChar(arena,"select cardid from playedpilecard where gameid = %d order by cardindex desc",gameId)),
                 arena
             ),
             "cardid"

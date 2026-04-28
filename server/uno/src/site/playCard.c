@@ -56,7 +56,7 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
     Card currentCard = CardFindById(StringToInt(
         *(String*)HashmapGet(
             QueryResultToMap(
-                ConnectionSelect(con,StringFormatChar(arena,"select cardid from playedpilecard where gameid = %d order by cardindex desc",gameId)),
+                ConnectionSelect(con,StringFormatChar(arena,"select cardid from playedpilecard where gameid = %d order by cardindex asc",gameId)),
                 arena
             ),
             "cardid"
@@ -65,7 +65,7 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
     ),con);
 
     if(!(card.colorId == -1 || currentCard.colorId == -1 || currentCard.colorId == card.colorId || (currentCard.typeId == card.typeId && currentCard.value == card.value))) {
-        return StringFrom("{\"ok\":false,\"error\":\"incorrect card color\"}",arena);
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"incorrect card color %d and %d\"}",currentCard.colorId,card.colorId);
     }
 
     int skipid = StringToInt(

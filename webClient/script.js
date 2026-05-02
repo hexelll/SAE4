@@ -1,5 +1,10 @@
-/* -------------------------------------------- SCRIPT REACT ------------------------------------------------ */
+/* -------------------------------------------- AJAX REQUESTS ------------------------------------------------ */
 //import ajaxRequests from "./ajaxRequests.js";
+
+
+
+// Call the functions
+ajaxRequests.getConnexion();
 
 /* ------------------------------------------- ACTUAL PLAYER -------------------------------------------------*/
 // Creating obj json to create fake cards while wating for the server to be done
@@ -12,14 +17,16 @@ const myCardWidthVw = (myCardWidthPx / window.innerWidth) * 100;
 /* Value for the actual player */
 const myRoot = ReactDOM.createRoot(document.getElementById("myHand"));
 
+/*
 var cards = [
     { value: 1, color: "red" },
     { value: 5, color: "blue" },
     { value: 9, color: "green" },
     { value: "+ 4", color: "black" },
-];
+];*/
 // Get the number of cards and print it
-var nbCardsMe = cards.length
+var gameState;
+var nbCardsMe;
 
 
 
@@ -37,8 +44,10 @@ function organizeCards(cardsToOrganize) {
 
 
 
-function makeMyCards(nbCards, root) {
+function makeMyCards(nbCards, cards, root) {
     var myCards = [];
+
+    console.log(cards);
 
     /* Create the overlap dynamicaly */
     const containerWidthVw = 40; /* Container width set in vw in css */
@@ -55,7 +64,6 @@ function makeMyCards(nbCards, root) {
 
     // Ensure minimum overlap of -1vw for better display
     overlap = Math.min(overlap, -1);
-
     /* Display cards */
     myCards = cards.map((card, index) =>(
         React.createElement("div", {
@@ -70,10 +78,10 @@ function makeMyCards(nbCards, root) {
             React.createElement("div", {
                 className: "cardInnerColor",
                 style: {
-                    backgroundColor: card.color,
+                    backgroundColor: "#"+card.cardColorHex,
                     Index: index
                 }
-            }, card.value)
+            }, card.cardTypeDesc == "plus" ? "+"+card.cardValue : card.cardValue +"")
         )
     ));
 
@@ -115,16 +123,16 @@ const cardWidthVw = (cardWidthPx / window.innerWidth) * 100;
 
 
 /* Value for the top enemy */
-var nbCardsEnemyTop = 12; 
+var nbCardsEnemyTop; 
 const enemyTopRoot = ReactDOM.createRoot(document.getElementById("enemyTopHand"));
 
 /* Values  for the right enemy */
-var nbCardsEnemyRight = 4; 
+var nbCardsEnemyRight; 
 const enemyRightRoot = ReactDOM.createRoot(document.getElementById("enemyRightHand"));
 
 
 /* Values for the left enemy */
-var nbCardsEnemyLeft = 10; 
+var nbCardsEnemyLeft; 
 const enemyLeftRoot = ReactDOM.createRoot(document.getElementById("enemyLeftHand"));
 
 
@@ -132,7 +140,7 @@ const enemyLeftRoot = ReactDOM.createRoot(document.getElementById("enemyLeftHand
 /* ---------------------------------- Enemy's hand -----------------------------------*/
 // Create the cards (display) 
 // Different than for the actual player : because we don't know the cards the enemy has, only how many
-function makeEnemysCards(nbCards, emenyRoot) {
+function makeEnemysCards(nbCards, enemyRoot) {
     var enemyCards = [];
 
     /* Create the overlap dynamicaly */
@@ -166,7 +174,7 @@ function makeEnemysCards(nbCards, emenyRoot) {
     }
 
     //console.log("test : " + nbCards + " overlap : " + overlapEnemy);
-    emenyRoot.render(enemyCards);
+    enemyRoot.render(enemyCards);
 }
 
 
@@ -176,20 +184,25 @@ function makeEnemysCards(nbCards, emenyRoot) {
 
 /* --------------------------------------------- ACTIONS -------------------------------------------------*/
 /* Create new tab from tab cards w/ function filter, the value inside the new tab are the one not played */
-function play(card, indexToRemove) {
-    /* Create new tab from tab cards w/ function filter, the value inside the new tab are the one not played */
-    cards = cards.filter((card, index) => index !== indexToRemove);
+function play(card) {
+    ajaxRequests.playCard(card.cardId).then(result => {
+        /*result = JSON.parse(result);*/
+        if (result.ok) {
+            console.log("Card played successfully");
+            ajaxRequests.getGameState().then(g => {
+                gameState = g;
+                nbCardsMe = gameState.cards.length;
+                makeMyCards(nbCardsMe,gameState.cards, myRoot);
 
-    $("#playedPile").html("Played : " + card.value + " " + card.color);
-    //console.log("I played a card");
-    --nbCardsMe;
-
-    makeMyCards(nbCardsMe, myRoot);
-
-    console.log(nbCardsMe);
-    if (nbCardsMe === 1) {
-        $("#uno").removeAttr("hidden");
-    }
+                if (nbCardsMe === 1) {
+                    $("#uno").removeAttr("hidden");
+                }
+            });
+        }
+        else {
+            alert(result.error);
+        }
+    });
 }
 
 
@@ -217,14 +230,16 @@ function draw() {
 
 /* Scream UNO! */
 function uno() {
+    ajaxRequests.getGameState().then(g => {
+        gameState = g;
+        nbCardsMe = gameState.cards.length;
+
+        makeMyCards(nbCardsMe, gameState.cards, myRoot);
+
+        $("playedPile").html(gameState.currentCard.cardValue + " " + gameState.currentCard.cardColorHex);
+    });
     alert("UNOOOOOO!!!");
 }
-
-
-
-// Call the functions
-ajaxRequests.getConnexion();
-ajaxRequests.getGameState();
 
 
 
@@ -232,12 +247,26 @@ window.addEventListener("resize", displayCards);
 window.addEventListener("load", displayCards);
 
 function displayCards() {
-    organizeCards(cards);
-    makeEnemysCards(nbCardsEnemyTop, enemyTopRoot);
-    makeEnemysCards(nbCardsEnemyRight, enemyRightRoot);
-    makeEnemysCards(nbCardsEnemyLeft, enemyLeftRoot);
-    makeMyCards(nbCardsMe, myRoot);
+    ajaxRequests.getGameState().then(g => {
+        gameState = g;
+
+        // Get the number of cards
+        nbCardsMe = gameState.cards.length;
+        nbCardsEnemyTop = gameState.players[0].cardCount;
+        nbCardsEnemyRight = gameState.players[1].cardCount;
+        nbCardsEnemyLeft = gameState.players[2].cardCount;
+        
+
+        //Call functions of display
+        makeEnemysCards(nbCardsEnemyTop, enemyTopRoot);
+        makeEnemysCards(nbCardsEnemyRight, enemyRightRoot);
+        makeEnemysCards(nbCardsEnemyLeft, enemyLeftRoot);
+        makeMyCards(nbCardsMe, gameState.cards, myRoot);
+
+        $("#playedPile").html(gameState.currentCard.cardValue + " " + gameState.currentCard.cardColorHex);
+    });
 };
+
 
 
 $("#drawPile").click(draw);

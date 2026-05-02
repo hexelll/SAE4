@@ -93,7 +93,7 @@ button a{
 /* When you pass on a card it put itseft before all the other and show up so you can see it better before playing it */
 .cardInnerWhite:hover {
     transform: translateY(-20px);
-    z-index: 100;
+    z-index: 1000 !important;
     transition: 0.2s;
 }
 
@@ -250,6 +250,7 @@ button a{
     left: 45vw;
     top: 45vh;
     height: 20vh;
+    width: 10vw;
 }
 
 #drawPile {

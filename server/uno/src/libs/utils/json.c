@@ -187,10 +187,13 @@ JsonElem* JsonParseElem(String str,int start,int*icurrent,Hashmap* map,struct Ar
             int iend = -1;
             int isnumber = 1;
             int isreal = 0;
+            int isnegative = 0;
             for(int i=start;i<icomma;i++) {
                 c = str.text[i];
                 if(c == '.')
                     isreal = 1;
+                if (c == '-')
+                    isnegative = 1;
                 if (istart >= 0) {
                     if (c == ' ' || c == '\n') {
                         break;
@@ -204,7 +207,8 @@ JsonElem* JsonParseElem(String str,int start,int*icurrent,Hashmap* map,struct Ar
                         }
                     }
                     if(!isnumber) break;
-                }else {
+                }
+                else {
                     for(int j=0;j<10;j++) {
                         if(c == nums[j]) {
                             if(istart == -1){
@@ -222,6 +226,7 @@ JsonElem* JsonParseElem(String str,int start,int*icurrent,Hashmap* map,struct Ar
                     float* n = ArenaAlloc(arena,sizeof(float));
                     int err;
                     *n = StringToFloat(StringSub(str,istart,iend,&scratch),&err);
+                    *n *= isnegative ? -1 : 1;
                     if(err) {
                         ArenaDelete(&scratch);
                         return NULL;
@@ -235,6 +240,7 @@ JsonElem* JsonParseElem(String str,int start,int*icurrent,Hashmap* map,struct Ar
                     int* n = ArenaAlloc(arena,sizeof(int));
                     int err;
                     *n = StringToInt(StringSub(str,istart,iend,&scratch),&err);
+                    *n *= isnegative ? -1 : 1;
                     if(err) {
                         ArenaDelete(&scratch);
                         return NULL;

@@ -47,7 +47,6 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
     int i = rand()%drawcards.size;
     i = i < 0 ? i+res.count : i;
 
-    return StringFormatChar(arena,"%d %d",i,drawcards.size);
 
     Card* card = ListGetVal(&drawcards,i)->ptr;
 

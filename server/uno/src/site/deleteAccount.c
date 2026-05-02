@@ -10,36 +10,35 @@
 String makeResponse(struct Arena* arena,Hashmap map, Connection con) {
 
     String err = StringFrom("",arena);
-    String* userName = HashmapGet(&map,"username");
-    err = userName ? err : StringConcat(err,StringFrom("missing userId in request ",arena),arena);
+    String* userid = HashmapGet(&map,"userId");
+    err = userid ? err : StringConcat(err,StringFrom("missing userId in request ",arena),arena);
     String* userPwd = HashmapGet(&map,"userPwd");
     err = userPwd ? err : StringConcat(err,StringFrom("missing userPwd in request ",arena),arena);
 
-    if(!userName || !userPwd) {
+    if(!userid || !userPwd) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"%S\"}",err);
     }
+
+    int* converr = ArenaAlloc(&con.arena, sizeof(int));
+    int leUserId = StringToInt(*userid, converr);
+    String query = StringFormatChar(arena,"select * from player where playerid = %d and userpwd = '%S'",leUserId,*userPwd);
+    QueryResult resCheck1 = ConnectionSelect(con,query);
+    if(!(resCheck1.count > 0 && resCheck1.message.size == 0)) {
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"no user with this id and password\"}");
+    }
+
+
     
-    
-    Player lePlayer;
-    lePlayer.id = -1;
-    lePlayer.username = *userName;
-    lePlayer.userPwd = *userPwd;
-    QueryResult res = InsertPlayer(&lePlayer, con);
+
+    QueryResult res = PlayerDelete(leUserId, con);
     
     if(!(res.message.size == 0)) {
-        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"Creation of account failed\",\"id\":\"%d\"}", -1);
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"%S\"}", res.message);
     }else{
-                QueryResult res = ConnectionSelect(con,StringFormatChar(&con.arena,"select max(playerid) from player"));
-                int* converr = ArenaAlloc(&con.arena, sizeof(int));
-                String idstr = *(String*)HashmapGet(QueryResultToMap(res,&con.arena),"max");
-                int leID = StringToInt(idstr,converr);
-                return StringFormatChar(arena,"{\"ok\":true,\"error\":\"\", \"id\": %d}", leID);
+                return StringFormatChar(arena,"{\"ok\":true,\"error\":\"\"}");
     }
     
-                
-                
-
-    return StringFormatChar(arena,"{\"ok\":false,\"error\":\"Query did not get executed\",\"id\":\"%d\"}", -1);
+    return StringFormatChar(arena,"{\"ok\":false,\"error\":\"Query did not get executed\"}");
 }
 
 int main(int argc,char** argv) {

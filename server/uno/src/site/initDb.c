@@ -7,7 +7,53 @@ String makeResponse(Connection con,struct Arena* arena) {
 
     content = StringFrom("{\"ok\":true}",arena);
 
-    FILE* fp = fopen("defaultdeck.json","r");
+    FILE* fp = fopen("colors.json","r");
+    if (fp) {
+        ConnectionExec(con,StringFormatChar(arena,"delete from cardcolor"));
+        String colorsstr = StringFrom("",arena);
+        char c = fgetc(fp);
+        while(!feof(fp)) {
+            colorsstr = StringConcat(colorsstr,StringFromChar(c,arena),arena);
+            c = fgetc(fp);
+        }
+
+        JsonElem* colorjson = JsonParse(colorsstr,arena);
+        List* lst = (List*)colorjson->ptr;
+
+
+        for(int i=0;i<lst->size;i++) {
+            Hashmap* cardmap = ((JsonElem*)ListGetVal(lst,i)->ptr)->ptr;
+            
+            int id = *(int*)((JsonElem*)HashmapGet(cardmap,"id"))->ptr;
+            String color = *(String*)((JsonElem*)HashmapGet(cardmap,"color"))->ptr;
+
+            ConnectionExec(con,StringFormatChar(arena,"insert into cardcolor(cardcolorid,color) values(%d,'%S')",id,color));
+        }
+    }
+
+    fp = fopen("types.json","r");
+    if (fp) {
+        ConnectionExec(con,StringFormatChar(arena,"delete from cardtype"));
+        String typesstr = StringFrom("",arena);
+        char c = fgetc(fp);
+        while(!feof(fp)) {
+            typesstr = StringConcat(typesstr,StringFromChar(c,arena),arena);
+            c = fgetc(fp);
+        }
+
+        JsonElem* typejson = JsonParse(typesstr,arena);
+        List* lst = (List*)typejson->ptr;
+
+        for(int i=0;i<lst->size;i++) {
+            Hashmap* typemap = ((JsonElem*)ListGetVal(lst,i)->ptr)->ptr;
+            int id = *(int*)((JsonElem*)HashmapGet(typemap,"id"))->ptr;
+            String desc = *(String*)((JsonElem*)HashmapGet(typemap,"desc"))->ptr;
+
+            ConnectionExec(con,StringFormatChar(arena,"insert into cardtype(cardtypeid,carddesc) values(%d,'%S')",id,desc));
+        }
+    }
+
+    fp = fopen("defaultdeck.json","r");
     if(fp) {
         ConnectionExec(con,StringFormatChar(arena,"delete from deck where deckid = 1"));
         ConnectionExec(con,StringFormatChar(arena,"insert into deck(deckid,deckname) values(1,\'default\')"));
@@ -62,6 +108,7 @@ String makeResponse(Connection con,struct Arena* arena) {
             }
         }
     }
+    
 
     return content;
 }

@@ -1,0 +1,26 @@
+[
+    {
+        "id":1,
+        "desc":"normal"
+    },
+    {
+        "id":2,
+        "desc":"reverse"
+    },
+    {
+        "id":3,
+        "desc":"skip"
+    },
+    {
+        "id":4,
+        "desc":"plus"
+    },
+    {
+        "id":5,
+        "desc":"pluswild"
+    },
+    {
+        "id":6,
+        "desc":"wild"
+    }
+]

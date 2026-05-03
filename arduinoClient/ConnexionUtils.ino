@@ -1,9 +1,11 @@
-
+/*
+---------- Wifi  ------------------------------------------------------------------------------------------
+*/
 // begin wifi connection
 void initWifi(char ssid[],char pass[]){
   // check for the WiFi module:
   if (WiFi.status() == WL_NO_MODULE) {
-    Serial.println("[ERROR] Communication with WiFi module failed!");
+    Serial.println(F("[ERROR] Communication with WiFi module failed!"));
     // don't continue
     while (true);
   }
@@ -11,7 +13,7 @@ void initWifi(char ssid[],char pass[]){
   // check wifi firmware
   String fv = WiFi.firmwareVersion();
   if (fv < WIFI_FIRMWARE_LATEST_VERSION) {
-    Serial.println("[WARNING] Please upgrade the firmware");
+    Serial.println(F("[WARNING] Please upgrade the firmware"));
   }
   
   // attempt to connect to WiFi network:
@@ -20,23 +22,35 @@ void initWifi(char ssid[],char pass[]){
     // Connect to WPA/WPA2 network
     status = WiFi.begin(ssid, pass);
     // wait a few seconds for connection:
-    Serial.println("[WARNING] WIFI connection failed, retrying in 2s");
+    Serial.println(F("[WARNING] WIFI connection failed, retrying in 2s"));
     delay(2000);
   }
-  Serial.println("[OK] WIFI connected");
+  Serial.println(F("[OK] WIFI connected"));
+
+  client.setTimeout(60000);
 }
 
-// Send an HTTP Request with given values, returns connection success/failure
-bool sendHTTPRequest(String method, String ressourcePath, String dataSent){
+
+/*
+---------- SENDING HTTP REQUESTS  ------------------------------------------------------------------------------------------
+*/
+// Sends given http Request, returns connection success/failure
+bool sendHTTPRequest(Request requestToSend){
   if (client.connect(server, port)) {
-    String request = method + String(" ") + ressourcePath + String(" HTTP/1.1\nHost: ") + String(server) + String("\nConnection: close\n\n") + dataSent + String("\0\0");
+    String request = requestToSend.method + F(" ") + requestToSend.path + F(" HTTP/1.1\nHost: ") + String(server) + F("\nConnection: close\r\n\r\n") + requestToSend.data ;
     client.print(request); 
     return true;
   }else{
+    Serial.println(F("[ERROR] Could not connect to server"));
     return false;
   }
 }
 
+
+/*
+---------- RECEIVING HTTP REQUESTS  ------------------------------------------------------------------------------------------
+*/
+// returns true if "Content-Length:" as been found in the last given chars
 bool contentLengthFound(int c) {
     const char marker[] = "Content-Length:";  // search string
     static int pos = 0;  // correct characters received so far
@@ -55,6 +69,7 @@ bool contentLengthFound(int c) {
     return false;
 }
 
+// returns true if "\n\r\n" (=end of header) as been found in the last given chars
 bool endOfHeaderFound(int c) {
     const char marker[] = "\n\r\n";  // search string
     static int pos = 0;  // correct characters received so far
@@ -73,40 +88,44 @@ bool endOfHeaderFound(int c) {
     return false;
 }
 
-void receiveHTTPResponse(bool debug){
+// reads received chars, keeps response buffer, parses necessary info, converts to JsonDocument when the response is finished
+JsonDocument receiveHTTPResponse(){
+  // flags
   static bool RESPONSE_HEADER_ONGOING = true;
+  static bool RESPONSE_ONGOING = false;
   static bool RESPONSE_CONTENT_LENGTH_ONGOING = false;
-  static Text<5> contentLengthBuffer;
-  static int contentLength = 0;
-  static Response<2048> response;
+  // buffers
+  static char contentLengthBuffer[10];
+  static int contentLengthBufferLength = 0;
+  static char responseBuffer[2000];
+  static int responseBufferLength = 0;
 
+  static int contentLength = 0;
+  
   while (client.available()) {
     RESPONSE_ONGOING = true;
 
     char c = client.read();
 
-
-    if (debug) {
-      Serial.print(c);
-      //Serial.print(" | ");
-      //Serial.println( (int)c );
-    }
+    //Serial.print(c);
+    //Serial.print(" | ");
+    //Serial.println( (int)c );
 
     if(!RESPONSE_HEADER_ONGOING){
-      response.data.body[response.data.length] = c;
-      response.data.length ++;
+      responseBuffer[responseBufferLength] = c;
+      responseBufferLength ++;
       contentLength--;
     }
 
     if(RESPONSE_CONTENT_LENGTH_ONGOING && RESPONSE_HEADER_ONGOING){
       if(c== '\n'){
         RESPONSE_CONTENT_LENGTH_ONGOING = false;
-        contentLength = atoi(contentLengthBuffer.body);
-        memset(contentLengthBuffer.body, 0, sizeof(contentLengthBuffer.body));
-        contentLengthBuffer.length = 0;
+        contentLength = atoi(contentLengthBuffer);
+        memset(contentLengthBuffer, 0, sizeof(contentLengthBuffer));
+        contentLengthBufferLength = 0;
       }else{
-        contentLengthBuffer.body[contentLengthBuffer.length] = c;
-        contentLengthBuffer.length++;
+        contentLengthBuffer[contentLengthBufferLength] = c;
+        contentLengthBufferLength++;
       }
     }
 
@@ -121,14 +140,80 @@ void receiveHTTPResponse(bool debug){
     if(contentLength <= 0 && !RESPONSE_HEADER_ONGOING ){
       RESPONSE_ONGOING = false;
       RESPONSE_HEADER_ONGOING = true;
-      return;
+      RESPONSE_CONTENT_LENGTH_ONGOING = false;
+
+      contentLengthBufferLength = 0;
+      contentLength = 0;
+      break;
     }
 
   } 
 
+  JsonDocument responseData;
   if (!RESPONSE_ONGOING){
-    deserializeJson(responseData, response.data.body);
-    memset(response.data.body, 0, response.data.length);
-    response.data.length = 0;
+    deserializeJson(responseData, responseBuffer);
+    memset(responseBuffer, 0, responseBufferLength);
+    responseBufferLength = 0;
   }
+  return responseData;
+}
+
+/*
+---------- REQUEST QUEUE MANAGEMENT  ------------------------------------------------------------------------------------------
+*/
+// adds given request to the queue, return false if queue is full
+bool queueRequest(Request requestToSend){
+  if ( requestQueueSize < 30 ){
+    requestQueue[(requestQueueIndex+requestQueueSize)%30] = requestToSend;
+    requestQueueSize++;
+    return true;
+  }else{
+    Serial.print(F("[ERROR] Queue full : request dropped"));
+    return false;
+  }
+}
+
+// queueRequest wraper that builds new Request from easy to use args
+bool queueNewRequest(char* method, char* path, char* data, void (*callback)(Request*,JsonDocument*)){
+  return queueRequest({
+    .method = String(method),
+    .path = String(path),
+    .data = String(data),
+    .callback = callback
+  });
+}
+
+// util to handle retrieval of queue requests
+Request popRequest(){
+  int index = requestQueueIndex;
+  requestQueueIndex++;
+  requestQueueSize--;
+  requestQueueIndex %= 30;
+  return requestQueue[index];
+}
+
+// processes incoming http responses & sends next requests in queue when possible
+void processResponses(){
+  static bool IS_WAITING_FOR_RESPONSE = false;
+
+  JsonDocument responseDataDoc = receiveHTTPResponse();
+  if ( !responseDataDoc.isNull() && IS_WAITING_FOR_RESPONSE){
+    
+    // last request response received
+    lastSentRequest.callback(&lastSentRequest,&responseDataDoc);
+  
+    if (requestQueueSize > 0){
+      lastSentRequest = popRequest();
+      sendHTTPRequest(lastSentRequest);
+      IS_WAITING_FOR_RESPONSE = true;
+    }else{
+      IS_WAITING_FOR_RESPONSE = false;
+    }
+  }
+  if ( ! IS_WAITING_FOR_RESPONSE && requestQueueSize > 0){
+    lastSentRequest = popRequest();
+    sendHTTPRequest(lastSentRequest);
+    IS_WAITING_FOR_RESPONSE = true;
+  }
+  
 }

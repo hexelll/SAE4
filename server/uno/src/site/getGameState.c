@@ -66,7 +66,7 @@ String makeResponse(struct Arena* arena,Connection con,char** argv) {
     
     List cards = CardGetListForPlayedPile(StringToInt(*gameId,converr),con);
 
-    Card* currCard = ListGetVal(&cards,0)->ptr;
+    Card* currCard = ListGetVal(&cards,cards.size-1)->ptr;
     cardmap = HashmapNew(sizeof(JsonElem),arena);
     HashmapSetInt(&cardmap,"cardId",currCard->id);
     HashmapSetInt(&cardmap,"cardValue",currCard->value);

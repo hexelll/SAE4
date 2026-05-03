@@ -19,7 +19,7 @@ List GetPlayersInGame(int gameID, Connection con);
 
 QueryResult InsertPlayer(Player* player, Connection con);
 
-QueryResult PlayerDelete(Player player, Connection con);
+QueryResult PlayerDelete(int id, Connection con);
 
-QueryResult AddPlayerToGame(Player player, int gameId, Connection con);
+QueryResult AddPlayerToGame(int playerid, int gameId, Connection con);
 

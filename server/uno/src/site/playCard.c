@@ -53,16 +53,9 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
 
     Card card = CardFindById(StringToInt(*cardId,converr),con);
 
-    Card currentCard = CardFindById(StringToInt(
-        *(String*)HashmapGet(
-            QueryResultToMap(
-                ConnectionSelect(con,StringFormatChar(arena,"select cardid from playedpilecard where gameid = %d order by cardindex desc",gameId)),
-                arena
-            ),
-            "cardid"
-        ),
-        converr
-    ),con);
+    List playedLst = CardGetListForPlayedPile(gameId,con);
+
+    Card currentCard = *(Card*)ListGetVal(&playedLst,playedLst.size-1)->ptr;
 
     if(!(card.colorId == -1 || currentCard.colorId == -1 || currentCard.colorId == card.colorId || (currentCard.typeId == card.typeId && currentCard.value == card.value))) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"incorrect card color %d and %d %d %d %d %d\"}",currentCard.colorId,card.colorId,currentCard.typeId, card.typeId , currentCard.value ,card.value);

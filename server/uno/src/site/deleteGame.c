@@ -51,7 +51,7 @@ String makeResponse(struct Arena* arena,Hashmap map, Connection con) {
 
     QueryResult delgame = ConnectionExec(con, StringFormatChar(arena, "Delete from game where gameid = %d", leGameId));
     if(!(delgame.message.size == 0)) {
-        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"%S\"}", del.message);
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"%S\"}", delgame.message);
     }else{
         QueryResult reset = ConnectionExec(con, StringFormatChar(arena, "update player set joinedgameid = NULL where joinedgameId = %d", leGameId));
         if(!(reset.message.size == 0)){

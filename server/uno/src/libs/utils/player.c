@@ -49,7 +49,7 @@ List GetPlayersInGame(int gameID, Connection con){
     List playersTuples = QueryResultToList(res, &con.arena);
     List players = ListNew(&con.arena);
     int* converr = ArenaAlloc(&scratch, sizeof(int));
-    for(int i = 0; playersTuples.size;i++){
+    for(int i = 0; i<playersTuples.size;i++){
         Hashmap playermap = *(Hashmap*)ListGetVal(&playersTuples,i)->ptr;
         Player* player = ArenaAlloc(&con.arena,sizeof(Player));
         *player = PlayerFindById(StringToInt(*(String*)HashmapGet(&playermap,"playerid"),converr),con);

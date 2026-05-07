@@ -263,7 +263,7 @@ button a{
     height:26vh;
 }
 
-#drawPile:hover {
+#drawPile:active {
     width:40vw;
     height:20vh;
 }

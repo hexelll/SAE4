@@ -1,15 +1,16 @@
+let params = new URLSearchParams(window.location.search);
+
+let userId = params.get("userId");
+let userPwd = params.get("userPwd");
+
 /* -------------------------------------------- AJAX REQUESTS ------------------------------------------------ */
-//import ajaxRequests from "./ajaxRequests.js";
-
-
-
 // Call the functions
 ajaxRequests.getConnexion();
+
 
 /* ------------------------------------------- ACTUAL PLAYER -------------------------------------------------*/
 // Creating obj json to create fake cards while wating for the server to be done
 /* Width calculations and value for the overlap of all the enemies */
-//const myCardWidthVw = 9; /* Card width set in vw in css */
 const myCardWidthPx = Math.min(window.innerWidth * 0.09, 120); 
 const myCardWidthVw = (myCardWidthPx / window.innerWidth) * 100;
 
@@ -17,30 +18,10 @@ const myCardWidthVw = (myCardWidthPx / window.innerWidth) * 100;
 /* Value for the actual player */
 const myRoot = ReactDOM.createRoot(document.getElementById("myHand"));
 
-/*
-var cards = [
-    { value: 1, color: "red" },
-    { value: 5, color: "blue" },
-    { value: 9, color: "green" },
-    { value: "+ 4", color: "black" },
-];*/
 // Get the number of cards and print it
 var gameState;
 var nbCardsMe;
 
-
-
-function organizeCards(cardsToOrganize) {
-    cardsToOrganize.sort((a,b) => {
-        const colorOrder = ["red", "blue", "green", "yellow", "black"];
-        if (a.color === b.color) {
-            return a.value-b.value;
-        }
-        return colorOrder.indexOf(a.color) - colorOrder.indexOf(b.color);
-    }
-    );
-    console.log("sorted cards:",cardsToOrganize);
-}
 
 
 
@@ -91,28 +72,6 @@ function makeMyCards(nbCards, cards, root) {
 
 
 
-// Create the cards (print)
-function makeCards() {
-    var myCards = cards.map((card, index) =>
-        React.createElement("div", {
-            key: index,
-            className: "cardInnerWhite",
-            onClick: () => play(card, index)
-        },
-            React.createElement("div", {
-                className: "cardInnerColor",
-                style: {
-                    backgroundColor: card.color,
-                    Index: index
-                }
-            }, card.value)
-        )
-    );
-    myRoot.render(myCards);
-    console.log(myCards);
-}
-
-
 
 
 /* --------------------------------------------- ENEMIES -------------------------------------------------*/
@@ -122,22 +81,24 @@ const cardWidthPx = Math.min(window.innerWidth * 0.09, 120);
 const cardWidthVw = (cardWidthPx / window.innerWidth) * 100;
 
 
-/* Value for the top enemy */
+/* React root for the top enemy */
 var nbCardsEnemyTop; 
 const enemyTopRoot = ReactDOM.createRoot(document.getElementById("enemyTopHand"));
 
-/* Values  for the right enemy */
+/* React root for the right enemy */
 var nbCardsEnemyRight; 
 const enemyRightRoot = ReactDOM.createRoot(document.getElementById("enemyRightHand"));
 
 
-/* Values for the left enemy */
+/* React root for the left enemy */
 var nbCardsEnemyLeft; 
 const enemyLeftRoot = ReactDOM.createRoot(document.getElementById("enemyLeftHand"));
 
+/* React root for the played pile */
+const playedPileRoot = ReactDOM.createRoot(document.getElementById("playedPile"));
 
 
-/* ---------------------------------- Enemy's hand -----------------------------------*/
+
 // Create the cards (display) 
 // Different than for the actual player : because we don't know the cards the enemy has, only how many
 function makeEnemysCards(nbCards, enemyRoot) {
@@ -185,10 +146,12 @@ function makeEnemysCards(nbCards, enemyRoot) {
 /* --------------------------------------------- ACTIONS -------------------------------------------------*/
 /* Create new tab from tab cards w/ function filter, the value inside the new tab are the one not played */
 function play(card) {
-    ajaxRequests.playCard(card.cardId).then(result => {
+    ajaxRequests.playCard(userId,userPwd,card.cardId).then(result => {
         /*result = JSON.parse(result);*/
         if (result.ok) {
             console.log("Card played successfully");
+            displayCards();
+            /*
             ajaxRequests.getGameState().then(g => {
                 gameState = g;
                 nbCardsMe = gameState.cards.length;
@@ -198,6 +161,7 @@ function play(card) {
                     $("#uno").removeAttr("hidden");
                 }
             });
+            */
         }
         else {
             alert(result.error);
@@ -206,40 +170,80 @@ function play(card) {
 }
 
 
+
+
 /* "Create" a new card and add it to the hand of the actual player*/
 function draw() {
-    var colors = ["red", "blue", "green", "yellow"];
-    var values = [1, 2, 3, 4, 5, 6, 7, 8, 9, "+2", "change"];
-    var randomColor = Math.floor(Math.random() * colors.length);
-    var randomValue = Math.floor(Math.random() * values.length);
-    console.log("Random color : " + colors[randomColor]);
-    console.log("Random value : " + values[randomValue]);
-
-    var newCard = { value: values[randomValue], color: colors[randomColor] };
-    cards.push(newCard);
-    organizeCards(cards);
-
-    //console.log("I draw a card", cards);
-    nbCardsMe += 1;
-    if (nbCardsMe > 1) {
-        $("#uno").attr("hidden", true);
-    }
-    makeMyCards(nbCardsMe, myRoot);
+    ajaxRequests.drawCard(userId,userPwd).then(result => {
+        /*result = JSON.parse(result);*/
+        if (result.ok) {
+            //console.log("Card drawn successfully");
+            displayCards();
+            /*
+            ajaxRequests.getGameState().then(g => {
+                gameState = g;
+                nbCardsMe = gameState.cards.length;
+                makeMyCards(nbCardsMe,gameState.cards, myRoot);
+                
+                if (nbCardsMe > 1) {
+                    $("#uno").attr("hidden", true);
+                }
+            });
+            */
+        }
+        else {
+            alert(result.error);
+        }
+    });
 }
+
 
 
 /* Scream UNO! */
 function uno() {
-    ajaxRequests.getGameState().then(g => {
+    ajaxRequests.getGameState(userId,userPwd).then(g => {
         gameState = g;
         nbCardsMe = gameState.cards.length;
 
         makeMyCards(nbCardsMe, gameState.cards, myRoot);
-
-        $("playedPile").html(gameState.currentCard.cardValue + " " + gameState.currentCard.cardColorHex);
     });
     alert("UNOOOOOO!!!");
 }
+
+
+
+/* Calling the functions for the right buttons */
+$("#drawPile").click(draw);
+$("#uno").click(uno);
+
+
+
+
+
+/* --------------------------------------------- DISPLAY CARDS -------------------------------------------------*/
+/* Display the played pile */
+function makePlayedPileCard(card) {
+    let playedCard = React.createElement("div", {
+            className: "cardInnerWhite",
+        },
+            React.createElement("div", {
+                className: "cardInnerColor",
+                style: {
+                    backgroundColor: "#"+card.cardColorHex,
+                }
+            }, card.cardTypeDesc == "plus" || card.cardTypeDesc == "wildplus" ? "+"+card.cardValue : card.cardValue +"")
+        )
+    playedPileRoot.render(playedCard);
+}
+
+
+
+/* To display the result of getGameState every 3 seconds */
+function periodicGetGameState(){
+    displayCards();
+    setTimeout(periodicGetGameState, 3000); 
+}
+
 
 
 
@@ -247,8 +251,10 @@ window.addEventListener("resize", displayCards);
 window.addEventListener("load", displayCards);
 
 function displayCards() {
-    ajaxRequests.getGameState().then(g => {
+    console.log(userId,userPwd);
+    ajaxRequests.getGameState(userId,userPwd).then(g => {
         gameState = g;
+        console.log(gameState);
 
         // Get the number of cards
         nbCardsMe = gameState.cards.length;
@@ -263,12 +269,26 @@ function displayCards() {
         makeEnemysCards(nbCardsEnemyLeft, enemyLeftRoot);
         makeMyCards(nbCardsMe, gameState.cards, myRoot);
 
-        $("#playedPile").html(gameState.currentCard.cardValue + " " + gameState.currentCard.cardColorHex);
+        makePlayedPileCard(gameState.currentCard);
+
+        /*
+        if(nbCardsEnemyTop === 1 || nbCardsEnemyRight === 1 || nbCardsEnemyLeft === 1) {
+            $("#contreUno").removeAttr("hidden");
+        }
+        */
+
+        if (nbCardsMe === 1) {
+            $("#uno").removeAttr("hidden");
+        }
+
+        if (nbCardsMe > 1) {
+            $("#uno").attr("hidden", true);
+        }
+
     });
 };
 
+// Caliing the function that get the gameState every 3 seconds
+periodicGetGameState();
 
-
-$("#drawPile").click(draw);
-$("#uno").click(uno);
 

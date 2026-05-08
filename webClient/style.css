@@ -288,3 +288,375 @@ button a{
 
     cursor: pointer;
 }
+
+
+
+
+
+/* ----------------------------------------------- LOGIN PAGE --------------------------------------------------- */
+#loginBody{
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(
+        135deg,
+        #ff3131,
+        #ff5e00,
+        #ffd000
+    );
+    overflow: hidden;
+}
+
+
+#welcome{
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 50vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+}
+
+#welcome h1{
+    font-size: 90px;
+    margin: 0;
+    font-weight: bold;
+    text-shadow: 4px 4px 10px rgba(0,0,0,0.3);
+}
+
+#welcome h2{
+    margin-top: 10px;
+    font-size: 30px;
+    font-weight: normal;
+}
+
+
+
+#loginData{
+    position: fixed;
+    right: 15vw;
+    width: 350px;
+    padding: 40px;
+    border-radius: 25px;
+    background-color: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
+}
+
+
+#loginData h2{
+    text-align: center;
+    margin-bottom: 25px;
+    color: #ff3131;
+    font-size: 35px;
+}
+
+
+#loginData p{
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #444;
+}
+
+
+input{
+    padding: 14px;
+    margin-bottom: 20px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+input:focus{
+    outline: none;
+    border-color: #ff3131;
+    box-shadow: 0 0 10px rgba(255,49,49,0.3);
+}
+
+
+#loginButton{
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(
+        90deg,
+        #ff3131,
+        #ff5e00
+    );
+
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#loginButton:hover{
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(255,49,49,0.4);
+}
+
+
+a{
+    color: #ff3131;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover{
+    text-decoration: underline;
+}
+
+
+/* ---------- RESPONSIVE ---------- */
+@media screen and (max-width: 900px){
+    #welcome{
+        display: none;
+    }
+    #loginData{
+        position: relative;
+        right: 0;
+        width: 80vw;
+    }
+}
+
+
+
+
+/* ----------------------------------------------- CREATE ACCOUNT PAGE --------------------------------------------------- */
+#createAccountBody{
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(
+        135deg,
+        #ff3131,
+        #ff5e00,
+        #ffd000
+    );
+    overflow: hidden;
+}
+
+
+
+#signInData{
+    position: fixed;
+    right: 15vw;
+    width: 350px;
+    padding: 40px;
+    border-radius: 25px;
+    background-color: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
+}
+
+
+#signInData h2{
+    text-align: center;
+    margin-bottom: 25px;
+    color: #ff3131;
+    font-size: 35px;
+}
+
+
+#signInData p{
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #444;
+}
+
+
+input{
+    padding: 14px;
+    margin-bottom: 20px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+input:focus{
+    outline: none;
+    border-color: #ff3131;
+    box-shadow: 0 0 10px rgba(255,49,49,0.3);
+}
+
+
+#createAccountButton{
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(
+        90deg,
+        #ff3131,
+        #ff5e00
+    );
+
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#createAccountButton:hover{
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(255,49,49,0.4);
+}
+
+
+a{
+    color: #ff3131;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover{
+    text-decoration: underline;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media screen and (max-width: 900px){
+
+    #welcome{
+        display: none;
+    }
+
+    #createAccountData{
+        position: relative;
+        right: 0;
+        width: 80vw;
+    }
+}
+
+
+
+
+/* ----------------------------------------------- MENU PAGE --------------------------------------------------- */
+#menuBody{
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(
+        135deg,
+        #ff3131,
+        #ff5e00,
+        #ffd000
+    );
+    overflow: hidden;
+}
+
+
+
+#gameCodeData{
+    position: fixed;
+    right: 15vw;
+    width: 350px;
+    padding: 40px;
+    border-radius: 25px;
+    background-color: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
+}
+
+
+#gameCodeData h2{
+    text-align: center;
+    margin-bottom: 25px;
+    color: #ff3131;
+    font-size: 35px;
+}
+
+
+#gameCodeData p{
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #444;
+}
+
+
+input{
+    padding: 14px;
+    margin-bottom: 20px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+input:focus{
+    outline: none;
+    border-color: #ff3131;
+    box-shadow: 0 0 10px rgba(255,49,49,0.3);
+}
+
+
+#joinGameButton{
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(
+        90deg,
+        #ff3131,
+        #ff5e00
+    );
+
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#joinGameButton:hover{
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(255,49,49,0.4);
+}
+
+
+a{
+    color: #ff3131;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover{
+    text-decoration: underline;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media screen and (max-width: 900px){
+
+    #welcome{
+        display: none;
+    }
+
+    #gameCodeData{
+        position: relative;
+        right: 0;
+        width: 80vw;
+    }
+}

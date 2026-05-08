@@ -1,9 +1,9 @@
 /* IP adress of the serveur */
-var serveurIpAlex = "10.8.2.55:42069";
+var serveurIpAlex = "10.8.16.218:42069";
 var serveurIpLuc = "10.8.19.132:42069";
 var serveurIpMoi = "localhost:42069";
 
-var serveurIp = serveurIpAlex;
+var serveurIp = serveurIpMoi;
 
 
 /* Get the connexion to the server */
@@ -36,6 +36,32 @@ async function login() {
     
     return result;
 }
+
+
+
+async function createAccount() {
+    let result;
+    await $.ajax({
+        type: 'GET',
+        url: 'http://'+serveurIp+'/createAccount.c?',
+        data: 'username='+$("#username").val()+'&userPwd='+$("#userPwd").val(),
+        dataType: 'json',
+        success: function (r) { 
+            result = r; 
+            /*
+            userPwd= $("#userPwd").val();
+            userId = result.id;
+            console.log(userId);
+            */
+        },
+        error: function () { alert("createAccount is not working") }
+    })
+    
+    return result;
+}
+
+
+
 
 
 

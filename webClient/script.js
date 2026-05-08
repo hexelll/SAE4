@@ -2,6 +2,8 @@ let params = new URLSearchParams(window.location.search);
 
 let userId = params.get("userId");
 let userPwd = params.get("userPwd");
+let username = params.get("username");
+
 
 /* -------------------------------------------- AJAX REQUESTS ------------------------------------------------ */
 // Call the functions
@@ -258,9 +260,9 @@ function displayCards() {
 
         // Get the number of cards
         nbCardsMe = gameState.cards.length;
-        nbCardsEnemyTop = gameState.players[0].cardCount;
-        nbCardsEnemyRight = gameState.players[1].cardCount;
-        nbCardsEnemyLeft = gameState.players[2].cardCount;
+        nbCardsEnemyLeft = gameState.players[0].cardCount;
+        nbCardsEnemyTop = gameState.players[1].cardCount;
+        nbCardsEnemyRight = gameState.players[2].cardCount;
         
 
         //Call functions of display
@@ -271,11 +273,6 @@ function displayCards() {
 
         makePlayedPileCard(gameState.currentCard);
 
-        /*
-        if(nbCardsEnemyTop === 1 || nbCardsEnemyRight === 1 || nbCardsEnemyLeft === 1) {
-            $("#contreUno").removeAttr("hidden");
-        }
-        */
 
         if (nbCardsMe === 1) {
             $("#uno").removeAttr("hidden");
@@ -288,7 +285,19 @@ function displayCards() {
     });
 };
 
+
 // Caliing the function that get the gameState every 3 seconds
 periodicGetGameState();
 
 
+// Displaying usernames of the players
+ajaxRequests.getGameState(userId,userPwd).then(g => {
+    gameState = g;
+    console.log(gameState);
+    $("#nameEnemyLeft").html("Player "+ gameState.players[0].playerId + " : " +gameState.players[0].username);
+    $("#nameEnemyTop").html("Player "+ gameState.players[1].playerId + " : " +gameState.players[1].username);
+    $("#nameEnemyRight").html("Player "+ gameState.players[2].playerId + " : " +gameState.players[2].username);
+
+});
+
+$("#nameMe").html("Player "+ userId + " : " + username);

@@ -6,7 +6,7 @@ ajaxRequests.getConnexion();
 
 /* -------------------------------------------- LOGIN  ------------------------------------------------ */
 /* Fonction login for the login.html */
-function login() {
+function joinGame() {
     ajaxRequests.login().then(r => {
         result = r;
         if(result.ok) {

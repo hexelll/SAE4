@@ -3,7 +3,7 @@
 
 
     <head>
-        <title>Login</title>
+        <title>Menu</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="./style.css" type="text/css" rel="stylesheet"/>
@@ -11,26 +11,20 @@
     </head>
     
     
-    <body id="loginBody">
+    <body id="menuBody">
         <!---------------------------------------------- HTML -------------------------------------------------->
         <div id="welcome">
             <h1>Welcome</h1>
-            <h2>Please log in</h2>
+            <h2>name</h2>
         </div>
         
 
-        <div id="loginData">
-            <h2>Log in</h2>
-            <p>Enter your username : </p>
-            <input id="username" type="text"/>
-            <p>Enter your password : </p>
-            <input id="userPwd" type="password"/>
-
-            <button id="loginButton">Login</button>
+        <div id="gameCodeData">
+            <h2>Join a game</h2>
+            <p>Enter a game code</p>
+            <input id="gameCode" type="text"/>
+            <button id="joinGameButton">Join game</button>
             <br>
-
-            <p id="createAccount">Don't have an account :</p>
-            <a href="./createAccount.html">Sign in</a>
         </div>
 
 
@@ -40,6 +34,7 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"> </script>
 
         <script src="./ajaxRequests.js"></script>
-        <script src="./scriptLogin.js"></script>
+        <script src="./scriptMenu.js"></script>
+
     </body>
 </html>

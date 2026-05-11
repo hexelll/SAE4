@@ -1,9 +1,9 @@
 /* IP adress of the serveur */
-var serveurIpAlex = "10.8.16.218:42069";
+var serveurIpAlex = "10.97.197.104:42069";
 var serveurIpLuc = "10.8.30.27:42069";
 var serveurIpMoi = "localhost:42069";
 
-var serveurIp = serveurIpLuc;
+var serveurIp = serveurIpAlex;
 
 
 /* -------------------------------------------- TRY CONNEXION ------------------------------------------------ */
@@ -98,6 +98,29 @@ async function createGame(userId, userPwd) {
 
 
 
+/* -------------------------------------------- LOBBY ------------------------------------------------ */
+async function startGame(userId, userPwd) {
+    let result;
+    await $.ajax({
+        type: 'GET',
+        url: 'http://'+serveurIp+'/startGame.c?',
+        data: 'userId='+userId+'&userPwd='+userPwd,
+        dataType: 'json',
+        success: function (r) { 
+            result = r; 
+            //console.log(userId);
+        },
+        error: function () { alert("startGame is not working") }
+    })
+    
+    return result;
+}
+
+
+
+
+
+
 /* -------------------------------------------- GAME  ------------------------------------------------ */
 async function getGameState(userId,userPwd) {
     let gameState;
@@ -150,6 +173,7 @@ const ajaxRequests = {
     login,
     createAccount,
     joinGame,
-    createGame
+    createGame,
+    startGame
 };
 

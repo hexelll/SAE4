@@ -87,6 +87,25 @@ function displayPlayers() {
 
 
 
+/* -------------------------------------------- START GAME ------------------------------------------------ */
+function startGame() {
+    ajaxRequests.startGame(userId, userPwd).then(r => {
+        result = r;
+        if(result.ok) {
+            alert("Start game");
+            let newUrl = niceUrl+"/play.html?userId="+userId+"&userPwd="+userPwd+"&username="+username+"&code="+code;
+            //console.log(newUrl);
+            window.location.replace(newUrl);
+        }else {
+            alert(result.error);
+        }
+    });
+    
+}
+
+
+
+
 // Caliing the function that get the gameState every 3 seconds
 periodicGetGameState();
 
@@ -95,6 +114,8 @@ periodicGetGameState();
 $("#nameGameOwner").html(username);
 $("#idGameOwner").html(userId);*/
 $("#gameNumber").html(code);
+$("#startGameButton").click(startGame);
+
 
 
 

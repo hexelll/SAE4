@@ -24,10 +24,6 @@ String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
     }
 
     List nbCards = CardGetListForPlayer(userIdnb,con);
-    //    FILE* fpt = fopen("./logError.txt","a");
-    //    fprintf(fpt, "après CardGetListForPlayer\n");  // <-- est-ce qu'on arrive ici ?
-    //    fprintf(fpt, "nbCards.size = %d\n", nbCards.size);  // <-- quelle valeur ?
-    //    fclose(fpt);
     if(!(nbCards.size > 0)){
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"couldn't retrieve number of card in the player's current hand\"}");
     }
@@ -35,8 +31,6 @@ String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
     if(nbCards.size > 1){
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"player does not have 1 card left in hand\"}");
     }
-
-    
     return StringFormatChar(arena,"{\"ok\":true}");
 }
 

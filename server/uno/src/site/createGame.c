@@ -54,7 +54,7 @@ String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
 
     ConnectionExec(con,StringFormatChar(arena,"update player set createdgameid = %d where playerid = %S",id,*userId));
 
-    return StringFormatChar(arena,"{\"ok\":true, \"gamecode\":\"%S\"}", gameCode);
+    return StringFormatChar(arena,"{\"ok\":true, \"code\":\"%S\"}", gameCode);
 }
 
 int main(int argc,char** argv) {

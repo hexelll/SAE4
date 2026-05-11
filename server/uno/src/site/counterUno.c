@@ -44,7 +44,8 @@ String makeResponse(struct Arena* arena,Hashmap map, Connection con) {
     }
 
     List players = getAllPlayersByGameId(gameId, arena, con);
-    for (int i=0; i < players.size; i++){
+    if(players.size > 0){
+            for (int i=0; i < players.size; i++){
             Hashmap* user = ListGetVal(&players,i)->ptr;
             String* playerId = HashmapGet(user,"playerid");
             int* n;
@@ -52,7 +53,11 @@ String makeResponse(struct Arena* arena,Hashmap map, Connection con) {
             if (cards.size == 1){
                 return StringFormatChar(arena,"{\"ok\":true}");
             }
+        }
+    }else{
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"no players in that game\"}");
     }
+
 
 
 

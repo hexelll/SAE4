@@ -19,7 +19,6 @@ function joinGame(code) {
         if(result.ok) {
             alert("Join game!!!");
             window.location.replace(currentUrl+"/../lobby.html?userId="+userId+"&userPwd="+userPwd+"&username="+username+"&code="+code);
-            
         }else {
             alert(result.error);
         }

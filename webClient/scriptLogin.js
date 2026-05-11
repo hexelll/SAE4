@@ -32,7 +32,7 @@ function createAccount() {
         result = r;
         if(result.ok) {
             //alert("Create Account!!!");
-            window.location.replace("http://localhost/SAES4/SAE4/webClient/login.html?username="+$("#username").val()+"&userPwd="+$("#userPwd").val());            
+            window.location.replace(currentUrl+"/../login.html?username="+$("#username").val()+"&userPwd="+$("#userPwd").val());            
         }else {
             alert(result.error);
         }

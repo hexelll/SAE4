@@ -18,7 +18,7 @@ function joinGame(code) {
         result = r;
         if(result.ok) {
             alert("Join game!!!");
-            window.location.replace("http://localhost/SAES4/SAE4/webClient/lobby.html?userId="+userId+"&userPwd="+userPwd+"&username="+username+"&code="+code);
+            window.location.replace(currentUrl+"/../lobby.html?userId="+userId+"&userPwd="+userPwd+"&username="+username+"&code="+code);
             
         }else {
             alert(result.error);
@@ -36,7 +36,7 @@ function createGame() {
         if(result.ok) {
             joinGame(result.code);
             alert("Code : "+result.code);
-            //window.location.replace("http://localhost/SAES4/SAE4/webClient/lobby.html?userId="+userId+"&userPwd="+userPwd+"&username="+username+"&code="+result.code);
+            //window.location.replace(currentUrl+"/../lobby.html?userId="+userId+"&userPwd="+userPwd+"&username="+username+"&code="+result.code);
         }else {
             alert(result.error);
         }

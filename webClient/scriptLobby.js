@@ -26,7 +26,7 @@ function displayPlayers() {
 
         // Verify if the game is started, to go to the page of the game
         if(gameState.isStarted) {
-            window.location.replace("http://localhost/SAES4/SAE4/webClient/play.html?userId="+userId+"&userPwd="+userPwd+"&username="+username);
+            window.location.replace(currentUrl+"/../play.html?userId="+userId+"&userPwd="+userPwd+"&username="+username);
         }
         else {
             // Get the ower ID

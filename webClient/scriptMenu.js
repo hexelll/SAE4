@@ -7,9 +7,12 @@ let userPwd = params.get("userPwd");
 let username = params.get("username");
 
 
-// Get the current url of the page, get the index of the "?" to not get parameters of the url
-let url = window.location.href;
-let currentUrl = url.substring(0, url.indexOf('?'));
+// Get the current url of the page, get the index of the "/" to not get parameters of the url and gthe actual page
+let currentUrl = window.location.href.toString();
+let lastIndexOfSlash = currentUrl.lastIndexOf('/');
+let niceUrl = currentUrl.substring(0, lastIndexOfSlash);
+//console.log("Current :" +currentUrl);
+//console.log("Nice url :" +niceUrl);
 
 
 // Try the connexion of debuging
@@ -23,7 +26,9 @@ function joinGame(code) {
         result = r;
         if(result.ok) {
             alert("Join game!!!");
-            window.location.replace(currentUrl+"/../lobby.html?userId="+userId+"&userPwd="+userPwd+"&username="+username+"&code="+code);
+            let newUrl = niceUrl+"/lobby.html?userId="+userId+"&userPwd="+userPwd+"&username="+username+"&code="+code;
+            //console.log(newUrl);
+            window.location.replace(newUrl);
         }else {
             alert(result.error);
         }

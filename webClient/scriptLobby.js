@@ -8,9 +8,13 @@ let username = params.get("username");
 let code = params.get("code");
 
 
-// Get the current url of the page, get the index of the "?" to not get parameters of the url
-let url = window.location.href;
-let currentUrl = url.substring(0, url.indexOf('?'));
+// Get the current url of the page, get the index of the "/" to not get parameters of the url and gthe actual page
+let currentUrl = window.location.href.toString();
+let lastIndexOfSlash = currentUrl.lastIndexOf('/');
+let niceUrl = currentUrl.substring(0, lastIndexOfSlash);
+//console.log("Current :" +currentUrl);
+//console.log("Nice url :" +niceUrl);
+
 
 
 
@@ -31,7 +35,9 @@ function displayPlayers() {
 
         // Verify if the game is started, to go to the page of the game
         if(gameState.isStarted) {
-            window.location.replace(currentUrl+"/../play.html?userId="+userId+"&userPwd="+userPwd+"&username="+username);
+            let newUrl = niceUrl+"/play.html?userId="+userId+"&userPwd="+userPwd+"&username="+username;
+            //console.log(newUrl);
+            window.location.replace(newUrl);
         }
         else {
             // Get the ower ID

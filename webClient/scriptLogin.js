@@ -3,9 +3,12 @@
 ajaxRequests.getConnexion();
 
 
-// Get the current url of the page, get the index of the "?" to not get parameters of the url
-let url = window.location.href;
-let currentUrl = url.substring(0, url.indexOf('?'));
+// Get the current url of the page, get the index of the "/" to not get parameters of the url and gthe actual page
+let currentUrl = window.location.href.toString();
+let lastIndexOfSlash = currentUrl.lastIndexOf('/');
+let niceUrl = currentUrl.substring(0, lastIndexOfSlash);
+//console.log("Current :" +currentUrl);
+//console.log("Nice url :" +niceUrl);
 
 
 
@@ -18,8 +21,9 @@ function login() {
         
         if(result.ok) {
             //alert("Login!!!");
-            //window.location.replace("http://localhost/SAES4/SAE4/webClient/play.html?userId="+result.id+"&userPwd="+$("#userPwd").val()+"&username="+$("#username").val());
-            window.location.replace(currentUrl+"/../menu.html?userId="+result.id+"&userPwd="+$("#userPwd").val()+"&username="+$("#username").val());
+            let newUrl = niceUrl+"/menu.html?userId="+result.id+"&userPwd="+$("#userPwd").val()+"&username="+$("#username").val();
+            //console.log(newUrl);
+            window.location.replace(newUrl);
 
         }else {
             alert(result.error);
@@ -37,7 +41,9 @@ function createAccount() {
         result = r;
         if(result.ok) {
             //alert("Create Account!!!");
-            window.location.replace(currentUrl+"/../login.html?username="+$("#username").val()+"&userPwd="+$("#userPwd").val());            
+            let newUrl = niceUrl+"/login.html?username="+$("#username").val()+"&userPwd="+$("#userPwd").val();
+            //console.log(newUrl);
+            window.location.replace(newUrl);         
         }else {
             alert(result.error);
         }

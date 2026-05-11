@@ -155,17 +155,6 @@ function play(card) {
         if (result.ok) {
             console.log("Card played successfully");
             displayCards();
-            /*
-            ajaxRequests.getGameState().then(g => {
-                gameState = g;
-                nbCardsMe = gameState.cards.length;
-                makeMyCards(nbCardsMe,gameState.cards, myRoot);
-
-                if (nbCardsMe === 1) {
-                    $("#uno").removeAttr("hidden");
-                }
-            });
-            */
         }
         else {
             alert(result.error);
@@ -183,17 +172,6 @@ function draw() {
         if (result.ok) {
             //console.log("Card drawn successfully");
             displayCards();
-            /*
-            ajaxRequests.getGameState().then(g => {
-                gameState = g;
-                nbCardsMe = gameState.cards.length;
-                makeMyCards(nbCardsMe,gameState.cards, myRoot);
-                
-                if (nbCardsMe > 1) {
-                    $("#uno").attr("hidden", true);
-                }
-            });
-            */
         }
         else {
             alert(result.error);
@@ -254,28 +232,50 @@ function periodicGetGameState(){
 window.addEventListener("resize", displayCards);
 window.addEventListener("load", displayCards);
 
+
+
+
 function displayCards() {
     console.log(userId,userPwd);
     ajaxRequests.getGameState(userId,userPwd).then(g => {
         gameState = g;
         console.log(gameState);
 
-        // Get the number of cards
-        nbCardsMe = gameState.cards.length;
-        nbCardsEnemyLeft = gameState.players[0].cardCount;
-        nbCardsEnemyTop = gameState.players[1].cardCount;
-        nbCardsEnemyRight = gameState.players[2].cardCount;
-        
+        let roots = [[enemyLeftRoot,"#nameEnemyLeft"], [enemyTopRoot,"#nameEnemyTop"], [enemyRightRoot,"#nameEnemyRight"]];
+        let indexRoot = 0;
 
-        //Call functions of display
-        makeEnemysCards(nbCardsEnemyTop, enemyTopRoot);
-        makeEnemysCards(nbCardsEnemyRight, enemyRightRoot);
-        makeEnemysCards(nbCardsEnemyLeft, enemyLeftRoot);
-        makeMyCards(nbCardsMe, gameState.cards, myRoot);
+        let currentPlayerIndicator = "<p style=\"color:green\">\u2b24</p>";
 
+        for (let i = 0; i < gameState.players.length; i++) {
+            // To get the place in the list of the actual player
+            if (parseInt(userId) === gameState.players[i].playerId) {
+                nbCardsMe = gameState.cards.length; 
+                makeMyCards(nbCardsMe, gameState.cards, myRoot);
+                let name = "Player "+ (i+1) + " : " + gameState.players[i].username;
+
+                // Check if it's this player's turn
+                if (gameState.currentPlayerIndex === i) {
+                    name += " " + currentPlayerIndicator;
+                }
+                $("#nameMe").html(name);
+            }
+            // To display all of the others players 
+            else {
+                makeEnemysCards(gameState.players[i],roots[indexRoot][0]);
+                let name = "Player "+ (i+1) + " : " +gameState.players[i].username;
+
+                // Check if it's this player's turn
+                if (gameState.currentPlayerIndex === i) {
+                    name += " " + currentPlayerIndicator;
+                }
+                $(roots[indexRoot][1]).html(name);
+                indexRoot++;
+            }
+        }
+
+        // Display the last played card on the played cards pile
         makePlayedPileCard(gameState.currentCard);
-
-
+        
         if (nbCardsMe === 1) {
             $("#uno").removeAttr("hidden");
         }
@@ -283,6 +283,7 @@ function displayCards() {
         if (nbCardsMe > 1) {
             $("#uno").attr("hidden", true);
         }
+        
 
     });
 };
@@ -291,15 +292,3 @@ function displayCards() {
 // Caliing the function that get the gameState every 3 seconds
 periodicGetGameState();
 
-
-// Displaying usernames of the players
-ajaxRequests.getGameState(userId,userPwd).then(g => {
-    gameState = g;
-    console.log(gameState);
-    $("#nameEnemyLeft").html("Player "+ gameState.players[0].playerId + " : " +gameState.players[0].username);
-    $("#nameEnemyTop").html("Player "+ gameState.players[1].playerId + " : " +gameState.players[1].username);
-    $("#nameEnemyRight").html("Player "+ gameState.players[2].playerId + " : " +gameState.players[2].username);
-
-});
-
-$("#nameMe").html("Player "+ userId + " : " + username);

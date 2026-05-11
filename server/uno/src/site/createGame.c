@@ -21,6 +21,17 @@ String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"no user with this id and password\"}");
     }
 
+
+    QueryResult checkGameAlreadycreated = ConnectionSelect(con , StringFormatChar(arena, "select * from game where creatorid = %S",*userId));
+    if(!(checkGameAlreadycreated.message.size == 0)) {
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"%S\"}", checkGameAlreadycreated.message);
+    }else{
+        List playersTuples = QueryResultToList(res,&con.arena);
+        if(playersTuples.size > 0){
+            return StringFormatChar(arena,"{\"ok\":false,\"error\":\"user already createtd a game\"}");
+        }
+    }
+
     res = ConnectionSelect(con,StringFormatChar(arena,"select max(gameid) as id from game"));
     int id = 0;
     if(res.count > 0 && res.message.size == 0) {
@@ -43,7 +54,7 @@ String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
 
     ConnectionExec(con,StringFormatChar(arena,"update player set createdgameid = %d where playerid = %S",id,*userId));
 
-    return StringFormatChar(arena,"{\"ok\":true}");
+    return StringFormatChar(arena,"{\"ok\":true, \"gamecode\":\"%S\"}", gameCode);
 }
 
 int main(int argc,char** argv) {

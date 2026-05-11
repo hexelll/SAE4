@@ -26,7 +26,7 @@ String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
     if(!(checkGameAlreadycreated.message.size == 0)) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"%S\"}", checkGameAlreadycreated.message);
     }else{
-        List playersTuples = QueryResultToList(res,&con.arena);
+        List playersTuples = QueryResultToList(checkGameAlreadycreated,&con.arena);
         if(playersTuples.size > 0){
             return StringFormatChar(arena,"{\"ok\":false,\"error\":\"user already createtd a game\"}");
         }

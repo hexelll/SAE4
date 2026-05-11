@@ -1,7 +1,12 @@
 /* -------------------------------------------- AJAX REQUESTS ------------------------------------------------ */
 // Call the functions
 ajaxRequests.getConnexion();
-let currentUrl = window.location.href;
+
+
+// Get the current url of the page, get the index of the "?" to not get parameters of the url
+let url = window.location.href;
+let currentUrl = url.substring(0, url.indexOf('?'));
+
 
 
 

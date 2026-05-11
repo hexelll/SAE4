@@ -7,7 +7,11 @@ let userPwd = params.get("userPwd");
 let username = params.get("username");
 let code = params.get("code");
 
-let currentUrl = window.location.href;
+
+// Get the current url of the page, get the index of the "?" to not get parameters of the url
+let url = window.location.href;
+let currentUrl = url.substring(0, url.indexOf('?'));
+
 
 
 /* -------------------------------------------- DISPLAY ALL THE PLAYERS OF THE GAME ------------------------------------------------ */

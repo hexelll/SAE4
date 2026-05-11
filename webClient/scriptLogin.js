@@ -1,6 +1,7 @@
 /* -------------------------------------------- AJAX REQUESTS ------------------------------------------------ */
 // Call the functions
 ajaxRequests.getConnexion();
+let currentUrl = window.location.href;
 
 
 
@@ -9,8 +10,7 @@ ajaxRequests.getConnexion();
 function login() {
     ajaxRequests.login().then(r => {
         result = r;
-        let currentUrl = window.location.href;
-
+        
         if(result.ok) {
             //alert("Login!!!");
             //window.location.replace("http://localhost/SAES4/SAE4/webClient/play.html?userId="+result.id+"&userPwd="+$("#userPwd").val()+"&username="+$("#username").val());

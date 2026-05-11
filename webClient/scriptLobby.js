@@ -7,6 +7,7 @@ let userPwd = params.get("userPwd");
 let username = params.get("username");
 let code = params.get("code");
 
+let currentUrl = window.location.href;
 
 
 /* -------------------------------------------- DISPLAY ALL THE PLAYERS OF THE GAME ------------------------------------------------ */

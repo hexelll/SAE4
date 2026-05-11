@@ -6,6 +6,7 @@ let userId = params.get("userId");
 let userPwd = params.get("userPwd");
 let username = params.get("username");
 
+let currentUrl = window.location.href;
 
 // Try the connexion of debuging
 ajaxRequests.getConnexion();

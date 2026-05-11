@@ -37,7 +37,6 @@ String makeResponse(struct Arena* arena,Hashmap map, Connection con) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"User is not the owner of this game\"}");
     }
 
-
     String querychk2 = StringFormatChar(arena,"select currentplayerindex from game where gameid = '%d'",leGameId);
     QueryResult resCheck2 = ConnectionSelect(con,querychk2);
     if(!(resCheck2.count > 0 && resCheck2.message.size == 0)) {
@@ -55,11 +54,10 @@ String makeResponse(struct Arena* arena,Hashmap map, Connection con) {
     }else{
         QueryResult reset = ConnectionExec(con, StringFormatChar(arena, "update player set joinedgameid = NULL where joinedgameId = %d", leGameId));
         if(!(reset.message.size == 0)){
-            return StringFormatChar(arena,"{\"ok\":false,\"error\":\"could not update joinedgameId\"}");
+            return StringFormatChar(arena,"{\"ok\":false,\"error\":\"could not update joinedgameId -> %S\"}", reset.message);
         }
         return StringFormatChar(arena,"{\"ok\":true,\"error\":\"\"}");
     }
-    
     return StringFormatChar(arena,"{\"ok\":false,\"error\":\"Query did not get executed\"}");
 }
 

@@ -135,6 +135,12 @@ String makeResponse(struct Arena* arena,Connection con,char** argv) {
     HashmapSetBool(&response,"isStarted",isStarted);
     HashmapSetInt(&response,"currentPlayerIndex",StringToInt(*(String*)HashmapGet(gameMap,"currentplayerindex"),converr));
     HashmapSetInt(&response,"creatorId",StringToInt(*(String*)HashmapGet(gameMap,"creatorid"),converr));
+    String pluscounterstr = *(String*)HashmapGet(gameMap,"pluscounter");
+    int pluscounter = 0;
+    if (pluscounterstr.size > 0) {
+        pluscounter = StringToInt(pluscounterstr,converr);
+    }
+    HashmapSetInt(&response,"plusCounter",pluscounter);
 
     HashmapSetBool(&response,"ok",1);
 

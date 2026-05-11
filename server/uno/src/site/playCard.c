@@ -1,6 +1,7 @@
 #include "../libs/utils/database.c"
 #include "../libs/utils/cards.c"
 #include "../libs/server.c"
+#include <time.h>
 
 String makeResponse(char** argv,Connection con,struct Arena* arena) {
     int* converr = ArenaAlloc(arena,sizeof(int));
@@ -33,6 +34,8 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
     res = ConnectionSelect(con,StringFormatChar(arena,"select * from game where gameid = %S",*(String*)HashmapGet(player,"joinedgameid")));
     
     Hashmap* game = QueryResultToMap(res,arena);
+    
+    int isStarted = ((String*)HashmapGet(game,"currentplayerindex"))->size != 0;
 
     int gameId = StringToInt(*(String*)HashmapGet(game,"gameid"),converr);
 
@@ -56,10 +59,6 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
     List playedLst = CardGetListForPlayedPile(gameId,con);
 
     Card currentCard = *(Card*)ListGetVal(&playedLst,playedLst.size-1)->ptr;
-
-    if(!(card.colorId == -1 || currentCard.colorId == -1 || currentCard.colorId == card.colorId || (currentCard.typeId == card.typeId && currentCard.value == card.value))) {
-        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"incorrect card color %d and %d %d %d %d %d\"}",currentCard.colorId,card.colorId,currentCard.typeId, card.typeId , currentCard.value ,card.value);
-    }
 
     int skipid = StringToInt(
         *(String*)HashmapGet(
@@ -116,6 +115,21 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
         converr
     );
 
+    String pluscounterstr = *(String*)HashmapGet(game,"pluscounter");
+    int pluscounter = 0;
+    if(pluscounterstr.size > 0) {
+        pluscounter = StringToInt(pluscounterstr,converr);
+    }
+
+    if(!(
+        pluscounter == 0 && 
+        (card.colorId == -1 || currentCard.colorId == -1 || currentCard.colorId == card.colorId) || 
+        (currentCard.typeId == card.typeId && currentCard.value == card.value) || 
+        (card.typeId == plusid && currentCard.typeId == pluswildid || card.typeId == pluswildid && currentCard.typeId == plusid)
+    )) {
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"incorrect card color\"}");
+    }
+
     int k = 1;
 
     int isReversed = StringToInt(*(String*)HashmapGet(game,"isreversed"),converr);
@@ -128,16 +142,62 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
         isReversed = !isReversed;
     }
 
+    
+
+    if (card.typeId == plusid || card.typeId == pluswildid) {
+        pluscounter += card.value;
+    }
+
     k = isReversed?-k:k;
+
+    if (pluscounter > 0) {
+        int hasPlus = 0;
+        int nextplayerindex = (gameIndex + k)%players.size;
+        nextplayerindex += nextplayerindex < 0 ? players.size : 0;
+        Hashmap* nextplayer = ListGetVal(&players,nextplayerindex)->ptr;
+        int nextplayerid = StringToInt(*(String*)HashmapGet(nextplayer,"playerid"),converr);
+        List cards = CardGetListForPlayer(nextplayerid,con);
+        for(int i=0;i<cards.size;i++) {
+            Card card = *(Card*)ListGetVal(&cards,i)->ptr;
+            if(card.typeId == plusid || card.typeId == pluswildid) {
+                hasPlus = 1;
+                break;
+            }
+        }
+        FILE* fp = fopen("logPlay.txt","w");
+        fprintf(fp,StringToChar(StringFormatChar(arena,"\n pluscounter: %d",pluscounter),arena));
+        fprintf(fp,StringToChar(StringFormatChar(arena,"\n k: %d",k),arena));
+        fprintf(fp,StringToChar(StringFormatChar(arena,"\n nextplayerid: %d",nextplayerid),arena));
+        if(!hasPlus) {
+            
+            fprintf(fp,"\n has plus");
+            srand(time(NULL));
+            for(int i=0;i<pluscounter;i++) {
+                List drawPile = CardGetListForDrawPile(gameId,con);
+                int i = rand()%drawPile.size;
+                i = i<0?i+drawPile.size:i;
+                Card card = *(Card*)ListGetVal(&drawPile,i)->ptr;
+                CardRemoveFromDraw(card.id,gameId,con);
+                CardAddToPlayer(card.id,nextplayerid,con);
+            }
+            k = k<0 ? k-1 : k+1;
+            fprintf(fp,StringToChar(StringFormatChar(arena,"\n k: %d",k),arena));
+            pluscounter = 0;
+        }else {
+            fprintf(fp,"fjreiuhjknbgct,h;ecfrbt,dvn gbjfhkejr");
+        }
+        
+
+        fclose(fp);
+    }
 
     gameIndex = (gameIndex+k) % players.size;
     gameIndex = gameIndex < 0 ? gameIndex+players.size : gameIndex;
 
-    ConnectionExec(con,StringFormatChar(arena,"update game set isreversed = %d, currentplayerindex = %d where gameid = %d",isReversed,gameIndex,gameId));
-
+    ConnectionExec(con,StringFormatChar(arena,"update game set isreversed = %d, currentplayerindex = %d, pluscounter = %d where gameid = %d",isReversed,gameIndex,pluscounter,gameId));
+    int playerid = StringToInt(*userId,converr);
     CardAddToPlayed(card.id,gameId,con);
-    CardRemoveFromPlayer(card.id,StringToInt(*userId,converr),con);
-
+    CardRemoveFromPlayer(card.id,playerid,con);
     return StringFrom("{\"ok\":true}",arena);
 }
 

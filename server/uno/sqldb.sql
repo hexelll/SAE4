@@ -20,6 +20,7 @@ create table game(
     creatorid int,
     currentplayerindex int,
     isreversed int,
+    pluscounter int,
     foreign key(deckid) references deck(deckid)
 );
 

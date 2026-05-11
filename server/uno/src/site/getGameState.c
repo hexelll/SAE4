@@ -24,9 +24,15 @@ String makeResponse(struct Arena* arena,Connection con,char** argv) {
     Hashmap* user = ListGetVal(&currplayertuples,0)->ptr;
     String* gameId = HashmapGet(user,"joinedgameid");
 
-    res = ConnectionSelect(con,StringFormatChar(arena,"select * from game where gameid = %S",*gameId));
-    if(!(res.count > 0 && res.message.size == 0)) {
-        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"no game with this id\"}");
+    if(gameId && gameId->size > 0) {
+
+        res = ConnectionSelect(con,StringFormatChar(arena,"select * from game where gameid = %S",*gameId));
+        if(!(res.count > 0 && res.message.size == 0)) {
+            return StringFormatChar(arena,"{\"ok\":false,\"error\":\"no game with this id\"}");
+        }
+
+    }else {
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"this user isn't in a game\"}");
     }
 
     Hashmap* gameMap = QueryResultToList(res,arena).head.val.ptr;
@@ -128,6 +134,7 @@ String makeResponse(struct Arena* arena,Connection con,char** argv) {
     HashmapSetBool(&response,"isReversed",StringToInt(*(String*)HashmapGet(gameMap,"isreversed"),converr));
     HashmapSetBool(&response,"isStarted",isStarted);
     HashmapSetInt(&response,"currentPlayerIndex",StringToInt(*(String*)HashmapGet(gameMap,"currentplayerindex"),converr));
+    HashmapSetInt(&response,"creatorId",StringToInt(*(String*)HashmapGet(gameMap,"creatorid"),converr));
 
     HashmapSetBool(&response,"ok",1);
 

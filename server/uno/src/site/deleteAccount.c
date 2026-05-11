@@ -27,15 +27,12 @@ String makeResponse(struct Arena* arena,Hashmap map, Connection con) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"no user with this id and password\"}");
     }
 
-
-    
-
     QueryResult res = PlayerDelete(leUserId, con);
     
     if(!(res.message.size == 0)) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"%S\"}", res.message);
     }else{
-                return StringFormatChar(arena,"{\"ok\":true,\"error\":\"\"}");
+        return StringFormatChar(arena,"{\"ok\":true,\"error\":\"\"}");
     }
     
     return StringFormatChar(arena,"{\"ok\":false,\"error\":\"Query did not get executed\"}");

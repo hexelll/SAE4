@@ -108,21 +108,26 @@ List QueryResultToList(QueryResult query, struct Arena* arena){
     int rows = PQntuples(query.res);
     int cols = PQnfields(query.res);
     FILE* fp = fopen("./logFile.txt", "a");
+    fprintf(fp ,"\n rows:");
     fprintf(fp, StringToChar( StringFromInt(rows, arena), arena));
-    fprintf(fp ,"\n");
+    fprintf(fp ,"\n cols:");
     fprintf(fp, StringToChar( StringFromInt(cols, arena), arena));
-    fclose(fp);
     for(int i=0;i<rows;i++){
-        Hashmap* map = ArenaAlloc(arena,sizeof(Hashmap));
-        *map = HashmapNew(sizeof(String), arena);
-        for(int j=0;j<cols;j++){
-            String resText = StringFormat(arena, StringFrom("%s", arena),PQfname(query.res, j));
-            String* s = ArenaAlloc(arena,sizeof(String));
-            *s = StringFrom((char*)PQgetvalue(query.res, i, j),arena);
-            HashmapSet(map, StringToChar(resText, arena),s);
+        if(cols > 0) {
+            Hashmap* map = ArenaAlloc(arena,sizeof(Hashmap));
+            *map = HashmapNew(sizeof(String), arena);
+            for(int j=0;j<cols;j++){
+                String resText = StringFormat(arena, StringFrom("%s", arena),PQfname(query.res, j));
+                String* s = ArenaAlloc(arena,sizeof(String));
+                *s = StringFrom((char*)PQgetvalue(query.res, i, j),arena);
+                HashmapSet(map, StringToChar(resText, arena),s);
+            }
+            ListAppendVal(&list,(ListValue){.ptr=map});
         }
-        ListAppendVal(&list,(ListValue){.ptr=map});
     }
+    fprintf(fp,StringToChar(StringFormatChar(arena,"\n size:%d",list.size),arena));
+    fclose(fp);
+    
     return list;
 }
 

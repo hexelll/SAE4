@@ -9,10 +9,12 @@ ajaxRequests.getConnexion();
 function login() {
     ajaxRequests.login().then(r => {
         result = r;
+        let currentUrl = window.location.href;
+
         if(result.ok) {
             //alert("Login!!!");
             //window.location.replace("http://localhost/SAES4/SAE4/webClient/play.html?userId="+result.id+"&userPwd="+$("#userPwd").val()+"&username="+$("#username").val());
-            window.location.replace("http://localhost/SAES4/SAE4/webClient/menu.html?userId="+result.id+"&userPwd="+$("#userPwd").val()+"&username="+$("#username").val());
+            window.location.replace(currentUrl+"/../menu.html?userId="+result.id+"&userPwd="+$("#userPwd").val()+"&username="+$("#username").val());
 
         }else {
             alert(result.error);

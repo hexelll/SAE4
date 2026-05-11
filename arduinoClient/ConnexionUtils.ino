@@ -97,9 +97,9 @@ JsonDocument receiveHTTPResponse(){
   // buffers
   static char contentLengthBuffer[10];
   static int contentLengthBufferLength = 0;
-  static char responseBuffer[2000];
+  static char responseBuffer[6000];
   static int responseBufferLength = 0;
-
+  static bool RESPONSE_ABORTED = false;
   static int contentLength = 0;
   
   while (client.available()) {
@@ -110,6 +110,25 @@ JsonDocument receiveHTTPResponse(){
     //Serial.print(c);
     //Serial.print(" | ");
     //Serial.println( (int)c );
+
+    if (responseBufferLength >= sizeof(responseBuffer) - 1) {
+      Serial.println(F("[ERROR] Response too large, request aborted"));
+      LAST_RESPONSE_ABORTED = true;
+      RESPONSE_ONGOING = false;
+      RESPONSE_HEADER_ONGOING = true;
+      RESPONSE_CONTENT_LENGTH_ONGOING = false;
+      contentLength = 0;
+      memset(contentLengthBuffer, 0, sizeof(contentLengthBuffer));
+      contentLengthBufferLength = 0;
+      memset(responseBuffer, 0, responseBufferLength);
+      responseBufferLength = 0;
+      // fully discard socket data
+      while (client.available()) {
+          client.read();
+      }
+      client.stop();
+      break;
+    }
 
     if(!RESPONSE_HEADER_ONGOING){
       responseBuffer[responseBufferLength] = c;
@@ -150,11 +169,21 @@ JsonDocument receiveHTTPResponse(){
   } 
 
   JsonDocument responseData;
-  if (!RESPONSE_ONGOING){
-    deserializeJson(responseData, responseBuffer);
-    memset(responseBuffer, 0, responseBufferLength);
-    responseBufferLength = 0;
+
+  if (RESPONSE_ABORTED) {
+      RESPONSE_ABORTED = false;
+      return responseData; // null document
   }
+  if (!RESPONSE_ONGOING && responseBufferLength > 0) {
+      DeserializationError err = deserializeJson(responseData, responseBuffer);
+      if (err) {
+          Serial.print(F("[ERROR] JSON parse failed: "));
+          Serial.println(err.c_str());
+      }
+      memset(responseBuffer, 0, responseBufferLength);
+      responseBufferLength = 0;
+  }
+
   return responseData;
 }
 
@@ -168,16 +197,16 @@ bool queueRequest(Request requestToSend){
     requestQueueSize++;
     return true;
   }else{
-    Serial.print(F("[ERROR] Queue full : request dropped"));
+    Serial.println(F("[ERROR] Queue full : request dropped"));
     return false;
   }
 }
 
 // queueRequest wraper that builds new Request from easy to use args
-bool queueNewRequest(char* method, char* path, char* data, void (*callback)(Request*,JsonDocument*)){
+bool queueNewRequest(char* method, String path, char* data, void (*callback)(Request*,JsonDocument*)){
   return queueRequest({
     .method = String(method),
-    .path = String(path),
+    .path = path,
     .data = String(data),
     .callback = callback
   });
@@ -197,6 +226,11 @@ void processResponses(){
   static bool IS_WAITING_FOR_RESPONSE = false;
 
   JsonDocument responseDataDoc = receiveHTTPResponse();
+  if (LAST_RESPONSE_ABORTED) {
+    LAST_RESPONSE_ABORTED = false;
+    IS_WAITING_FOR_RESPONSE = false;
+    return;
+  }
   if ( !responseDataDoc.isNull() && IS_WAITING_FOR_RESPONSE){
     
     // last request response received

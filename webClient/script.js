@@ -261,7 +261,8 @@ function displayCards() {
             }
             // To display all of the others players 
             else {
-                makeEnemysCards(gameState.players[i],roots[indexRoot][0]);
+                makeEnemysCards(gameState.players[i].cardCount, roots[indexRoot][0]);
+
                 let name = "Player "+ (i+1) + " : " +gameState.players[i].username;
 
                 // Check if it's this player's turn
@@ -273,8 +274,23 @@ function displayCards() {
             }
         }
 
+        /*
+        // Get the number of cards
+        nbCardsEnemyLeft = gameState.players[0].cardCount;
+        nbCardsEnemyTop = gameState.players[1].cardCount;
+        nbCardsEnemyRight = gameState.players[2].cardCount;
+        
+
+        //Call functions of display
+        makeEnemysCards(nbCardsEnemyTop, enemyTopRoot);
+        makeEnemysCards(nbCardsEnemyRight, enemyRightRoot);
+        makeEnemysCards(nbCardsEnemyLeft, enemyLeftRoot);
+        */
+
         // Display the last played card on the played cards pile
         makePlayedPileCard(gameState.currentCard);
+
+
         
         if (nbCardsMe === 1) {
             $("#uno").removeAttr("hidden");

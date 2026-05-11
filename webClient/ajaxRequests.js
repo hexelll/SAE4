@@ -1,12 +1,12 @@
 /* IP adress of the serveur */
 var serveurIpAlex = "10.8.16.218:42069";
-var serveurIpLuc = "10.8.19.132:42069";
+var serveurIpLuc = "10.8.30.27:42069";
 var serveurIpMoi = "localhost:42069";
 
-var serveurIp = serveurIpMoi;
+var serveurIp = serveurIpLuc;
 
 
-/* Get the connexion to the server */
+/* -------------------------------------------- TRY CONNEXION ------------------------------------------------ */
 function getConnexion() {
     $.ajax({
         type: 'GET',
@@ -18,6 +18,8 @@ function getConnexion() {
 
 
 
+
+/* -------------------------------------------- LOGIN  ------------------------------------------------ */
 async function login() {
     let result;
     await $.ajax({
@@ -36,7 +38,6 @@ async function login() {
     
     return result;
 }
-
 
 
 async function createAccount() {
@@ -63,8 +64,41 @@ async function createAccount() {
 
 
 
+/* -------------------------------------------- MENU  ------------------------------------------------ */
+async function joinGame(userId, userPwd, code) {
+    let result;
+    await $.ajax({
+        type: 'GET',
+        url: 'http://'+serveurIp+'/joinGame.c?',
+        data: 'userId='+userId+'&userPwd='+userPwd+'&gameCode='+code,
+        dataType: 'json',
+        success: function (r) { 
+            result = r; 
+            console.log(userId);
+        },
+        error: function () { alert("joinGame is not working") }
+    })
+    
+    return result;
+}
+
+async function createGame(userId, userPwd) {
+    let result;
+    await $.ajax({
+        type: 'GET',
+        url: 'http://'+serveurIp+'/createGame.c?',
+        data: 'userId='+userId+'&userPwd='+userPwd,
+        dataType: 'json',
+        success: function (r) { result = r; },
+        error: function () { alert("createGame is not working") }
+    })
+    return result;
+}
 
 
+
+
+/* -------------------------------------------- GAME  ------------------------------------------------ */
 async function getGameState(userId,userPwd) {
     let gameState;
     await $.ajax({
@@ -76,6 +110,7 @@ async function getGameState(userId,userPwd) {
     })
     return gameState;
 }
+
 
 
 async function playCard(userId,userPwd,cardId) {
@@ -106,11 +141,15 @@ async function drawCard(userId,userPwd) {
 
 
 
+/* -------------------------------------------- CONST ------------------------------------------------ */
 const ajaxRequests = {
     getConnexion,
     getGameState,
     playCard,
     drawCard,
-    login
+    login,
+    createAccount,
+    joinGame,
+    createGame
 };
 

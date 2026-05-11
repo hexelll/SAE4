@@ -293,8 +293,8 @@ button a{
 
 
 
-/* ----------------------------------------------- LOGIN PAGE --------------------------------------------------- */
-#loginBody{
+/* --------------------------------------------- LOGIN / CREATE ACCOUNT / MENU PAGE --------------------------------------------------- */
+#loginBody, #createAccountBody, #menuBody, #lobbyBody{
     margin: 0;
     padding: 0;
     height: 100vh;
@@ -326,14 +326,14 @@ button a{
     text-align: center;
 }
 
-#welcome h1{
+#welcome h1, #welcomeMenu h1{
     font-size: 90px;
     margin: 0;
     font-weight: bold;
     text-shadow: 4px 4px 10px rgba(0,0,0,0.3);
 }
 
-#welcome h2{
+#welcome h2, #welcomeMenu h2{
     margin-top: 10px;
     font-size: 30px;
     font-weight: normal;
@@ -341,7 +341,7 @@ button a{
 
 
 
-#loginData{
+#loginData, #signInData, #createGameData, #playersData{
     position: fixed;
     right: 15vw;
     width: 350px;
@@ -354,7 +354,7 @@ button a{
 }
 
 
-#loginData h2{
+#loginData h2, #signInData h2, #createGameData h2, #playersData h2{
     text-align: center;
     margin-bottom: 25px;
     color: #ff3131;
@@ -362,7 +362,7 @@ button a{
 }
 
 
-#loginData p{
+#loginData p, #signInData p, #createGameData p, #playersData p{
     margin-bottom: 8px;
     font-weight: bold;
     color: #444;
@@ -385,7 +385,7 @@ input:focus{
 }
 
 
-#loginButton{
+#loginButton, #createAccountButton, #joinGameButton, #createGameButton{
     padding: 14px;
     border: none;
     border-radius: 12px;
@@ -402,7 +402,7 @@ input:focus{
     transition: 0.3s;
 }
 
-#loginButton:hover{
+#loginButton:hover, #createAccountButton:hover, #joinGameButton:hover, #createGameButton:hover{
     transform: scale(1.05);
     box-shadow: 0 5px 15px rgba(255,49,49,0.4);
 }
@@ -435,104 +435,7 @@ a:hover{
 
 
 /* ----------------------------------------------- CREATE ACCOUNT PAGE --------------------------------------------------- */
-#createAccountBody{
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: Arial, Helvetica, sans-serif;
-    background: linear-gradient(
-        135deg,
-        #ff3131,
-        #ff5e00,
-        #ffd000
-    );
-    overflow: hidden;
-}
-
-
-
-#signInData{
-    position: fixed;
-    right: 15vw;
-    width: 350px;
-    padding: 40px;
-    border-radius: 25px;
-    background-color: white;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-    display: flex;
-    flex-direction: column;
-}
-
-
-#signInData h2{
-    text-align: center;
-    margin-bottom: 25px;
-    color: #ff3131;
-    font-size: 35px;
-}
-
-
-#signInData p{
-    margin-bottom: 8px;
-    font-weight: bold;
-    color: #444;
-}
-
-
-input{
-    padding: 14px;
-    margin-bottom: 20px;
-    border: 2px solid #ddd;
-    border-radius: 12px;
-    font-size: 16px;
-    transition: 0.3s;
-}
-
-input:focus{
-    outline: none;
-    border-color: #ff3131;
-    box-shadow: 0 0 10px rgba(255,49,49,0.3);
-}
-
-
-#createAccountButton{
-    padding: 14px;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(
-        90deg,
-        #ff3131,
-        #ff5e00
-    );
-
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-#createAccountButton:hover{
-    transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(255,49,49,0.4);
-}
-
-
-a{
-    color: #ff3131;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-a:hover{
-    text-decoration: underline;
-}
-
-/* ---------- RESPONSIVE ---------- */
-
+/* Responsive*/
 @media screen and (max-width: 900px){
 
     #welcome{
@@ -550,28 +453,24 @@ a:hover{
 
 
 /* ----------------------------------------------- MENU PAGE --------------------------------------------------- */
-#menuBody{
-    margin: 0;
-    padding: 0;
-    height: 100vh;
+#welcomeMenu, #welcomeLobby{
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 20vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-family: Arial, Helvetica, sans-serif;
-    background: linear-gradient(
-        135deg,
-        #ff3131,
-        #ff5e00,
-        #ffd000
-    );
-    overflow: hidden;
+    color: white;
+    text-align: center;
 }
 
 
-
-#gameCodeData{
+#joinGameData, #owerGameData{
     position: fixed;
-    right: 15vw;
+    left: 15vw;
     width: 350px;
     padding: 40px;
     border-radius: 25px;
@@ -582,7 +481,7 @@ a:hover{
 }
 
 
-#gameCodeData h2{
+#joinGameData h2, #owerGameData h2{
     text-align: center;
     margin-bottom: 25px;
     color: #ff3131;
@@ -590,32 +489,86 @@ a:hover{
 }
 
 
-#gameCodeData p{
+#joinGameData p, #owerGameData p{
     margin-bottom: 8px;
     font-weight: bold;
     color: #444;
 }
 
 
-input{
+select{
+    width: 100%;
     padding: 14px;
     margin-bottom: 20px;
     border: 2px solid #ddd;
     border-radius: 12px;
+    background-color: white;
     font-size: 16px;
+    cursor: pointer;
     transition: 0.3s;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='%23ff3131' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 20px;
+    padding-right: 45px;
 }
 
-input:focus{
+
+select:hover{
+    border-color: #ff5e00;
+}
+
+
+select:focus{
     outline: none;
     border-color: #ff3131;
     box-shadow: 0 0 10px rgba(255,49,49,0.3);
 }
 
 
-#joinGameButton{
+option{
+    font-size: 16px;
+}
+
+
+
+
+/* Responsive */
+@media screen and (max-width: 900px){
+
+    #welcome{
+        display: none;
+    }
+
+    #gameCodeData{
+        position: relative;
+        right: 0;
+        width: 80vw;
+    }
+}
+
+
+
+/* ----------------------------------------------- LOBBY PAGE --------------------------------------------------- */
+#idGameOwner, #nameGameOwner{
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #444;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+#startGameButton{
     padding: 14px;
     border: none;
+    bottom: 5vh;
+    right: 5;
     border-radius: 12px;
     background: linear-gradient(
         90deg,
@@ -630,33 +583,29 @@ input:focus{
     transition: 0.3s;
 }
 
-#joinGameButton:hover{
-    transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(255,49,49,0.4);
-}
 
-
-a{
+.playerTitle{
+    text-align: center;
+    margin-bottom: 25px;
     color: #ff3131;
-    text-decoration: none;
+    font-size: 35px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+
+.playerId, .playerName{
+    margin-bottom: 8px;
     font-weight: bold;
+    color: #444;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
-a:hover{
-    text-decoration: underline;
-}
 
-/* ---------- RESPONSIVE ---------- */
-
-@media screen and (max-width: 900px){
-
-    #welcome{
-        display: none;
-    }
-
-    #gameCodeData{
-        position: relative;
-        right: 0;
-        width: 80vw;
-    }
-}

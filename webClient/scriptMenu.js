@@ -1,17 +1,24 @@
-/* -------------------------------------------- AJAX REQUESTS ------------------------------------------------ */
-// Call the functions
+/* -------------------------------------------- PARAMETERS ------------------------------------------------ */
+// Get the parameters of the user, send from the login page
+let params = new URLSearchParams(window.location.search);
+
+let userId = params.get("userId");
+let userPwd = params.get("userPwd");
+let username = params.get("username");
+
+
+// Try the connexion of debuging
 ajaxRequests.getConnexion();
 
 
 
-/* -------------------------------------------- LOGIN  ------------------------------------------------ */
-/* Fonction login for the login.html */
-function joinGame() {
-    ajaxRequests.login().then(r => {
+/* -------------------------------------------- JOIN GAME ------------------------------------------------ */
+function joinGame(code) {
+    ajaxRequests.joinGame(userId, userPwd, code).then(r => {
         result = r;
         if(result.ok) {
-            alert("Login!!!");
-            window.location.replace("http://localhost/SAES4/SAE4/webClient/play.html?userId="+result.id+"&userPwd="+$("#userPwd").val());
+            alert("Join game!!!");
+            window.location.replace("http://localhost/SAES4/SAE4/webClient/lobby.html?userId="+userId+"&userPwd="+userPwd+"&username="+username+"&code="+code);
             
         }else {
             alert(result.error);
@@ -22,6 +29,25 @@ function joinGame() {
 
 
 
+/* -------------------------------------------- CREATE GAME ------------------------------------------------ */
+function createGame() {
+    ajaxRequests.createGame(userId, userPwd).then(r => {
+        result = r;
+        if(result.ok) {
+            joinGame(result.code);
+            alert("Code : "+result.code);
+            //window.location.replace("http://localhost/SAES4/SAE4/webClient/lobby.html?userId="+userId+"&userPwd="+userPwd+"&username="+username+"&code="+result.code);
+        }else {
+            alert(result.error);
+        }
+    });
+}
+
+
+
 
 /* Calling the functions for the right buttons */
-$("#loginButton").click(login);
+$("#usernameDisplay").html(username);
+$("#joinGameButton").click(()=>joinGame($("#gameCode").val()));
+$("#createGameButton").click(createGame);
+

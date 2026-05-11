@@ -1,3 +1,5 @@
+/* -------------------------------------------- PARAMETERS ------------------------------------------------ */
+// Get the parameters of the user, send from the login page
 let params = new URLSearchParams(window.location.search);
 
 let userId = params.get("userId");
@@ -5,8 +7,8 @@ let userPwd = params.get("userPwd");
 let username = params.get("username");
 
 
-/* -------------------------------------------- AJAX REQUESTS ------------------------------------------------ */
-// Call the functions
+
+// Try the connexion of debuging
 ajaxRequests.getConnexion();
 
 

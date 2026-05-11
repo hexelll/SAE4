@@ -20,38 +20,52 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"no user with this id\"}");
     }
     
+
+    List players
     Hashmap* player = QueryResultToMap(res,arena);
+    if(player->size > 0){
+            res = ConnectionSelect(con,StringFormatChar(arena,"select * from game where gameid = %S",*(String*)HashmapGet(player,"joinedgameid")));
+            Hashmap* game = QueryResultToMap(res,arena);
+            if(game->size){
+                int gameId = StringToInt(*(String*)HashmapGet(game,"gameid"),converr);
+                int gameIndex = StringToInt(*(String*)HashmapGet(game,"currentplayerindex"),converr);
+                res = ConnectionSelect(con,StringFormatChar(arena,"select * from player where joinedgameid = %d order by gameIndex asc",gameId));
+                players = QueryResultToList(res,arena);
+            }else{
+                return StringFormatChar(arena,"{\"ok\":false,\"error\":\"could not convert game to hashmap\"}");
+            }
 
-    res = ConnectionSelect(con,StringFormatChar(arena,"select * from game where gameid = %S",*(String*)HashmapGet(player,"joinedgameid")));
-    
-    Hashmap* game = QueryResultToMap(res,arena);
-
-    int gameId = StringToInt(*(String*)HashmapGet(game,"gameid"),converr);
-
-    int gameIndex = StringToInt(*(String*)HashmapGet(game,"currentplayerindex"),converr);
-
-    res = ConnectionSelect(con,StringFormatChar(arena,"select * from player where joinedgameid = %d order by gameIndex asc",gameId));
-    List players = QueryResultToList(res,arena);
+    }else{
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"could not convert player to hashmap\"}");
+    }
 
     Hashmap* currentplayer = ListGetVal(&players,gameIndex)->ptr;
+    if(currentplayer){
+            int currentplayerid = StringToInt(*(String*)HashmapGet(currentplayer,"playerid"),converr);
+    }else{
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"could not find the curretn player\"}");
+    }
 
-    int currentplayerid = StringToInt(*(String*)HashmapGet(currentplayer,"playerid"),converr);
     if (currentplayerid != StringToInt(*userId,converr)) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"it isn't this player's turn\"}");
     }
 
     List drawcards = CardGetListForDrawPile(gameId,con);
-
     srand(time(NULL));
 
-    int i = rand()%drawcards.size;
-    i = i < 0 ? i+res.count : i;
-
+    if(drawcards.size > 0){
+        int i = rand()%drawcards.size;
+        i = i < 0 ? i+res.count : i;
+    }else{
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"could not get pile of cards\"}");
+    }
 
     Card* card = ListGetVal(&drawcards,i)->ptr;
-
-    int cardid = card->id;
-
+    if(card){
+       int cardid = card->id;
+    }else{
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"could not get drawed card\"}");
+    }
     int playerid = StringToInt(*userId,converr);
 
     CardAddToPlayer(cardid,playerid,con);

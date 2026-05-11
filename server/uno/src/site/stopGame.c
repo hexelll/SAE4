@@ -24,8 +24,14 @@ String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
     }
     
     List creatorTuple = QueryResultToList(res,arena);
+    if(!(creatorTuple.size > 0)){
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"could not convert to list\"}");
+    }
 
     Hashmap* creator = ListGetVal(&creatorTuple,0)->ptr;
+    if(!(creator || creator->size > 0)){
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"could not retrieve supposed creator\"}");
+    }
 
     int gameId = StringToInt(*(String*)HashmapGet(creator,"createdgameid"),converr);
 
@@ -59,7 +65,10 @@ String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
             CardDelete(cardid,con);
         }
     }
-    ConnectionExec(con,StringFormatChar(arena,"update game set currentplayerindex = null where gameid = %d",gameId));
+    res = ConnectionExec(con,StringFormatChar(arena,"update game set currentplayerindex = null where gameid = %d",gameId));
+    if(!(res.message.size == 0)) {
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"could not update current player index\"}");
+    }
 
     return StringFormatChar(arena,"{\"ok\":true}");
 }

@@ -47,16 +47,24 @@ String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
 
     List players = QueryResultToList(res,arena);
 
-    ConnectionExec(con,StringFormatChar(arena,"update game set currentplayerindex = 0,isReversed = 0 where gameid=%S",gameId));
+    res = ConnectionExec(con,StringFormatChar(arena,"update game set currentplayerindex = 0,isReversed = 0 where gameid=%S",gameId));
+    if(!(res.message.size == 0)) {
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"could not update player index\"}");
+    }
 
     List cardlst = QueryResultToList(ConnectionSelect(con,StringFrom("select * from deckcard where deckid = 1",arena)),arena);
-    
+    if(!(cardlst || cardlst.size > 0)){
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"could not retrieve card from deck\"}");
+    }
     srand(time(NULL));
 
     for(int i=0;i<players.size;i++){
         Hashmap* playermap = ListGetVal(&players,i)->ptr;
         int playerid = StringToInt(*(String*)HashmapGet(playermap,"playerid"),converr);
-        ConnectionExec(con,StringFormatChar(arena,"delete from usercard where playerid = %d",playerid));
+        res = ConnectionExec(con,StringFormatChar(arena,"delete from usercard where playerid = %d",playerid));
+        if(!(res.message.size == 0)) {
+            return StringFormatChar(arena,"{\"ok\":false,\"error\":\"could not delete usercard with this id\"}");
+        }
         for(int j=0;j<7;j++) {
             int k = abs(rand())%cardlst.size;
             int cardid = StringToInt(*(String*)HashmapGet(ListGetVal(&cardlst,k)->ptr,"cardid"),converr);
@@ -65,13 +73,19 @@ String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
         }
     }
     int gameIdInt = StringToInt(gameId,converr);
-    ConnectionExec(con,StringFormatChar(arena,"delete from playedpilecard where gameid = %S",gameId));
+    res = ConnectionExec(con,StringFormatChar(arena,"delete from playedpilecard where gameid = %S",gameId));
+    if(!(res.message.size == 0)) {
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"could not delete from playerpilecard\"}");
+    }
     int k = abs(rand())%cardlst.size;
     int cardid = StringToInt(*(String*)HashmapGet(ListGetVal(&cardlst,k)->ptr,"cardid"),converr);
     CardAddToPlayed(cardid,gameIdInt,con);
     ListRemoveNode(&cardlst,k);
 
-    ConnectionExec(con,StringFormatChar(arena,"delete from drawpilecard where gameid = %S",gameId));
+    res = ConnectionExec(con,StringFormatChar(arena,"delete from drawpilecard where gameid = %S",gameId));
+    if(!(res.message.size == 0)) {
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"could not delete card from drawpile\"}");
+    }
     for(int i=0;i<cardlst.size;i++) {
         int cardid = StringToInt(*(String*)HashmapGet(ListGetVal(&cardlst,i)->ptr,"cardid"),converr);
         CardAddToDraw(cardid,gameIdInt,con);

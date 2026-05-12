@@ -63,7 +63,7 @@ function makeMyCards(nbCards, cards, root) {
             React.createElement("div", {
                 className: "cardInnerColor",
                 style: {
-                    backgroundColor: "#"+card.cardColorHex,
+                    background: "#"+card.cardColorHex,//"linear-gradient(#"+card.cardColorHex+" 40%,rgb(from #"+card.cardColorHex+" calc(r * 0.8) calc(g * 0.7) calc(b * 1)))",
                     Index: index
                 }
             }, card.cardTypeDesc == "plus" ? "+"+card.cardValue : card.cardValue +"")
@@ -127,14 +127,22 @@ function makeEnemysCards(nbCards, enemyRoot) {
     /* Display cards */
     for (let i = 0; i < totalCards; i++) {
         enemyCards.push(
-            React.createElement("div", {
-                key: i,
-                className: "enemyCard",
-                style: {
-                    marginLeft: i === 0 ? "0vw" : overlapEnemy + "vw",
-                    zIndex: i
-                }
-            }, i === totalCards - 1 ? totalCards : "")
+            React.createElement("div",{
+                    key:i,
+                    className: "enemyCardBack",
+                    style:{
+                        marginLeft: i === 0 ? "0vw" : overlapEnemy + "vw",
+                        zIndex: i
+                    }
+                },
+                React.createElement("div", {
+                    key: i,
+                    className: "enemyCard",
+                    style: {
+                        zIndex: i
+                    }
+                }, i === totalCards - 1 ? totalCards : "")
+            )
         )
     }
 
@@ -211,7 +219,7 @@ function makePlayedPileCard(card) {
             React.createElement("div", {
                 className: "cardInnerColor",
                 style: {
-                    backgroundColor: "#"+card.cardColorHex,
+                    background: "#"+card.cardColorHex,//"linear-gradient(#"+card.cardColorHex+" 40%,rgb(from #"+card.cardColorHex+" calc(r * 0.8) calc(g * 0.7) calc(b * 1)))",
                 }
             }, card.cardTypeDesc == "plus" || card.cardTypeDesc == "wildplus" ? "+"+card.cardValue : card.cardValue +"")
         )
@@ -244,7 +252,7 @@ function displayCards() {
         let roots = [[enemyLeftRoot,"#nameEnemyLeft"], [enemyTopRoot,"#nameEnemyTop"], [enemyRightRoot,"#nameEnemyRight"]];
         let indexRoot = 0;
 
-        let currentPlayerIndicator = "<p style=\"color:green\">\u2b24</p>";
+        let currentPlayerIndicator = "<p style=\"color:#0ff35b\">\u2b24</p>";
 
         for (let i = 0; i < gameState.players.length; i++) {
             // To get the place in the list of the actual player

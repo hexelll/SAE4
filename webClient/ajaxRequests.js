@@ -3,7 +3,7 @@ var serveurIpAlex = "10.8.16.218:42069";
 var serveurIpLuc = "10.8.30.27:42069";
 var serveurIpMoi = "localhost:42069";
 
-var serveurIp = serveurIpAlex;
+var serveurIp = serveurIpMoi;
 
 
 /* -------------------------------------------- TRY CONNEXION ------------------------------------------------ */

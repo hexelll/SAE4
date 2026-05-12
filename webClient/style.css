@@ -141,8 +141,8 @@ button a{
 .enemyCard {
     /*height: 16vh;
     max-height: 180px;*/
-    width: 85%;
-    height: 85%;
+    width: 95%;
+    height: 95%;
     aspect-ratio: 2 / 3;
     flex-shrink: 0;
 
@@ -154,12 +154,11 @@ button a{
     font-weight: bold;
     color: white;
 
-    border-radius: 10% 10% 10% 10%;
+    border-radius: 15% 15% 15% 15%;
     border: none;
 
-
     /*background: linear-gradient(135deg, red, yellow); /* style UNO-ish */
-    background: rgb(95, 76, 76)/*linear-gradient(#b42626 60%,rgb(from #b42626 calc(r * 0.7) calc(g * 0.6) calc(b * 0.8)))*/;
+    background: rgb(165, 5, 5)/*linear-gradient(#b42626 60%,rgb(from #b42626 calc(r * 0.7) calc(g * 0.6) calc(b * 0.8)))*/;
 }
 
 
@@ -383,14 +382,22 @@ button a{
         #ff5e00,
         #ffd000
     );*/
-    /*background: radial-gradient(
-        #b42626 80%,
-        rgb(from #b42626 calc(r * 0.7) calc(g * 0.6) calc(b * .8))
-    );*/
-    background-image:radial-gradient(#ff8b8b55,#00000033),url("./Assets/unobg.jpg");
+    background: radial-gradient(
+        #ff9327 10%,
+        rgb(165, 5, 5)
+    );
+    /*background-image:radial-gradient(#ff8b8b55,#00000033),url("./Assets/unobg.jpg");*/
     background-repeat: no-repeat;
     background-size: cover;
     overflow: hidden;
+}
+
+#playTitle {
+    position:absolute;
+    left:10%;
+    top:2%;
+    color:white;
+    font-weight: bold;
 }
 
 

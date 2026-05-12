@@ -124,8 +124,7 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
     if(!(
         pluscounter == 0 && 
         (card.colorId == -1 || currentCard.colorId == -1 || currentCard.colorId == card.colorId) || 
-        (currentCard.typeId == card.typeId && currentCard.value == card.value) || 
-        (card.typeId == plusid && currentCard.typeId == pluswildid || card.typeId == pluswildid && currentCard.typeId == plusid)
+        (currentCard.typeId == card.typeId && currentCard.value == card.value)
     )) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"incorrect card color\"}");
     }
@@ -152,36 +151,46 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
 
     if (pluscounter > 0) {
         int hasPlus = 0;
+        
         int nextplayerindex = (gameIndex + k)%players.size;
         nextplayerindex += nextplayerindex < 0 ? players.size : 0;
         Hashmap* nextplayer = ListGetVal(&players,nextplayerindex)->ptr;
         int nextplayerid = StringToInt(*(String*)HashmapGet(nextplayer,"playerid"),converr);
         List cards = CardGetListForPlayer(nextplayerid,con);
         for(int i=0;i<cards.size;i++) {
-            Card card = *(Card*)ListGetVal(&cards,i)->ptr;
-            if(card.typeId == plusid || card.typeId == pluswildid) {
+            Card c = *(Card*)ListGetVal(&cards,i)->ptr;
+            if(c.typeId == card.typeId) {
                 hasPlus = 1;
                 break;
             }
         }
         FILE* fp = fopen("logPlay.txt","w");
-        fprintf(fp,StringToChar(StringFormatChar(arena,"\n pluscounter: %d",pluscounter),arena));
-        fprintf(fp,StringToChar(StringFormatChar(arena,"\n k: %d",k),arena));
-        fprintf(fp,StringToChar(StringFormatChar(arena,"\n nextplayerid: %d",nextplayerid),arena));
+        
         if(!hasPlus) {
             
-            fprintf(fp,"\n has plus");
+            
             srand(time(NULL));
             for(int i=0;i<pluscounter;i++) {
                 List drawPile = CardGetListForDrawPile(gameId,con);
+                if (drawPile.size == 0) {
+                    List playedPile = CardGetListForPlayedPile(gameId,con);
+                    while (playedPile.size > 1) {
+                        int j = rand()%(playedPile.size-1);
+                        j = j < 0 ? j+(playedPile.size-1):j;
+                        Card* c = ListGetVal(&playedPile,j)->ptr;
+                        CardAddToDraw(c->id,gameId,con);
+                        CardRemoveFromPlayed(c->id,gameId,con);
+                        playedPile = CardGetListForPlayedPile(gameId,con);
+                    }
+                }
+                drawPile = CardGetListForDrawPile(gameId,con);
                 int i = rand()%drawPile.size;
                 i = i<0?i+drawPile.size:i;
-                Card card = *(Card*)ListGetVal(&drawPile,i)->ptr;
-                CardRemoveFromDraw(card.id,gameId,con);
-                CardAddToPlayer(card.id,nextplayerid,con);
+                Card c = *(Card*)ListGetVal(&drawPile,i)->ptr;
+                CardRemoveFromDraw(c.id,gameId,con);
+                CardAddToPlayer(c.id,nextplayerid,con);
             }
             k = k<0 ? k-1 : k+1;
-            fprintf(fp,StringToChar(StringFormatChar(arena,"\n k: %d",k),arena));
             pluscounter = 0;
         }else {
             fprintf(fp,"fjreiuhjknbgct,h;ecfrbt,dvn gbjfhkejr");

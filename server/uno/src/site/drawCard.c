@@ -56,6 +56,18 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"it isn't this player's turn\"}");
     }
 
+    List drawPile = CardGetListForDrawPile(gameId,con);
+    if (drawPile.size == 0) {
+        List playedPile = CardGetListForPlayedPile(gameId,con);
+        while (playedPile.size > 1) {
+            int j = rand()%(playedPile.size-1);
+            j = j < 0 ? j+(playedPile.size-1):j;
+            Card* c = ListGetVal(&playedPile,j)->ptr;
+            CardAddToDraw(c->id,gameId,con);
+            CardRemoveFromPlayed(c->id,gameId,con);
+            playedPile = CardGetListForPlayedPile(gameId,con);
+        }
+    }
     List drawcards = CardGetListForDrawPile(gameId,con);
     srand(time(NULL));
 

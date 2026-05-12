@@ -17,14 +17,17 @@ Player PlayerFromMap(Hashmap playermap, Connection con){
     player.username= *(String*)HashmapGet(&playermap,"username");
     player.userPwd = *(String*)HashmapGet(&playermap,"userpwd");
     player.imagepath = (String*)HashmapGet(&playermap,"imagepath");
-    int jgameID = StringToInt(*(String*)HashmapGet(&playermap,"joinedgameid"), converr);
-    int cgameID = StringToInt(*(String*)HashmapGet(&playermap,"createdgameid"), converr);
-    int gameIndex = StringToInt(*(String*)HashmapGet(&playermap,"gameindex"),converr);
-    int saidUno = StringToInt(*(String*)HashmapGet(&playermap,"saiduno"),converr);
-    player.joinedGameId = &jgameID;
-    player.createdGameId = &cgameID;
-    player.gameIndex = &gameIndex;
-    player.saidUno = &saidUno;
+
+    player.joinedGameId = ArenaAlloc(&con.arena,sizeof(int));
+    player.createdGameId = ArenaAlloc(&con.arena,sizeof(int));
+    player.gameIndex = ArenaAlloc(&con.arena,sizeof(int));
+    player.saidUno = ArenaAlloc(&con.arena,sizeof(int));
+
+    *player.joinedGameId = StringToInt(*(String*)HashmapGet(&playermap,"joinedgameid"), converr);
+    *player.createdGameId = StringToInt(*(String*)HashmapGet(&playermap,"createdgameid"), converr);
+    *player.gameIndex = StringToInt(*(String*)HashmapGet(&playermap,"gameindex"),converr);
+    *player.saidUno = StringToInt(*(String*)HashmapGet(&playermap,"saiduno"),converr);
+
     ArenaDelete(&scratch);
     return player;
 };

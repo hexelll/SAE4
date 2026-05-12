@@ -93,6 +93,9 @@ String makeResponse(struct Arena* arena,Connection con,char** argv) {
                 }
                 ConnectionExec(con,StringFormatChar(arena,"update game set currentplayerindex = null where gameid = %d",gameId));
             }
+            else if(cards.size != 1) {
+                ConnectionExec(con,StringFormatChar(arena,"update player set saiduno = 0 where playerid = %d",playerid));
+            }
             HashmapSetInt(&playermap,"cardCount",cards.size); 
         }
         ListAppendMap(&responsePlayers,playermap);

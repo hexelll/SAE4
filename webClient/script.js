@@ -11,10 +11,11 @@ let username = params.get("username");
 //ajaxRequests.getConnexion();
 
 
-let lastpluscounter = 0;
+let lastPlusCounter = 0;
+let tempPlusCounter = 0;
 
 /* -------------------------------------------- ANIMATIONS ------------------------------------------------ */
-function showAnimation(type, pluscounter){
+function showAnimation(type, plusCounter){
     // Get elements and create animation element
     const container = document.getElementById("effectContainer");
     const animation = document.createElement("div");
@@ -23,8 +24,8 @@ function showAnimation(type, pluscounter){
     const symbols = {
         skip: "SKIP",
         reverse: "REVERSE",
-        plus: "+"+(pluscounter == 0? lastpluscounter+2 : pluscounter),
-        pluswild: "+"+(pluscounter == 0? lastpluscounter+4 : pluscounter),
+        plus: "+"+(plusCounter == 0? lastPlusCounter+2 : plusCounter),
+        pluswild: "+"+(plusCounter == 0? lastPlusCounter+4 : plusCounter),
         wild: "CHANGE COLOR",
         normal: ""
     };
@@ -333,12 +334,14 @@ window.addEventListener("load", displayCards);
 let lastCurrentCard;
 let temp;
 
+
 async function displayCards() {
     console.log(userId,userPwd);
     ajaxRequests.getGameState(userId,userPwd).then(g => {
         gameState = g;
         //console.log(gameState);
-        lastpluscounter = gameState.pluscounter;
+        lastPlusCounter = tempPlusCounter;
+        tempPlusCounter = gameState.plusCounter;
 
         let roots = [[enemyLeftRoot,"#nameEnemyLeft"], [enemyTopRoot,"#nameEnemyTop"], [enemyRightRoot,"#nameEnemyRight"]];
         let indexRoot = 0;

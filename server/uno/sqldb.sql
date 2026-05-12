@@ -31,7 +31,8 @@ create table player(
     imagepath varchar(100),
     joinedgameid int,
     createdgameid int,
-    gameindex int
+    gameindex int,
+    saiduno int
 );
 
 create table rule(

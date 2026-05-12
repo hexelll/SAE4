@@ -248,7 +248,7 @@ button a{
 #playedPile {
     position: fixed;
     left: 45vw;
-    top: 45vh;
+    top: 35vh;
     height: 20vh;
     width: 10vw;
 }

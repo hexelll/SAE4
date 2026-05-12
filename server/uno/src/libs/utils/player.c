@@ -20,9 +20,11 @@ Player PlayerFromMap(Hashmap playermap, Connection con){
     int jgameID = StringToInt(*(String*)HashmapGet(&playermap,"joinedgameid"), converr);
     int cgameID = StringToInt(*(String*)HashmapGet(&playermap,"createdgameid"), converr);
     int gameIndex = StringToInt(*(String*)HashmapGet(&playermap,"gameindex"),converr);
+    int saidUno = StringToInt(*(String*)HashmapGet(&playermap,"saiduno"),converr);
     player.joinedGameId = &jgameID;
     player.createdGameId = &cgameID;
     player.gameIndex = &gameIndex;
+    player.saidUno = &saidUno;
     ArenaDelete(&scratch);
     return player;
 };

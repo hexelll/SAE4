@@ -9,6 +9,7 @@ typedef struct {
     int* joinedGameId;
     int* createdGameId;
     int* gameIndex;
+    int* saidUno;
 }Player;
 
 Player PlayerFindById(int id, Connection con);

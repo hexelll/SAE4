@@ -11,10 +11,10 @@ let username = params.get("username");
 //ajaxRequests.getConnexion();
 
 
-
+let lastpluscounter = 0;
 
 /* -------------------------------------------- ANIMATIONS ------------------------------------------------ */
-function showAnimation(type){
+function showAnimation(type,pluscounter){
     // Get elements and create animation element
     const container = document.getElementById("effectContainer");
     const animation = document.createElement("div");
@@ -23,10 +23,12 @@ function showAnimation(type){
     const symbols = {
         skip: "SKIP",
         reverse: "REVERSE",
-        plus: "+2",
-        pluswild: "+4",
-        wild: "CHANGE COLOR"
+        plus: "+"+(pluscounter == 0? lastpluscounter+2 : pluscounter),
+        pluswild: "+"+(pluscounter == 0? lastpluscounter+4 : pluscounter),
+        wild: "CHANGE COLOR",
+        normal: ""
     };
+    lastpluscounter = pluscounter;
 
     animation.innerHTML = symbols[type] || type;
     container.appendChild(animation);
@@ -219,11 +221,14 @@ function play(card) {
         /*result = JSON.parse(result);*/
         if (result.ok) {
             console.log("Card played successfully");
-            displayCards();
+            ajaxRequests.getGameState(userId,userPwd).then(g=>{
+                console.log("gameState: ",g);
+                showAnimation(card.cardTypeDesc,g.plusCounter);
+            });
             
             // Adding animations
             console.log("Card played : " + card.cardTypeDesc);
-            showAnimation(card.cardTypeDesc);
+            
         }
         else {
             alert(result.error);
@@ -323,11 +328,11 @@ window.addEventListener("load", displayCards);
 
 
 
-function displayCards() {
+async function displayCards() {
     console.log(userId,userPwd);
     ajaxRequests.getGameState(userId,userPwd).then(g => {
         gameState = g;
-        console.log(gameState);
+        //console.log(gameState);
 
         let roots = [[enemyLeftRoot,"#nameEnemyLeft"], [enemyTopRoot,"#nameEnemyTop"], [enemyRightRoot,"#nameEnemyRight"]];
         let indexRoot = 0;
@@ -389,7 +394,7 @@ function displayCards() {
         }
             */
         
-
+        return gameState;
     });
 };
 

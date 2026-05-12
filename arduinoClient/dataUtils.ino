@@ -7,7 +7,7 @@ Card newCardFromJson(JsonObject cardData){
     .typeId = cardData["cardTypeId"].as<int>(),
     .colorId = cardData["cardColorId"].as<int>(),
     .value = cardData["cardValue"].as<int>(),
-    .colorHex = cardData["cardColorHex"].as<String>(),
+    .colorHex = colorFromHex( cardData["cardColorHex"].as<String>() ),
     .typeDescription = cardData["cardTypeDesc"].as<String>()
   };
 }

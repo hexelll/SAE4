@@ -12,7 +12,7 @@
 ---------- DATA DECLARATION  ------------------------------------------------------------------------------------------
 */
 // Server connection data
-const char server[] = "10.97.197.104";//"10.106.120.104";//10.106.120.33
+const char server[] = "10.97.197.132";//"10.106.120.104";//10.106.120.33
 const int port = 42069; // 42069
 
 // Request queue
@@ -60,7 +60,7 @@ struct Card {
   int typeId = -1;
   int colorId = -1;
   int value = -1;
-  String colorHex;
+  uint16_t colorHex;
   String typeDescription;
 };
 Card myCards[30] = {};
@@ -74,22 +74,28 @@ Card lastPlayedCard = {
     .typeId = -1,
     .colorId = -1,
     .value = -1,
-    .colorHex = "888888",
+    .colorHex = 0x8888,
     .typeDescription = String("")
   };
 int currentPlayerIndex;
 bool isReversed = false;
+bool isStarted = false;
+int creatorId = -1;
+String gameCode = "";
+byte inputGameCode[6] = {0,0,0,0,0,0};
+int playingPlayerId = -1;
 
 // user data
 int myId = 2;
 String myPassword = "enorme";
 
 // Menu data
-enum MenuStates {NONE,TITLE_SCREEN,PAUSE,IN_GAME,CHOOSE_GAME,SETINGS,CONTROLS};
-enum MenuStates wantedMenuState = TITLE_SCREEN; // default menu (when restarting)
+enum MenuStates {NONE,TITLE_SCREEN,PAUSE,IN_GAME,MAIN,JOIN_GAME,CREATE_GAME,CONTROLS};
+enum MenuStates wantedMenuState = TITLE_SCREEN; // TITLE_SCREEN : default menu (when restarting)
 enum MenuStates currentMenuState = NONE;
 short positionInHand = 0;
 short positionInMenu = 0;
+short positionInGameCode = 0;
 
 // Screen
 #define TFT_DC 9
@@ -121,6 +127,7 @@ void setup() {
   tft.begin(); 
   tft.setTextColor(ILI9341_WHITE);
   tft.setRotation(3);
+  
   changeInterface();
   
   // connect to wifi
@@ -143,10 +150,9 @@ void setup() {
   DRAW CARD
   
   JOIN GAME
-  queueNewRequest("GET","/joinGame.c?userId=1&userPwd=jaja&gameCode=123","", Callback::errorHandler );
+  queueNewRequest("GET","/joinGame.c?userId=1&userPwd=jaja&gameCode=123","", Callback::callback_joinGame );
   */
 
-  showStartText();
 }
 
 void loop(){

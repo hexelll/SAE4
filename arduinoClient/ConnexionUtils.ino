@@ -23,7 +23,7 @@ void initWifi(char ssid[],char pass[]){
     status = WiFi.begin(ssid, pass);
     // wait a few seconds for connection:
     Serial.println(F("[WARNING] WIFI connection failed, retrying in 2s"));
-    delay(2000);
+    delay(1000);
   }
   Serial.println(F("[OK] WIFI connected"));
 

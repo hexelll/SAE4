@@ -20,6 +20,21 @@ void callback_errorHandler(Request* requestSent,JsonDocument* responseData){
   }
 }
 
+// handles create game 
+void callback_createGame(Request* requestSent,JsonDocument* responseData){
+  callback_errorHandler(requestSent,responseData);
+  if (requestWorked){
+    gameCode = (*responseData)["code"].as<String>();
+  }
+}
+
+void callback_joinGame(Request* requestSent,JsonDocument* responseData){
+  callback_errorHandler(requestSent,responseData);
+  if (requestWorked){
+    wantedMenuState = PAUSE;
+  }
+}
+
 // getGameState callback
 void callback_getGameState(Request* requestSent,JsonDocument* responseData){
   callback_errorHandler(requestSent,responseData);
@@ -39,6 +54,17 @@ void callback_getGameState(Request* requestSent,JsonDocument* responseData){
 
     // update is reversed
     isReversed = (*responseData)["isReversed"];
+
+    // update is Started
+    if ( !isStarted && (*responseData)["isStarted"] && currentMenuState == PAUSE ){
+      wantedMenuState = IN_GAME;
+    }else if (isStarted && !(*responseData)["isStarted"] && currentMenuState == IN_GAME){
+      wantedMenuState = PAUSE;
+    }
+    isStarted = (*responseData)["isStarted"];
+
+    // creator id
+    creatorId = (*responseData)["creatorId"];
 
     // update my cards
     bool cards_CHANGED = false;
@@ -66,8 +92,12 @@ void callback_getGameState(Request* requestSent,JsonDocument* responseData){
         break;
       }
       Player newPlayer = newPlayerFromJson(playerData);
+
+      if (nbPlayers == currentPlayerIndex ){
+        playingPlayerId = newPlayer.id;
+      }
       
-      if (playerList[nbPlayers].id != newPlayer.id){
+      if (playerList[nbPlayers].id != newPlayer.id || playerList[nbPlayers].nbCards != newPlayer.nbCards){
         players_CHANGED = true;
       }
       playerList[nbPlayers] = newPlayer;

@@ -4,7 +4,8 @@
 // Display individual card
 // MAINLY CHAT GPT CODE FOR DISPLAYING INDIVIDUAL CARDS BECAUSE ALIGNEMENT IS HELL
 void displayCard(short x, short y, short sx, short margin, Card cardToDisplay){
-    uint16_t color = colorFromHex(cardToDisplay.colorHex);
+    uint16_t color = cardToDisplay.colorHex;
+    
     String value;
     if (cardToDisplay.typeDescription == "normal"){
       value = String(cardToDisplay.value);
@@ -89,42 +90,47 @@ short getBestTextSize(String text, short maxSize, short maxWidth, short maxHeigh
 }
 
 // displays player profile (on the left)
-void displayPlayerProfile(short y,short nbCards,String username,uint16_t backgroundColor){  
+void displayPlayerProfile(short y,short nbCards,String username,uint16_t backgroundColor, bool isLocalPlayer, bool isPlaying){  
   // background
   tft.fillRect(0, y, 80, 50, backgroundColor); 
   
   // image
+  if (isPlaying){
+    tft.fillRoundRect(5, y+4, 30, 30,2, ILI9341_RED); 
+  }
   tft.fillRect(8, y+7, 24, 24, tft.color565(0, 255, 0)); 
 
-  // side cards
-  if (nbCards != 1){
-    tft.fillRoundRect(38, y+12, 15, 19, 2, tft.color565(0, 0, 255));
-    tft.drawRoundRect(38, y+12, 15, 19, 2, tft.color565(255, 255, 255));
-  }
-  if(nbCards > 2){
-    tft.fillRoundRect(60, y+12, 15, 19, 2, tft.color565(0, 255, 0));
-    tft.drawRoundRect(60, y+12, 15, 19, 2, tft.color565(255, 255, 255));
-  }
-
-  // main card with nbCards
-  if (nbCards < 10){
-    tft.fillRoundRect(47, y+7, 20, 25, 3, tft.color565(255, 0, 0));
-    tft.drawRoundRect(47, y+7, 20, 25, 3, tft.color565(255, 255, 255));
-
-    tft.setCursor(52, y+12);
-    tft.setTextSize(2);
-    tft.print(nbCards);
-  }else{
-    tft.fillRoundRect(44, y+7, 26, 25, 3, tft.color565(255, 0, 0));
-    tft.drawRoundRect(44, y+7, 26, 25, 3, tft.color565(255, 255, 255));
-
-    if (nbCards < 20){
-      tft.setCursor(45, y+12);
-    }else{
-      tft.setCursor(46, y+12);
+  if (wantedMenuState == IN_GAME){
+    // side cards
+    if (nbCards != 1){
+      tft.fillRoundRect(38, y+12, 15, 19, 2, tft.color565(0, 0, 255));
+      tft.drawRoundRect(38, y+12, 15, 19, 2, tft.color565(255, 255, 255));
     }
-    tft.setTextSize(2);
-    tft.print(nbCards);
+    if(nbCards > 2){
+      tft.fillRoundRect(60, y+12, 15, 19, 2, tft.color565(0, 255, 0));
+      tft.drawRoundRect(60, y+12, 15, 19, 2, tft.color565(255, 255, 255));
+    }
+
+    // main card with nbCards
+    if (nbCards < 10){
+      tft.fillRoundRect(47, y+7, 20, 25, 3, tft.color565(255, 0, 0));
+      tft.drawRoundRect(47, y+7, 20, 25, 3, tft.color565(255, 255, 255));
+
+      tft.setCursor(52, y+12);
+      tft.setTextSize(2);
+      tft.print(nbCards);
+    }else{
+      tft.fillRoundRect(44, y+7, 26, 25, 3, tft.color565(255, 0, 0));
+      tft.drawRoundRect(44, y+7, 26, 25, 3, tft.color565(255, 255, 255));
+
+      if (nbCards < 20){
+        tft.setCursor(45, y+12);
+      }else{
+        tft.setCursor(46, y+12);
+      }
+      tft.setTextSize(2);
+      tft.print(nbCards);
+    }
   }
 
   // username 
@@ -136,7 +142,13 @@ void displayPlayerProfile(short y,short nbCards,String username,uint16_t backgro
   }
   tft.setCursor(10, y+37);
   tft.setTextSize(1);
+  if (isLocalPlayer){
+    tft.setTextColor(ILI9341_YELLOW);
+  }else{
+    tft.setTextColor(ILI9341_WHITE);
+  }
   tft.print(short_username);
+  tft.setTextColor(ILI9341_WHITE);
 }
 
 
@@ -153,6 +165,18 @@ void changeInterface(){
       }
       case PAUSE: {
         initPauseInterface();
+        break;
+      }
+      case CREATE_GAME: {
+        initCreateGame();
+        break;
+      }
+      case MAIN: {
+        initMainInterface();
+        break;
+      }
+      case JOIN_GAME: {
+        initJoinGameInterface();
         break;
       }
       case TITLE_SCREEN: {
@@ -201,6 +225,143 @@ void updateActiveEffects(){
   }
 }
 
+/*
+---------- CREATE_GAME INTERFACE ------------------------------------------------------------------------------------------
+*/
+void initCreateGame(){
+  tft.fillScreen(ILI9341_BLACK);
+
+  // top text
+  tft.setTextSize(3);
+  tft.setCursor(50, 10);
+  tft.print("Partie cree !");
+  tft.setTextSize(1);
+  tft.setCursor(75, 43);
+  tft.print("Rejoignez la avec le code :");
+}
+void updateGameCodeDisplay(){
+
+}
+
+/*
+---------- MAIN INTERFACE ------------------------------------------------------------------------------------------
+*/
+void initMainInterface(){
+  if (currentMenuState == TITLE_SCREEN){
+    tft.fillRect(0, 110, 320, 130, ILI9341_BLACK);
+  }else{
+    tft.fillScreen(ILI9341_BLACK);
+    // UNO logo
+    tft.setTextSize(10);
+    tft.setCursor(70, 20);
+    tft.setTextColor(ILI9341_RED);
+    tft.print("U");
+    tft.setTextColor(ILI9341_GREEN);
+    tft.print("N");
+    tft.setTextColor(ILI9341_BLUE);
+    tft.print("O");
+
+    // splash text
+    updateSplashText();
+  }
+
+  updateMainMenu();
+
+}
+void updateMainMenu(){
+  uint16_t color1 = tft.color565(128, 128, 128);
+  uint16_t color2 = tft.color565(255, 0, 0);
+  if (positionInMenu == 0){
+    uint16_t temp = color2;
+    color2 = color1;
+    color1 = temp;
+  }
+  tft.fillRoundRect(29, 127, 256, 31,10,color1 );
+  tft.setTextSize(2);
+  tft.setCursor(37, 135);
+  tft.print("Rejoindre une partie");
+
+  tft.fillRoundRect(52, 179, 206, 31,10,color2 );
+  tft.setTextSize(2);
+  tft.setCursor(60, 187);
+  tft.print("Creer une partie");
+}
+
+
+/*
+---------- JOIN_GAME INTERFACE ------------------------------------------------------------------------------------------
+*/
+void initJoinGameInterface(){
+  tft.fillScreen(ILI9341_BLACK);
+
+  // top text
+  tft.setTextSize(2);
+  tft.setCursor(57, 10);
+  tft.print("Joindre la partie");
+  tft.setTextSize(1);
+  tft.setCursor(43, 35);
+  tft.print("Entrez le code de la partie a rejoindre");
+ 
+  // char séparé de 36px
+  // char de 30px de largeur
+  // char de 42px de hauteur
+
+  updateInputGameCode();
+}
+void updateInputGameCode(){
+  static uint16_t colors[4] = {ILI9341_RED,ILI9341_GREEN,ILI9341_BLUE,ILI9341_YELLOW};
+
+  // actual code
+  tft.setTextSize(6);
+  tft.setCursor(50, 125);
+  for (byte i=0 ; i<6 ; i++){
+    if (i == positionInGameCode){
+      tft.fillRect( 50+i*36, 125, 30, 44, ILI9341_BLACK );
+    }
+    tft.setTextColor( colors[i%4] );
+    tft.print( String(inputGameCode[i]) );
+  }
+  tft.setTextColor(ILI9341_WHITE);
+
+  // numbers above
+  tft.setTextColor(tft.color565(128, 128, 128));
+
+  tft.fillRect( 56+positionInGameCode*36, 63, 15, 21, ILI9341_BLACK );
+  if ( inputGameCode[positionInGameCode] >= 2 ){
+    tft.setTextSize(3);
+    tft.setCursor(56+positionInGameCode*36, 63);
+    tft.print( inputGameCode[positionInGameCode]-2 );
+  }
+
+  tft.fillRect( 54+positionInGameCode*36, 89, 20, 28, ILI9341_BLACK );
+  if ( inputGameCode[positionInGameCode] >= 1 ){
+    tft.setTextSize(4);
+    tft.setCursor(54+positionInGameCode*36, 89);
+    tft.print( inputGameCode[positionInGameCode]-1 );
+  }
+
+  tft.fillRect( 54+positionInGameCode*36, 173, 20, 28, ILI9341_BLACK );
+  if ( inputGameCode[positionInGameCode] <= 8 ){
+    tft.setTextSize(4);
+    tft.setCursor(54+positionInGameCode*36, 173);
+    tft.print( inputGameCode[positionInGameCode]+1 );
+  }
+
+  tft.fillRect( 56+positionInGameCode*36, 207, 15, 21, ILI9341_BLACK );
+  if ( inputGameCode[positionInGameCode] <= 7 ){
+    tft.setTextSize(3);
+    tft.setCursor(56+positionInGameCode*36, 207);
+    tft.print( inputGameCode[positionInGameCode]+2 );
+  }
+
+}
+void eraseInputGameCode(){
+  tft.fillRect( 56+positionInGameCode*36, 63, 15, 21, ILI9341_BLACK );
+  tft.fillRect( 54+positionInGameCode*36, 89, 20, 28, ILI9341_BLACK );
+  tft.fillRect( 54+positionInGameCode*36, 173, 20, 28, ILI9341_BLACK );
+  tft.fillRect( 56+positionInGameCode*36, 207, 15, 21, ILI9341_BLACK );
+}
+
 
 /*
 ---------- TITLE_SCREEN INTERFACE ------------------------------------------------------------------------------------------
@@ -220,21 +381,14 @@ void initTitleScreen(){
 
   // splash text
   updateSplashText();
-}
-void showStartText(){
-  // start text
-  tft.setTextColor(ILI9341_WHITE);
+
   tft.setTextSize(2);
   tft.setCursor(30, 140);
   tft.print("Appuyer sur n'importe");
   tft.setCursor(40, 165);
   tft.print("quelle touche pour");
-  tft.setTextColor(ILI9341_YELLOW);
-  tft.setTextSize(3);
-  tft.setCursor(65, 195);
-  tft.print("Commencer!");
-  tft.setTextColor(ILI9341_WHITE);
 }
+
 void updateSplashText(){
   // list of splash texts
   static String spashText[3] = {"Garanti sans Herobrine !","Le seul & l'UNO-ique","100% requetes paires"};
@@ -323,8 +477,18 @@ void updatePlayers(){
       backgroundColor = backgroundColors[i%2];
 
       if (nbPlayers > i){
-        Player playerToDisplay = playerList[i];
-        displayPlayerProfile(y,playerToDisplay.nbCards,playerToDisplay.username,backgroundColor);
+
+        Player playerToDisplay;
+        if (isReversed){
+          playerToDisplay = playerList[ ( (nbPlayers-i)+currentPlayerIndex ) % nbPlayers ];
+        }else{
+          playerToDisplay = playerList[ (i+currentPlayerIndex) % nbPlayers ];
+        }
+
+        bool playerIsPlaying = playingPlayerId == playerToDisplay.id;
+        bool playerIsMe = myId == playerToDisplay.id;
+        displayPlayerProfile(y,playerToDisplay.nbCards,playerToDisplay.username,backgroundColor,playerIsMe,playerIsPlaying);
+
       }else{
         tft.fillRect(0, y, 80, 50, backgroundColor); 
       }

@@ -8,6 +8,34 @@ let username = params.get("username");
 
 
 
+let symbolForType = {
+    "normal": (value)=> {
+        return value;
+    },
+    "plus": (value)=> {
+        return "+"+value;
+    },
+    "wild": () => {
+        return React.createElement("i", {
+            className: "bi bi-app-indicator"
+        });
+    },
+    "skip": () => {
+        return React.createElement("i", {
+            className: "bi bi-slash-circle"
+        });
+    },
+    "reverse": () => {
+        return React.createElement("i", {
+            className: "bi bi-arrow-repeat"
+        });
+    },
+    "wildplus": (value)=> {
+        return "+"+value;
+    }
+}
+
+
 // Try the connexion of debuging
 ajaxRequests.getConnexion();
 
@@ -46,7 +74,7 @@ function makeMyCards(nbCards, cards, root) {
     } else {
         overlap = 0; /* Usual overlap */
     }
-
+    
     // Ensure minimum overlap of -1vw for better display
     overlap = Math.min(overlap, -1);
     /* Display cards */
@@ -66,7 +94,7 @@ function makeMyCards(nbCards, cards, root) {
                     background: "#"+card.cardColorHex,//"linear-gradient(#"+card.cardColorHex+" 40%,rgb(from #"+card.cardColorHex+" calc(r * 0.8) calc(g * 0.7) calc(b * 1)))",
                     Index: index
                 }
-            }, card.cardTypeDesc == "plus" ? "+"+card.cardValue : card.cardValue +"")
+            },symbolForType[card.cardTypeDesc](card.cardValue))
         )
     ));
 

@@ -7,6 +7,7 @@
 String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
     String err = StringFrom("",arena);
     String* userId = HashmapGet(&map,"userId");
+    int* converr = ArenaAlloc(arena,sizeof(int));
     int userIdnb = 0;
     err = userId ? err : StringConcat(err,StringFrom("missing userId in request ",arena),arena);
     userIdnb = userId ? StringToInt(*userId, &userIdnb) : -1;
@@ -23,13 +24,29 @@ String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"no user with this id and password\"}");
     }
 
+    Hashmap* playermap = QueryResultToMap(res,arena);
+
     List nbCards = CardGetListForPlayer(userIdnb,con);
-    if(!(nbCards.size > 0)){
+    if(nbCards.size == 0){
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"couldn't retrieve number of card in the player's current hand\"}");
     }
+    String gameIdStr = *(String*)HashmapGet(playermap,"joinedgameid");
+    if (gameIdStr.size == 0) {
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"this user isn't in a game\"}");
+    }
+    int gameId = StringToInt(gameIdStr,converr);
 
-    if(nbCards.size > 1){
-        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"player does not have 1 card left in hand\"}");
+    if(nbCards.size == 1){
+        ConnectionExec(con,StringFormatChar(arena,"update player set saiduno = 1 where playerid = %d",userIdnb));
+    }else {
+        for(int i=0;i<2;i++) {
+            List drawPile = CardGetListForDrawPile(gameId,con);
+            int i = rand()%drawPile.size;
+            i = i<0?i+drawPile.size:i;
+            Card card = *(Card*)ListGetVal(&drawPile,i)->ptr;
+            CardRemoveFromDraw(card.id,gameId,con);
+            CardAddToPlayer(card.id,userIdnb,con);
+        }
     }
     return StringFormatChar(arena,"{\"ok\":true}");
 }

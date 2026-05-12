@@ -28,7 +28,6 @@ String makeResponse(struct Arena* arena,Hashmap map, Connection con) {
     userIdnb = userId ? StringToInt(*userId, &userIdnb) : -1;
     String* userPwd = HashmapGet(&map,"userPwd");
     err = userPwd ? err : StringConcat(err,StringFrom("missing userPwd in request ",arena),arena);
-    String text = StringFormatChar(arena,"");
 
     if(!userId || !userPwd) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"%S\"}",err);
@@ -39,34 +38,57 @@ String makeResponse(struct Arena* arena,Hashmap map, Connection con) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"could not find game\"}");
     }
     
-
+    
     QueryResult res = ConnectionSelect(con,StringFormatChar(arena,"select * from player where playerid = %d and userpwd = '%S'",userIdnb,*userPwd));
     if(!(res.count > 0 && res.message.size == 0)) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"no user with this id and password\"}");
     }
-
+    
     List players = GetPlayersInGame(gameId, con);
+    List theresults = ListNew(arena);
     if(players.size > 0){
-            for (int i=0; i < players.size; i++){
+        for (int i=0; i < players.size; i++){
+            
             Player* user = ListGetVal(&players,i)->ptr;
             int playerId = user->id;
-            int playerUno = user->saidUno;
-            List cards = CardGetListForPlayer(userIdnb, con);
+            int playerUno = *user->saidUno;
+            List cards = CardGetListForPlayer(playerId, con);
             if (cards.size == 1){
-                StringConcat(text,StringFormatChar(arena, "\"{playerid\" :%S, \"result\":{", playerId), arena);
-                if(*playerUno != 1){
-                    StringConcat(text, StringFormatChar(arena,"{\"ok\":true}"),arena);
+                Hashmap* leplayer = ArenaAlloc(arena,sizeof(Hashmap));
+                *leplayer = HashmapNew(sizeof(JsonElem), arena);
+                HashmapSetInt(leplayer, "playerId", playerId);
+                Hashmap* result= ArenaAlloc(arena,sizeof(Hashmap));
+                *result = HashmapNew(sizeof(JsonElem), arena);
+                
+                if(playerUno != 1){
+                    HashmapSetString(result,"ok",StringFormatChar(arena,"true"));
                 }else{
-                    StringConcat(text, StringFormatChar(arena,"{\"ok\":false,\"error\":\"no user with this id and password\"}"), arena);
+                    HashmapSetString(result,"ok",StringFormatChar(arena,"false"));
+                    HashmapSetString(result,"error", StringFrom("this user already said uno", arena));
+                    for(int i=0;i<2;i++) {
+                        List drawPile = CardGetListForDrawPile(gameId,con);
+                        int i = rand()%drawPile.size;
+                        i = i<0?i+drawPile.size:i;
+                        Card card = *(Card*)ListGetVal(&drawPile,i)->ptr;
+                        CardRemoveFromDraw(card.id,gameId,con);
+                        CardAddToPlayer(card.id,userIdnb,con);
+                    }
                 }
-                StringConcat(text, StringFormatChar(arena, "}"), arena);
-            }
+                HashmapSetMap(leplayer, "result", *result);
+                JsonElem* leElem = ArenaAlloc(arena,sizeof(JsonElem));
+                leElem->ptr = leplayer;
+                leElem->type = OBJECT;
+                ListAppendJsonElem(&theresults, leElem);
+            }            
         }
+        if(theresults.size > 0){
+            return JsonFromList(&theresults, arena);
+        }
+        
     }else{
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"no players in that game\"}");
     }
-    StringContat(text, StringFormatChar(arena,"{\"ok\":false,\"error\":\"no players with 1 card left\"}"), arena);
-    return text
+    return StringFormatChar(arena,"{\"ok\":false,\"error\":\"no players with 1 card left\"}");
 }
 
 int main(int argc,char** argv) {

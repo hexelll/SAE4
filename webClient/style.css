@@ -327,6 +327,45 @@ button a{
 
 
 
+/* --------------------------------------------- ANIMATIONS --------------------------------------------------- */
+#effectContainer{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 99999;
+    pointer-events: none;
+}
+
+.effectOverlay{
+    font-size: 120px;
+    font-weight: bold;
+    color: white;
+    animation: effectPopup 1.5s ease forwards;
+}
+
+@keyframes effectPopup{
+    0%{
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    20%{
+        opacity: 1;
+        transform: scale(1.2);
+    }
+    80%{
+        opacity: 1;
+        transform: scale(1);
+    }
+    100%{
+        opacity: 0;
+        transform: scale(2);
+    }
+}
+
+
+
+
 
 /* --------------------------------------------- LOGIN / CREATE ACCOUNT / MENU PAGE --------------------------------------------------- */
 #loginBody, #createAccountBody, #menuBody, #lobbyBody,#playBody{

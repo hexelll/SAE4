@@ -7,7 +7,38 @@ let userPwd = params.get("userPwd");
 let username = params.get("username");
 
 
+// Try the connexion of debuging
+//ajaxRequests.getConnexion();
 
+
+
+
+/* -------------------------------------------- ANIMATIONS ------------------------------------------------ */
+function showAnimation(type){
+    // Get elements and create animation element
+    const container = document.getElementById("effectContainer");
+    const animation = document.createElement("div");
+    animation.className = "effectOverlay";
+
+    const symbols = {
+        skip: "SKIP",
+        reverse: "REVERSE",
+        plus: "+2",
+        pluswild: "+4",
+        wild: "CHANGE COLOR"
+    };
+
+    animation.innerHTML = symbols[type] || type;
+    container.appendChild(animation);
+
+    // The animation last 1.5s, after it's removed
+    setTimeout(() => {
+        animation.remove();
+    }, 1500);
+}
+
+
+// Creating a map to link the type of card to the symbol that will be display on it, for the actual player and the played pile
 let symbolForType = {
     "normal": (value)=> {
         return value;
@@ -36,8 +67,6 @@ let symbolForType = {
 }
 
 
-// Try the connexion of debuging
-ajaxRequests.getConnexion();
 
 
 /* ------------------------------------------- ACTUAL PLAYER -------------------------------------------------*/
@@ -191,6 +220,10 @@ function play(card) {
         if (result.ok) {
             console.log("Card played successfully");
             displayCards();
+            
+            // Adding animations
+            console.log("Card played : " + card.cardTypeDesc);
+            showAnimation(card.cardTypeDesc);
         }
         else {
             alert(result.error);
@@ -250,6 +283,8 @@ function counterUno() {
 /* Calling the functions for the right buttons */
 $("#drawPile").click(draw);
 $("#uno").click(uno);
+$("#counterUno").click(counterUno);
+
 
 
 

@@ -14,7 +14,7 @@ let username = params.get("username");
 let lastpluscounter = 0;
 
 /* -------------------------------------------- ANIMATIONS ------------------------------------------------ */
-function showAnimation(type,pluscounter){
+function showAnimation(type, pluscounter){
     // Get elements and create animation element
     const container = document.getElementById("effectContainer");
     const animation = document.createElement("div");
@@ -28,7 +28,6 @@ function showAnimation(type,pluscounter){
         wild: "CHANGE COLOR",
         normal: ""
     };
-    lastpluscounter = pluscounter;
 
     animation.innerHTML = symbols[type] || type;
     container.appendChild(animation);
@@ -219,15 +218,18 @@ function makeEnemysCards(nbCards, enemyRoot) {
 function play(card) {
     ajaxRequests.playCard(userId,userPwd,card.cardId).then(result => {
         /*result = JSON.parse(result);*/
+        // If the function on the server return ok = true, we can play the card on the client side
         if (result.ok) {
-            console.log("Card played successfully");
+            //console.log("Card played successfully");
+            // Get the state of the game with the sever function
             ajaxRequests.getGameState(userId,userPwd).then(g=>{
-                console.log("gameState: ",g);
-                showAnimation(card.cardTypeDesc,g.plusCounter);
+                console.log("gameState: " + g);
+                // Adding animations
+                console.log("Card played : " + card.cardTypeDesc);
+                showAnimation(card.cardTypeDesc, g.plusCounter);
             });
             
-            // Adding animations
-            console.log("Card played : " + card.cardTypeDesc);
+            
             
         }
         else {
@@ -333,6 +335,7 @@ async function displayCards() {
     ajaxRequests.getGameState(userId,userPwd).then(g => {
         gameState = g;
         //console.log(gameState);
+        lastpluscounter = gameState.pluscounter;
 
         let roots = [[enemyLeftRoot,"#nameEnemyLeft"], [enemyTopRoot,"#nameEnemyTop"], [enemyRightRoot,"#nameEnemyRight"]];
         let indexRoot = 0;

@@ -231,6 +231,11 @@ function play(card) {
                 showAnimation(card.cardTypeDesc, g.plusCounter);
             });
             */
+            
+
+
+
+
             displayCards();
             
             

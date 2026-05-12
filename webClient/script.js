@@ -30,7 +30,7 @@ let symbolForType = {
             className: "bi bi-arrow-repeat"
         });
     },
-    "wildplus": (value)=> {
+    "pluswild": (value)=> {
         return "+"+value;
     }
 }
@@ -219,14 +219,31 @@ function draw() {
 
 /* Scream UNO! */
 function uno() {
-    ajaxRequests.getGameState(userId,userPwd).then(g => {
-        gameState = g;
-        nbCardsMe = gameState.cards.length;
-
-        makeMyCards(nbCardsMe, gameState.cards, myRoot);
+    ajaxRequests.declareUno(userId,userPwd).then(result => {
+        if (result.ok) {
+            alert("UNOOOOOO!!!");
+            displayCards();
+        }
+        else {
+            alert(result.error);
+        }
     });
-    alert("UNOOOOOO!!!");
 }
+
+
+/* Scream COUNTER UNO! */
+function counterUno() {
+    ajaxRequests.counterUno(userId,userPwd).then(result => {
+        if (result.ok) {
+            alert("CONTER UNO!!!");
+            displayCards();
+        }
+        else {
+            alert(result.error);
+        }
+    });
+}
+
 
 
 
@@ -249,7 +266,7 @@ function makePlayedPileCard(card) {
                 style: {
                     background: "#"+card.cardColorHex,//"linear-gradient(#"+card.cardColorHex+" 40%,rgb(from #"+card.cardColorHex+" calc(r * 0.8) calc(g * 0.7) calc(b * 1)))",
                 }
-            }, card.cardTypeDesc == "plus" || card.cardTypeDesc == "wildplus" ? "+"+card.cardValue : card.cardValue +"")
+            }, symbolForType[card.cardTypeDesc](card.cardValue))
         )
     playedPileRoot.render(playedCard);
 }
@@ -327,7 +344,7 @@ function displayCards() {
         makePlayedPileCard(gameState.currentCard);
 
 
-        
+        /*
         if (nbCardsMe === 1) {
             $("#uno").removeAttr("hidden");
         }
@@ -335,6 +352,7 @@ function displayCards() {
         if (nbCardsMe > 1) {
             $("#uno").attr("hidden", true);
         }
+            */
         
 
     });

@@ -3,7 +3,7 @@ var serveurIpAlex = "10.8.16.218:42069";
 var serveurIpLuc = "10.8.30.27:42069";
 var serveurIpMoi = "localhost:42069";
 
-var serveurIp = serveurIpMoi;
+var serveurIp = serveurIpLuc;
 
 
 /* -------------------------------------------- TRY CONNEXION ------------------------------------------------ */
@@ -162,6 +162,35 @@ async function drawCard(userId,userPwd) {
 }
 
 
+async function declareUno(userId, userPwd) {
+    let result;
+    await $.ajax({
+        type: 'GET',
+        url: 'http://'+serveurIp+'/declareUno.c?',
+        data: 'userId='+userId+'&userPwd='+userPwd,
+        dataType: 'json',
+        success: function (r) { result = r; },
+        error: function () { alert("declareUno is not working") }
+    })
+    
+    return result;
+}
+
+
+async function counterUno(userId, userPwd) {
+    let result;
+    await $.ajax({
+        type: 'GET',
+        url: 'http://'+serveurIp+'/counterUno.c?',
+        data: 'userId='+userId+'&userPwd='+userPwd,
+        dataType: 'json',
+        success: function (r) { result = r; },
+        error: function () { alert("declareUno is not working") }
+    })
+    
+    return result;
+}
+
 
 
 /* -------------------------------------------- CONST ------------------------------------------------ */
@@ -174,6 +203,7 @@ const ajaxRequests = {
     createAccount,
     joinGame,
     createGame,
-    startGame
+    startGame,
+    declareUno
 };
 

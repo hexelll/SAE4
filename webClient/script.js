@@ -222,13 +222,15 @@ function play(card) {
         if (result.ok) {
             //console.log("Card played successfully");
             // Get the state of the game with the sever function
+            /*
             ajaxRequests.getGameState(userId,userPwd).then(g=>{
-                console.log("gameState: " + g);
+                //console.log("gameState: " + g);
                 // Adding animations
                 console.log("Card played : " + card.cardTypeDesc);
                 showAnimation(card.cardTypeDesc, g.plusCounter);
             });
-            
+            */
+            displayCards();
             
             
         }
@@ -328,7 +330,8 @@ window.addEventListener("resize", displayCards);
 window.addEventListener("load", displayCards);
 
 
-
+let lastCurrentCard;
+let temp;
 
 async function displayCards() {
     console.log(userId,userPwd);
@@ -370,34 +373,18 @@ async function displayCards() {
             }
         }
 
-        /*
-        // Get the number of cards
-        nbCardsEnemyLeft = gameState.players[0].cardCount;
-        nbCardsEnemyTop = gameState.players[1].cardCount;
-        nbCardsEnemyRight = gameState.players[2].cardCount;
-        
+        // Get the last and the current card 
+        lastCurrentCard = temp;
+        temp = gameState.currentCard;
 
-        //Call functions of display
-        makeEnemysCards(nbCardsEnemyTop, enemyTopRoot);
-        makeEnemysCards(nbCardsEnemyRight, enemyRightRoot);
-        makeEnemysCards(nbCardsEnemyLeft, enemyLeftRoot);
-        */
+        // If the 2 are different, it means somebodt has played a card, so we can display the animation of the card
+        if (lastCurrentCard.cardId != gameState.currentCard.cardId) {
+            showAnimation(gameState.currentCard.cardTypeDesc, gameState.plusCounter);
+        }
 
         // Display the last played card on the played cards pile
         makePlayedPileCard(gameState.currentCard);
-
-
-        /*
-        if (nbCardsMe === 1) {
-            $("#uno").removeAttr("hidden");
-        }
-
-        if (nbCardsMe > 1) {
-            $("#uno").attr("hidden", true);
-        }
-            */
-        
-        return gameState;
+                
     });
 };
 

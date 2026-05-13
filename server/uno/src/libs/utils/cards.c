@@ -29,7 +29,7 @@ Card CardFromMap(Hashmap cardmap,Connection con) {
 
 List CardGetListForPlayer(int id,Connection con) {
     struct Arena scratch = ArenaCreate(1024);
-    QueryResult res = ConnectionSelect(con,StringFormatChar(&scratch,"select * from usercard,gamecard where gamecard.cardid = usercard.cardid and playerid = %d order by gamecard.cardcolorid,gamecard.cardvalue",id));
+    QueryResult res = ConnectionSelect(con,StringFormatChar(&scratch,"select * from usercard,gamecard where gamecard.cardid = usercard.cardid and playerid = %d order by gamecard.cardcolorid,gamecard.cardtypeid desc,gamecard.cardvalue",id));
     List cardTuples = QueryResultToList(res,&con.arena);
     List cards = ListNew(&con.arena);
     int* converr = ArenaAlloc(&scratch,sizeof(int));

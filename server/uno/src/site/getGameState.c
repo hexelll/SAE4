@@ -76,9 +76,9 @@ String makeResponse(struct Arena* arena,Connection con,char** argv) {
                 
                 cards = CardGetListForPlayedPile(gameid,con);
                 for(int i=0;i<cards.size;i++) {
-                    int cardid = ((Card*)ListGetVal(&cards,i)->ptr)->id;
-                    CardRemoveFromPlayed(cardid,gameid,con);
-                    CardDelete(cardid,con);
+                    Card c = *(Card*)ListGetVal(&cards,i)->ptr;
+                    CardRemoveFromPlayed(c.id,gameid,con);
+                    CardDelete(c.id,con);
                 }
                 
                 List players = GetPlayersInGame(gameid,con);
@@ -86,12 +86,12 @@ String makeResponse(struct Arena* arena,Connection con,char** argv) {
                     int playerid = ((Player*)ListGetVal(&players,j)->ptr)->id;
                     cards = CardGetListForPlayer(playerid,con);
                     for(int i=0;i<cards.size;i++) {
-                        int cardid = ((Card*)ListGetVal(&cards,i)->ptr)->id;
-                        CardRemoveFromPlayer(cardid,playerid,con);
-                        CardDelete(cardid,con);
+                        Card c = *(Card*)ListGetVal(&cards,i)->ptr;
+                        CardRemoveFromPlayer(c.id,playerid,con);
+                        CardDelete(c.id,con);
                     }
                 }
-                ConnectionExec(con,StringFormatChar(arena,"update game set currentplayerindex = null where gameid = %d",gameId));
+                ConnectionExec(con,StringFormatChar(arena,"update game set currentplayerindex = NULL, pluscounter = 0, isreversed = 0 where gameid = %d",gameid));
             }
             else if(cards.size != 1) {
                 ConnectionExec(con,StringFormatChar(arena,"update player set saiduno = 0 where playerid = %d",playerid));
@@ -110,6 +110,12 @@ String makeResponse(struct Arena* arena,Connection con,char** argv) {
         for(int i=0;i<playercards.size;i++) {
             cardmap = HashmapNew(sizeof(JsonElem),arena);
             Card* playercard = ListGetVal(&playercards,i)->ptr;
+            if(playercard->typeId == 5 || playercard->typeId == 6) {
+                ConnectionExec(con,StringFormatChar(arena,"update gamecard set cardcolorid = -1 where cardid = %d",playercard->id));
+                playercard->colorId = -1;
+                playercard->colorHex = StringFrom("000000",arena);
+            }
+
             HashmapSetInt(&cardmap,"cardId",playercard->id);
             HashmapSetInt(&cardmap,"cardValue",playercard->value);
             HashmapSetInt(&cardmap,"cardColorId",playercard->colorId);

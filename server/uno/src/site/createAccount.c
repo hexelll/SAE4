@@ -38,10 +38,15 @@ String makeResponse(struct Arena* arena,Hashmap map, Connection con) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"User password size exceeds character limit (10 characters)\"}");
     }
     for(int i = 0; i<lePlayer.userPwd.size; i++){
-        char lechar = lePlayer.username.text[i];
+        char lechar = lePlayer.userPwd.text[i];
         if((lechar < 'a' || lechar > 'z') && (lechar < 'A' || lechar > 'Z')){
             return StringFormatChar(arena,"{\"ok\":false,\"error\":\"Please input only letters in your password\"}");
         }
+    }
+
+    QueryResult checkAlready = ConnectionSelect(con ,StringFormatChar(arena, "Select * from player where username like '%S' and userpwd like '%S'", lePlayer.username, lePlayer.userPwd));
+    if(checkAlready.count > 0 && checkAlready.message.size == 0){
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"This user already exists\"}");
     }
 
     QueryResult res = InsertPlayer(&lePlayer, con);

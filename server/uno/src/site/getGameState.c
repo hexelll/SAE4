@@ -36,6 +36,8 @@ String makeResponse(struct Arena* arena,Connection con,char** argv) {
     }
 
     Hashmap* gameMap = QueryResultToList(res,arena).head.val.ptr;
+
+    String* gameCode = HashmapGet(gameMap,"code");
     
     int isStarted = ((String*)HashmapGet(gameMap,"currentplayerindex"))->size != 0;
 
@@ -150,7 +152,7 @@ String makeResponse(struct Arena* arena,Connection con,char** argv) {
         pluscounter = StringToInt(pluscounterstr,converr);
     }
     HashmapSetInt(&response,"plusCounter",pluscounter);
-
+    HashmapSetString(&response,"gameCode",*gameCode);
     HashmapSetBool(&response,"ok",1);
 
     String jsonResponse = JsonFromHashmap(&response,arena);

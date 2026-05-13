@@ -65,7 +65,7 @@ String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
             CardDelete(cardid,con);
         }
     }
-    res = ConnectionExec(con,StringFormatChar(arena,"update game set currentplayerindex = null where gameid = %d",gameId));
+    res = ConnectionExec(con,StringFormatChar(arena,"update game set currentplayerindex = null,pluscounter=0 where gameid = %d",gameId));
     if(!(res.message.size == 0)) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"could not update current player index\"}");
     }

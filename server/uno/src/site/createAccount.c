@@ -25,25 +25,35 @@ String makeResponse(struct Arena* arena,Hashmap map, Connection con) {
     lePlayer.userPwd = *userPwd;
 
     if(lePlayer.username.size > 10){
-        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"Username size exceeds character limit (10 characters)\",\"id\":\"%d\"}", -1);
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"Username size exceeds character limit (10 characters)\"}");
     }
-    for(int = 0; i<=lePlayer.username.size, i++){
+    for(int i = 0; i<lePlayer.username.size; i++){
         char lechar = lePlayer.username.text[i];
-        if(lechar < 'a' || lechar > 'z' || lechar < 'A' || lechar > 'Z'){
-            StringFormatChar(arena,"{\"ok\":false,\"error\":\"Please input only letters in your username\",\"id\":\"%d\"}", -1)
+        if((lechar < 'a' || lechar > 'z') && (lechar < 'A' || lechar > 'Z')){
+            return StringFormatChar(arena,"{\"ok\":false,\"error\":\"Please input only letters in your username\"}");
         }
     }
+
+    if(lePlayer.userPwd.size > 10){
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"User password size exceeds character limit (10 characters)\"}");
+    }
+    for(int i = 0; i<lePlayer.userPwd.size; i++){
+        char lechar = lePlayer.username.text[i];
+        if((lechar < 'a' || lechar > 'z') && (lechar < 'A' || lechar > 'Z')){
+            return StringFormatChar(arena,"{\"ok\":false,\"error\":\"Please input only letters in your password\"}");
+        }
+    }
+
     QueryResult res = InsertPlayer(&lePlayer, con);
     if(!(res.message.size == 0)) {
-        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"Creation of account failed\",\"id\":\"%d\"}", -1);
-    }else{
-                QueryResult res = ConnectionSelect(con,StringFormatChar(&con.arena,"select max(playerid) from player"));
-                int* converr = ArenaAlloc(&con.arena, sizeof(int));
-                String idstr = *(String*)HashmapGet(QueryResultToMap(res,&con.arena),"max");
-                int leID = StringToInt(idstr,converr);
-                return StringFormatChar(arena,"{\"ok\":true,\"error\":\"\", \"id\": %d}", leID);
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"Creation of account failed\"}");
     }
-    return StringFormatChar(arena,"{\"ok\":false,\"error\":\"Query did not get executed\",\"id\":\"%d\"}", -1);
+
+    res = ConnectionSelect(con,StringFormatChar(&con.arena,"select max(playerid) from player"));
+    int* converr = ArenaAlloc(&con.arena, sizeof(int));
+    String idstr = *(String*)HashmapGet(QueryResultToMap(res,&con.arena),"max");
+    int leID = StringToInt(idstr,converr);
+    return StringFormatChar(arena,"{\"ok\":true,\"id\": %d}", leID);
 }
 
 int main(int argc,char** argv) {

@@ -23,6 +23,8 @@ let niceUrl = currentUrl.substring(0, lastIndexOfSlash);
 let lastPlusCounter = 0;
 let tempPlusCounter = 0;
 
+
+
 /* -------------------------------------------- ANIMATIONS ------------------------------------------------ */
 function showAnimation(type, plusCounter){
     // Get elements and create animation element
@@ -31,15 +33,24 @@ function showAnimation(type, plusCounter){
     animation.className = "effectOverlay";
 
     const symbols = {
-        skip: "SKIP",
-        reverse: "REVERSE",
-        plus: "+"+(plusCounter == 0? lastPlusCounter+2 : plusCounter),
-        pluswild: "+"+(plusCounter == 0? lastPlusCounter+4 : plusCounter),
-        wild: "CHANGE COLOR",
-        normal: ""
+        "skip":  () => {
+            return "<i class='bi bi-slash-circle'></i>";
+        },
+        "reverse": () => {
+            return "<i class='bi bi-arrow-repeat'></i>";
+        },
+        "plus": ()=> {
+            return "+"+(plusCounter == 0? lastPlusCounter+2 : plusCounter);
+        },
+        "pluswild": ()=> {
+            return "+"+(plusCounter == 0? lastPlusCounter+4 : plusCounter);
+        },
+        "wild": () => {
+            return "Change of color";
+        }
     };
 
-    animation.innerHTML = symbols[type] || type;
+    animation.innerHTML = symbols[type] ? symbols[type]() : "";
     container.appendChild(animation);
 
     // The animation last 1.5s, after it's removed
@@ -54,14 +65,6 @@ let symbolForType = {
     "normal": (value)=> {
         return value;
     },
-    "plus": (value)=> {
-        return "+"+value;
-    },
-    "wild": () => {
-        return React.createElement("i", {
-            className: "bi bi-app-indicator"
-        });
-    },
     "skip": () => {
         return React.createElement("i", {
             className: "bi bi-slash-circle"
@@ -72,10 +75,65 @@ let symbolForType = {
             className: "bi bi-arrow-repeat"
         });
     },
+    "plus": (value)=> {
+        return "+"+value;
+    },
     "pluswild": (value)=> {
         return "+"+value;
+    },
+    "wild": () => {
+        return React.createElement("i", {
+            className: "bi bi-app-indicator"
+        });
     }
 }
+
+
+// Triggers the skip effect on the player when a skip card is played
+function triggerSkipEffect(handPlayerSkiped){
+    const playerSkiped = document.getElementById(handPlayerSkiped);
+    console.log("Hand skiped : " + handPlayerSkiped);
+
+    if (!playerSkiped) return;
+    playerSkiped.classList.add("playerSkipped");
+
+    setTimeout(() => {
+        playerSkiped.classList.remove("playerSkipped");
+    }, 1500);
+}
+
+
+// Find who is the player that has been skipped and trigger the skip effect on him
+function getPlayerHandElement(playerTargetedIndex, myIndex){
+    console.log("Player targeted index : "+ playerTargetedIndex);
+    console.log("Me index : "+ myIndex);
+    let handPlayerTargeted = "";
+
+    if (playerTargetedIndex === myIndex){
+        handPlayerTargeted = "myHand";
+    }
+
+    for (let i = 0; i < gameState.players.length; i++) {
+        if (playerTargetedIndex === i){
+            if (i < myIndex){
+                handPlayerTargeted = "enemyLeftHand";
+            }
+            else {
+                if (i === (myIndex+1)%gameState.players.length){
+                    handPlayerTargeted = "enemyRightHand";
+                }
+                else {
+                    handPlayerTargeted = "enemyTopHand";
+                }
+            }
+        }
+    }
+
+    console.log("Hand skiped : "+ handPlayerTargeted);
+    return handPlayerTargeted;
+}
+
+
 
 
 
@@ -416,6 +474,22 @@ async function displayCards() {
             // If the 2 are different, it means somebody has played a card, so we can display the animation of the card
             if (lastCurrentCard.cardId != gameState.currentCard.cardId) {
                 showAnimation(gameState.currentCard.cardTypeDesc, gameState.plusCounter);
+
+                // If the card played is a skip, it triggers the skip effect on the next player
+                if (gameState.currentCard.cardTypeDesc === "skip"){
+                    let skippedPlayerIndex;
+                    if (gameState.isReverse === false){
+                        skippedPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
+                    }
+                    else {
+                        skippedPlayerIndex = (gameState.currentPlayerIndex - 1 + gameState.players.length) % gameState.players.length;
+                    }
+                    console.log("Skiped player index : "+ skippedPlayerIndex);
+
+                    let skippedHand = getPlayerHandElement(skippedPlayerIndex, indexMe);
+                    triggerSkipEffect(skippedHand);
+                }
+
             }
 
             // Display the last played card on the played cards pile

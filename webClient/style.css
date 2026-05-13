@@ -18,15 +18,6 @@ p{
     text-shadow: -0.2em 0.3em 3px rgba(0,0,0,0.4);
 }
 
-img {
-    filter:drop-shadow(-0.8em 1em 3px rgba(0,0,0,0.4));
-}
-
-.center{
-    display: flex;
-    flex-direction: center;
-    align-items: center;
-}
 
 button a{
     color: white;
@@ -395,6 +386,7 @@ button a{
 
 
 /* --------------------------------------------- ANIMATIONS --------------------------------------------------- */
+/* Animations that popup when a card is played*/
 #effectContainer{
     position: fixed;
     top: 50%;
@@ -430,6 +422,27 @@ button a{
     }
 }
 
+
+/* Animation on the player when the skip card is played */
+.playerSkipped{
+    filter: grayscale(1) brightness(0.4);
+    animation: skippedAnimation 1.5s ease;
+}
+
+@keyframes skippedAnimation{
+    0%{
+        transform: scale(1);
+    }
+    20%{
+        transform: scale(1.05);
+    }
+    40%{
+        transform: scale(0.97);
+    }
+    100%{
+        transform: scale(1);
+    }
+}
 
 
 

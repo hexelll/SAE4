@@ -122,12 +122,12 @@ String ServerGetRequest(int clientSocket,int maxRequestSize,struct Arena* arena)
         
         buffer.size += len;
 
-    FILE* fp = fopen("./log.txt","a");
+    /*FILE* fp = fopen("./log.txt","a");
     fprintf(fp,"\n[HTTP]\n");
     fprintf(fp,StringToChar(buffer,arena));
     fprintf(fp,"\n[/HTTP]");
     printf("\n[LEN]len:%d[/LEN]",len);
-    fclose(fp);
+    fclose(fp);*/
     return buffer;
 }
 
@@ -287,11 +287,11 @@ void ServerRun(struct Server* server) {
             content = StringFrom("",&sarena);
         }
 
-        FILE* fpl = fopen("./log.txt","a");
+        /*FILE* fpl = fopen("./log.txt","a");
         fprintf(fpl,"\n[CONTENT]");
         fprintf(fpl,StringToChar(content,&sarena));
         fprintf(fpl,"[/CONTENT]");
-        fclose(fpl);
+        fclose(fpl);*/
         
         printf("content: %s\n",StringToChar(content,&sarena));
 
@@ -321,11 +321,11 @@ void ServerRun(struct Server* server) {
                 if(fp) {
                     fclose(fp);
                     char* command = StringToChar(StringFormat(&sarena,StringFrom("cd /myserver && chmod +x %s && %s %S '%S' '%S' ",&sarena),binpath,binpath,method,rawPath,content),&sarena);
-                    FILE* fpl = fopen("./log.txt","a");
+                    /*FILE* fpl = fopen("./log.txt","a");
                     fprintf(fpl,"\n[COMMAND]");
                     fprintf(fpl,command);
                     fprintf(fpl,"[/COMMAND]");
-                    fclose(fpl);
+                    fclose(fpl);*/
                     printf("command: %s\n",command);
                     FILE* responsefp = popen(command,"r");
                     if (responsefp) {
@@ -368,11 +368,11 @@ void ServerRun(struct Server* server) {
     }
         gettimeofday(&stop, NULL);
         unsigned long dt = (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec;
-        FILE* fpl = fopen("./log.txt","a");
+        /*FILE* fpl = fopen("./log.txt","a");
         fprintf(fpl,"\n[TIME]");
         fprintf(fpl,StringToChar(StringFromLong((long)dt,&sarena),&sarena));
         fprintf(fpl," us[/TIME]");
-        fclose(fpl);
+        fclose(fpl);*/
         ServerSocketClose(clientSocket);
         ArenaDelete(&sarena);
     }

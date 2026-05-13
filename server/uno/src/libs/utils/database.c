@@ -45,9 +45,9 @@ QueryResult QueryResultSelectNew(Connection connection , PGresult* res){
 //Retrieve all from a table.
 QueryResult ConnectionGetAll(Connection connection, String table){
     String sqlRequest = StringFormat(&connection.arena, StringFrom("Select * From %S",&connection.arena), table);
-    FILE* fp = fopen("./logFile.txt", "a");
-    fprintf(fp, StringToChar(sqlRequest, &connection.arena));
-    fclose(fp);
+    //FILE* fp = fopen("./logFile.txt", "a");
+    //fprintf(fp, StringToChar(sqlRequest, &connection.arena));
+    //fclose(fp);
     PGresult* res = PQexec(connection.con , StringToChar(sqlRequest, &connection.arena));
     return QueryResultSelectNew(connection, res);
 }
@@ -56,26 +56,26 @@ QueryResult ConnectionGetAll(Connection connection, String table){
 //Insert a User in the database, you only need to specify the username.
 QueryResult ConnectionInsert(Connection connection,String table, String data){
     String sqlRequest = StringFormat(&connection.arena, StringFrom("Insert into %S values(\'%S\')", &connection.arena), table, data);
-    FILE* fp = fopen("./logFile.txt", "a");
-    fprintf(fp, StringToChar(sqlRequest, &connection.arena));
-    fclose(fp);
+    //FILE* fp = fopen("./logFile.txt", "a");
+    //fprintf(fp, StringToChar(sqlRequest, &connection.arena));
+    //fclose(fp);
     PGresult* res2 = PQexec(connection.con , StringToChar(sqlRequest, &connection.arena));
     PQclear(res2);
     return QueryResultExecNew(connection, res2);
 }
 
 QueryResult ConnectionSelect(Connection connection, String SQL){
-    FILE* fp = fopen("./logFile.txt", "a");
-    fprintf(fp, StringToChar(SQL,&connection.arena));
-    fclose(fp);
+    //FILE* fp = fopen("./logFile.txt", "a");
+    //fprintf(fp, StringToChar(SQL,&connection.arena));
+    //fclose(fp);
     PGresult* resRAW = PQexec(connection.con, StringToChar(SQL,&connection.arena));
     return QueryResultSelectNew(connection, resRAW);
 }
 
 QueryResult ConnectionExec(Connection connection, String SQL){
-    FILE* fp = fopen("./logFile.txt", "a");
-    fprintf(fp, StringToChar(SQL,&connection.arena));
-    fclose(fp);
+    //FILE* fp = fopen("./logFile.txt", "a");
+    //fprintf(fp, StringToChar(SQL,&connection.arena));
+    //fclose(fp);
     PGresult* resRAW = PQexec(connection.con, StringToChar(SQL,&connection.arena));
     PQclear(resRAW);
     return QueryResultExecNew(connection, resRAW);
@@ -107,11 +107,11 @@ List QueryResultToList(QueryResult query, struct Arena* arena){
     List list = ListNew(arena);
     int rows = PQntuples(query.res);
     int cols = PQnfields(query.res);
-    FILE* fp = fopen("./logFile.txt", "a");
-    fprintf(fp ,"\n rows:");
-    fprintf(fp, StringToChar( StringFromInt(rows, arena), arena));
-    fprintf(fp ,"\n cols:");
-    fprintf(fp, StringToChar( StringFromInt(cols, arena), arena));
+    //FILE* fp = fopen("./logFile.txt", "a");
+    //fprintf(fp ,"\n rows:");
+    //fprintf(fp, StringToChar( StringFromInt(rows, arena), arena));
+    //fprintf(fp ,"\n cols:");
+    //fprintf(fp, StringToChar( StringFromInt(cols, arena), arena));
     for(int i=0;i<rows;i++){
         if(cols > 0) {
             Hashmap* map = ArenaAlloc(arena,sizeof(Hashmap));
@@ -125,8 +125,8 @@ List QueryResultToList(QueryResult query, struct Arena* arena){
             ListAppendVal(&list,(ListValue){.ptr=map});
         }
     }
-    fprintf(fp,StringToChar(StringFormatChar(arena,"\n size:%d",list.size),arena));
-    fclose(fp);
+    //fprintf(fp,StringToChar(StringFormatChar(arena,"\n size:%d",list.size),arena));
+    //fclose(fp);
     
     return list;
 }

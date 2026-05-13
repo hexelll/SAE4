@@ -4,7 +4,7 @@ var serveurIpAlexTheo = "10.97.197.104:42069";
 var serveurIpLuc = "10.8.30.27:42069";
 var serveurIpMoi = "localhost:42069";
 
-var serveurIp = serveurIpAlexTheo;
+var serveurIp = serveurIpAlex;
 
 
 /* -------------------------------------------- TRY CONNEXION ------------------------------------------------ */
@@ -146,6 +146,7 @@ async function getGameState(userId,userPwd) {
     return gameState;
 }
 
+
 async function playCard(userId,userPwd,cardId) {
     let result;
     await $.ajax({
@@ -157,6 +158,7 @@ async function playCard(userId,userPwd,cardId) {
     })
     return result;
 }
+
 
 async function playCardWild(userId,userPwd,cardId,cardColorId) {
     let result;
@@ -228,6 +230,7 @@ const ajaxRequests = {
     createGame,
     startGame,
     deleteGame,
-    declareUno
+    declareUno,
+    counterUno
 };
 

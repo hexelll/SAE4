@@ -324,6 +324,28 @@ button a{
 }
 
 
+#counterUno {
+    /* Position */ 
+    position: fixed;
+    right: 7vw;
+    bottom: 20vh;
+
+    /* Style*/
+    background-color: #de1414;
+    border: 2px solid #000000;
+    color: white;
+    width: 10vw;
+    height: 7vh;
+    border-radius: 50%;
+
+    text-align: center;
+   /*display: inline-block;*/
+    font-size: 2vh;
+
+    cursor: pointer;
+}
+
+
 
 .colorButton {
     position: fixed;

@@ -228,7 +228,7 @@ function makeEnemysCards(nbCards, enemyRoot) {
 function play(card) {
     console.log("Card played : " + card.cardTypeDesc);
         if (card.cardTypeDesc === "wild" || card.cardTypeDesc === "pluswild") {
-            alert("played wild or wildPlus");
+            //alert("played wild or wildPlus");
             let html;
             html += "<button class='colorButton' id='redButton' onClick='chooseColor(1,"+card.cardId+")'></button>";
             html += "<button class='colorButton' id='blueButton' onClick='chooseColor(2,"+card.cardId+")'></button>";
@@ -237,7 +237,7 @@ function play(card) {
 
             $("#colorChoice").html(html);
         }else {
-            alert("played not a wild card");
+            //alert("played not a wild card");
             ajaxRequests.playCard(userId,userPwd,card.cardId).then(result => {
                 // If the function on the server return ok = true, we can play the card on the client side
                 if (result.ok) {
@@ -377,6 +377,7 @@ async function displayCards() {
 
             let roots = [[enemyLeftRoot,"#nameEnemyLeft"], [enemyTopRoot,"#nameEnemyTop"], [enemyRightRoot,"#nameEnemyRight"]];
             let indexRoot = 0;
+            let indexMe = 0;
 
             let currentPlayerIndicator = "<p style=\"color:#0ff35b\">\u2b24</p>";
 
@@ -386,26 +387,26 @@ async function displayCards() {
                     nbCardsMe = gameState.cards.length; 
                     makeMyCards(nbCardsMe, gameState.cards, myRoot);
                     let name = "Player "+ (i+1) + " : " + gameState.players[i].username;
+                    indexMe = i;
 
                     // Check if it's this player's turn
                     if (gameState.currentPlayerIndex === i) {
                         name += " " + currentPlayerIndicator;
                     }
                     $("#nameMe").html(name);
+                    $("#nbCardsMe").html("Number of cards : "+nbCardsMe);
+                    break;
                 }
-                // To display all of the others players 
-                else {
-                    makeEnemysCards(gameState.players[i].cardCount, roots[indexRoot][0]);
-
-                    let name = "Player "+ (i+1) + " : " +gameState.players[i].username;
-
-                    // Check if it's this player's turn
-                    if (gameState.currentPlayerIndex === i) {
-                        name += " " + currentPlayerIndicator;
-                    }
-                    $(roots[indexRoot][1]).html(name);
-                    indexRoot++;
+            }
+            for (let i = (indexMe+1)%gameState.players.length; i!=indexMe; i=(i+1)%gameState.players.length) {
+                makeEnemysCards(gameState.players[i].cardCount, roots[indexRoot][0]);
+                let name = "Player "+ (i+1) + " : " +gameState.players[i].username;
+                // Check if it's this player's turn
+                if (gameState.currentPlayerIndex === i) {
+                    name += " " + currentPlayerIndicator;
                 }
+                $(roots[indexRoot][1]).html(name);
+                indexRoot++;
             }
 
             // Get the last and the current card 
@@ -432,9 +433,6 @@ async function displayCards() {
                 console.log(newUrl);
                 window.location.replace(newUrl);
             }
-
-            
-
         
         }
                 

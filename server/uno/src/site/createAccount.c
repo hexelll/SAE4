@@ -19,7 +19,6 @@ String makeResponse(struct Arena* arena,Hashmap map, Connection con) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"%S\"}",err);
     }
     
-    
     Player lePlayer;
     lePlayer.id = -1;
     lePlayer.username = *userName;

@@ -25,12 +25,13 @@ String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
     QueryResult checkGameAlreadycreated = ConnectionSelect(con , StringFormatChar(arena, "select * from game where creatorid = %S",*userId));
     if(!(checkGameAlreadycreated.message.size == 0)) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"%S\"}", checkGameAlreadycreated.message);
-    }else{
-        List playersTuples = QueryResultToList(checkGameAlreadycreated,&con.arena);
-        if(playersTuples.size > 0){
-            return StringFormatChar(arena,"{\"ok\":false,\"error\":\"user already createtd a game\"}");
-        }
     }
+
+    List playersTuples = QueryResultToList(checkGameAlreadycreated,&con.arena);
+    if(playersTuples.size > 0){
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"user already createtd a game\"}");
+    }
+    
 
     res = ConnectionSelect(con,StringFormatChar(arena,"select max(gameid) as id from game"));
     int id = 0;
@@ -52,7 +53,7 @@ String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
 
     ConnectionExec(con,StringFormatChar(arena,"insert into game(gameid,code,deckid,creatorid,currentplayerindex,isreversed) values(%d,'%S',1,%S,NULL,0)",id,gameCode,*userId));
 
-    ConnectionExec(con,StringFormatChar(arena,"update player set createdgameid = %d where playerid = %S",id,*userId));
+    ConnectionExec(con,StringFormatChar(arena,"update player set createdgameid = %d,joinedgameid = %d, gameindex = 0 where playerid = %S",id,id,*userId));
 
     return StringFormatChar(arena,"{\"ok\":true, \"code\":\"%S\"}", gameCode);
 }

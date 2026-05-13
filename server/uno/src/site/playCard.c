@@ -41,8 +41,6 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
 
     int gameIndex = StringToInt(*(String*)HashmapGet(game,"currentplayerindex"),converr);
 
-    
-
     res = ConnectionSelect(con,StringFormatChar(arena,"select * from player where joinedgameid = %d order by gameindex asc",gameId));
     List players = QueryResultToList(res,arena);
     
@@ -123,7 +121,7 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
 
     if(!(
         pluscounter == 0 && 
-        (card.colorId == -1 || currentCard.colorId == -1 || currentCard.colorId == card.colorId) || 
+        (card.colorId == -1 || currentCard.colorId == card.colorId) || 
         (currentCard.typeId == card.typeId && currentCard.value == card.value)
     )) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"incorrect card color\"}");
@@ -141,7 +139,14 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
         isReversed = !isReversed;
     }
 
-    
+    if(card.typeId == pluswildid || card.typeId == wildid) {
+        String* cardColorId = HashmapGet(&map,"cardColorId");
+        if (!cardColorId) {
+            return StringFrom("{\"ok\":false,\"error\":\"missing cardColorId in request\"}",arena);
+        }
+        ConnectionExec(con,StringFormatChar(arena,"update gamecard set cardcolorid = %S where cardid = %S",*cardColorId,*cardId));
+        card = CardFindById(card.id,con);
+    }
 
     if (card.typeId == plusid || card.typeId == pluswildid) {
         pluscounter += card.value;
@@ -164,11 +169,8 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
                 break;
             }
         }
-        FILE* fp = fopen("logPlay.txt","w");
         
         if(!hasPlus) {
-            
-            
             srand(time(NULL));
             for(int i=0;i<pluscounter;i++) {
                 List drawPile = CardGetListForDrawPile(gameId,con);
@@ -192,12 +194,7 @@ String makeResponse(char** argv,Connection con,struct Arena* arena) {
             }
             k = k<0 ? k-1 : k+1;
             pluscounter = 0;
-        }else {
-            fprintf(fp,"fjreiuhjknbgct,h;ecfrbt,dvn gbjfhkejr");
         }
-        
-
-        fclose(fp);
     }
 
     gameIndex = (gameIndex+k) % players.size;

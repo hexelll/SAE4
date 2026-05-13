@@ -62,6 +62,26 @@ String makeResponse(struct Arena* arena,Hashmap map, Connection con) {
                 
                 if(playerUno != 1){
                     HashmapSetString(result,"ok",StringFormatChar(arena,"true"));
+                    for(int i=0;i<2;i++) {
+                        List drawPile = CardGetListForDrawPile(gameId,con);
+                        if (drawPile.size == 0) {
+                            List playedPile = CardGetListForPlayedPile(gameId,con);
+                            while (playedPile.size > 1) {
+                                int j = rand()%(playedPile.size-1);
+                                j = j < 0 ? j+(playedPile.size-1):j;
+                                Card* c = ListGetVal(&playedPile,j)->ptr;
+                                CardAddToDraw(c->id,gameId,con);
+                                CardRemoveFromPlayed(c->id,gameId,con);
+                                playedPile = CardGetListForPlayedPile(gameId,con);
+                            }
+                        }
+                        drawPile = CardGetListForDrawPile(gameId,con);
+                        int i = rand()%drawPile.size;
+                        i = i<0?i+drawPile.size:i;
+                        Card card = *(Card*)ListGetVal(&drawPile,i)->ptr;
+                        CardRemoveFromDraw(card.id,gameId,con);
+                        CardAddToPlayer(card.id,playerId,con);
+                    }
                 }else{
                     HashmapSetString(result,"ok",StringFormatChar(arena,"false"));
                     HashmapSetString(result,"error", StringFrom("this user already said uno", arena));

@@ -23,8 +23,17 @@ String makeResponse(struct Arena* arena,Hashmap map, Connection con) {
     lePlayer.id = -1;
     lePlayer.username = *userName;
     lePlayer.userPwd = *userPwd;
+
+    if(lePlayer.username.size > 10){
+        return StringFormatChar(arena,"{\"ok\":false,\"error\":\"Username size exceeds character limit (10 characters)\",\"id\":\"%d\"}", -1);
+    }
+    for(int = 0; i<=lePlayer.username.size, i++){
+        char lechar = lePlayer.username.text[i];
+        if(lechar < 'a' || lechar > 'z' || lechar < 'A' || lechar > 'Z'){
+            StringFormatChar(arena,"{\"ok\":false,\"error\":\"Please input only letters in your username\",\"id\":\"%d\"}", -1)
+        }
+    }
     QueryResult res = InsertPlayer(&lePlayer, con);
-    
     if(!(res.message.size == 0)) {
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"Creation of account failed\",\"id\":\"%d\"}", -1);
     }else{
@@ -34,10 +43,6 @@ String makeResponse(struct Arena* arena,Hashmap map, Connection con) {
                 int leID = StringToInt(idstr,converr);
                 return StringFormatChar(arena,"{\"ok\":true,\"error\":\"\", \"id\": %d}", leID);
     }
-    
-                
-                
-
     return StringFormatChar(arena,"{\"ok\":false,\"error\":\"Query did not get executed\",\"id\":\"%d\"}", -1);
 }
 

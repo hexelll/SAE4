@@ -20,8 +20,29 @@ let lastIndexOfSlash = currentUrl.lastIndexOf('/');
 let niceUrl = currentUrl.substring(0, lastIndexOfSlash);
 
 
+/* React root for the top enemy */
+var nbCardsEnemyTop; 
+const enemyTopRoot = ReactDOM.createRoot(document.getElementById("enemyTopHand"));
+
+/* React root for the right enemy */
+var nbCardsEnemyRight; 
+const enemyRightRoot = ReactDOM.createRoot(document.getElementById("enemyRightHand"));
+
+/* React root for the left enemy */
+var nbCardsEnemyLeft; 
+const enemyLeftRoot = ReactDOM.createRoot(document.getElementById("enemyLeftHand"));
+
+/* React root for the played pile */
+const playedPileRoot = ReactDOM.createRoot(document.getElementById("playedPile"));
+
+
+
 let lastPlusCounter = 0;
 let tempPlusCounter = 0;
+let isMeSkipped = false;
+let roots = [[enemyLeftRoot,"nameEnemyLeft"], [enemyTopRoot,"nameEnemyTop"], [enemyRightRoot,"nameEnemyRight"]];
+let indexPlayer = [];
+
 
 
 
@@ -91,6 +112,16 @@ let symbolForType = {
 
 // Triggers the skip effect on the player when a skip card is played
 function triggerSkipEffect(handPlayerSkiped){
+    if (handPlayerSkiped === "myHand"){
+        isMeSkipped = true;
+        displayCards();
+        setTimeout(() => {
+            isMeSkipped = false;
+            displayCards();
+        }, 1500);
+        return;
+    }
+
     const playerSkiped = document.getElementById(handPlayerSkiped);
     console.log("Hand skiped : " + handPlayerSkiped);
 
@@ -112,18 +143,12 @@ function getPlayerHandElement(playerTargetedIndex, myIndex){
     if (playerTargetedIndex === myIndex){
         handPlayerTargeted = "myHand";
     }
-
-    for (let i = 0; i < gameState.players.length; i++) {
-        if (playerTargetedIndex === i){
-            if (i < myIndex){
-                handPlayerTargeted = "enemyLeftHand";
-            }
-            else {
-                if (i === (myIndex+1)%gameState.players.length){
-                    handPlayerTargeted = "enemyRightHand";
-                }
-                else {
-                    handPlayerTargeted = "enemyTopHand";
+    else {
+        for (let i = 0; i < gameState.players.length; i++) {
+            for(let j=0; j < indexPlayer.length; j++) {
+                if (i == indexPlayer[j]) {
+                    handPlayerTargeted = roots[j][1];
+                    break;
                 }
             }
         }
@@ -179,7 +204,9 @@ function makeMyCards(nbCards, cards, root) {
     myCards = cards.map((card, index) =>(
         React.createElement("div", {
             key: index,
-            className: "cardInnerWhite",
+            className:  
+                "cardInnerWhite " +
+                (isMeSkipped ? "playerSkipped" : ""),
             style: {
                 marginLeft: index === 0 ? "0vw" : overlap + "vw",
                 zIndex: index
@@ -210,22 +237,6 @@ function makeMyCards(nbCards, cards, root) {
 const cardWidthPx = Math.min(window.innerWidth * 0.09, 120); 
 const cardWidthVw = (cardWidthPx / window.innerWidth) * 100;
 
-
-/* React root for the top enemy */
-var nbCardsEnemyTop; 
-const enemyTopRoot = ReactDOM.createRoot(document.getElementById("enemyTopHand"));
-
-/* React root for the right enemy */
-var nbCardsEnemyRight; 
-const enemyRightRoot = ReactDOM.createRoot(document.getElementById("enemyRightHand"));
-
-
-/* React root for the left enemy */
-var nbCardsEnemyLeft; 
-const enemyLeftRoot = ReactDOM.createRoot(document.getElementById("enemyLeftHand"));
-
-/* React root for the played pile */
-const playedPileRoot = ReactDOM.createRoot(document.getElementById("playedPile"));
 
 
 
@@ -388,15 +399,15 @@ $("#counterUno").click(counterUno);
 /* Display the played pile */
 function makePlayedPileCard(card) {
     let playedCard = React.createElement("div", {
-            className: "cardInnerWhite",
+        className: "cardInnerWhite "
         },
-            React.createElement("div", {
-                className: "cardInnerColor",
-                style: {
-                    background: "#"+card.cardColorHex,//"linear-gradient(#"+card.cardColorHex+" 40%,rgb(from #"+card.cardColorHex+" calc(r * 0.8) calc(g * 0.7) calc(b * 1)))",
-                }
-            }, symbolForType[card.cardTypeDesc](card.cardValue))
-        )
+        React.createElement("div", {
+            className: "cardInnerColor",
+            style: {
+                background: "#"+card.cardColorHex,//"linear-gradient(#"+card.cardColorHex+" 40%,rgb(from #"+card.cardColorHex+" calc(r * 0.8) calc(g * 0.7) calc(b * 1)))",
+            }
+        }, symbolForType[card.cardTypeDesc](card.cardValue))
+    )
     playedPileRoot.render(playedCard);
 }
 
@@ -426,14 +437,13 @@ async function displayCards() {
     //console.log(userId,userPwd);
     ajaxRequests.getGameState(userId,userPwd).then(g => {
         gameState = g;
-        //console.log(gameState);
+        console.log(gameState);
 
         // If the game is started
         if (gameState.isStarted == true) {
             lastPlusCounter = tempPlusCounter;
             tempPlusCounter = gameState.plusCounter;
 
-            let roots = [[enemyLeftRoot,"#nameEnemyLeft"], [enemyTopRoot,"#nameEnemyTop"], [enemyRightRoot,"#nameEnemyRight"]];
             let indexRoot = 0;
             let indexMe = 0;
 
@@ -456,6 +466,7 @@ async function displayCards() {
                     break;
                 }
             }
+            indexPlayer = [];
             for (let i = (indexMe+1)%gameState.players.length; i!=indexMe; i=(i+1)%gameState.players.length) {
                 makeEnemysCards(gameState.players[i].cardCount, roots[indexRoot][0]);
                 let name = "Player "+ (i+1) + " : " +gameState.players[i].username;
@@ -463,7 +474,9 @@ async function displayCards() {
                 if (gameState.currentPlayerIndex === i) {
                     name += " " + currentPlayerIndicator;
                 }
-                $(roots[indexRoot][1]).html(name);
+                $("#"+roots[indexRoot][1]).html(name);
+                indexPlayer.push(i);
+
                 indexRoot++;
             }
 
@@ -478,11 +491,25 @@ async function displayCards() {
                 // If the card played is a skip, it triggers the skip effect on the next player
                 if (gameState.currentCard.cardTypeDesc === "skip"){
                     let skippedPlayerIndex;
-                    if (gameState.isReverse === false){
-                        skippedPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
+                    if (gameState.isReversed === false){
+                        skippedPlayerIndex = (gameState.currentPlayerIndex - 1) % gameState.players.length;
+                        skippedPlayerIndex = skippedPlayerIndex < 0 ? skippedPlayerIndex + gameState.players.length : skippedPlayerIndex;
+                        /*
+                        console.log("Current player:" + gameState.currentPlayerIndex);
+                        console.log("Current player +1:" + gameState.currentPlayerIndex+1);
+                        console.log("Current player % :" +(gameState.currentPlayerIndex) % gameState.players.length);
+                        console.log("Current player +1 %:" +(gameState.currentPlayerIndex+1) % gameState.players.length);
+                        */
                     }
                     else {
-                        skippedPlayerIndex = (gameState.currentPlayerIndex - 1 + gameState.players.length) % gameState.players.length;
+                        skippedPlayerIndex = (gameState.currentPlayerIndex+1) % gameState.players.length;
+                        skippedPlayerIndex = skippedPlayerIndex < 0 ? skippedPlayerIndex + gameState.players.length : skippedPlayerIndex;
+                        /*
+                        console.log("Current player:" + gameState.currentPlayerIndex);
+                        console.log("Current player +1:" + gameState.currentPlayerIndex+1);
+                        console.log("Current player % :" +(gameState.currentPlayerIndex) % gameState.players.length);
+                        console.log("Current player +1 %:" +(gameState.currentPlayerIndex+1) % gameState.players.length);
+                        */
                     }
                     console.log("Skiped player index : "+ skippedPlayerIndex);
 
@@ -500,9 +527,11 @@ async function displayCards() {
         else {
             lastCurrentPlayerIndex = tempCurrentPlayer;
             tempCurrentPlayer = gameState.currentPlayerIndex;
+
             for(let i = 0; i < gameState.players.length; i++) {
                 winner = lastCurrentPlayerIndex;
                 alert("Game ended! Winner : " + winner);
+
                 let newUrl = niceUrl+"/lobby.html?userId="+userId+"&userPwd="+userPwd+"&username="+username+"&code="+code;
                 console.log(newUrl);
                 window.location.replace(newUrl);

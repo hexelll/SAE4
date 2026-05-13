@@ -425,7 +425,7 @@ button a{
 
 /* Animation on the player when the skip card is played */
 .playerSkipped{
-    filter: grayscale(1) brightness(0.4);
+    filter: grayscale(1) brightness(0.4) !important;
     animation: skippedAnimation 1.5s ease;
 }
 

@@ -58,6 +58,12 @@ String makeResponse(struct Arena* arena,Connection con,char** argv) {
         HashmapSetInt(&playermap,"playerId",playerid);
         String username = *(String*)HashmapGet(player,"username");
         HashmapSetString(&playermap,"username",username);
+        String saidUno = *(String*)HashmapGet(player,"saiduno");
+        int saiduno = 0;
+        if(saidUno.size > 0) {
+            saiduno = StringToInt(saidUno,converr);
+        }
+        HashmapSetInt(&playermap,"saidUno",saiduno);
         if (isStarted) {
             List cards = CardGetListForPlayer(playerid,con);
             if(cards.size == 0) {

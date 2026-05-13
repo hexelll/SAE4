@@ -325,6 +325,52 @@ button a{
 
 
 
+.colorButton {
+    position: fixed;
+    z-index: 1000;
+
+    background-color: #de1414;
+    border: 2px solid #000000;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-color: white;
+    border-width: 3px;
+
+    text-align: center;
+   /*display: inline-block;*/
+    font-size: 2vh;
+
+    cursor: pointer;
+}
+
+#redButton {
+    left: 40vw;
+    top: 37vh;
+    background-color: #de1414;
+}
+
+#blueButton {
+    left: 40vw;
+    top: 47vh;
+    background-color: #1414de;
+}
+
+#greenButton {
+    left: 55vw;
+    top: 37vh;
+    background-color: #14de14;
+}
+
+#yellowButton {
+    left: 55vw;
+    top: 47vh;
+    background-color: #ded114;
+}
+
+
+
+
 
 /* --------------------------------------------- ANIMATIONS --------------------------------------------------- */
 #effectContainer{

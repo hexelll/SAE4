@@ -4,7 +4,7 @@ var serveurIpAlexTheo = "10.97.197.104:42069";
 var serveurIpLuc = "10.8.30.27:42069";
 var serveurIpMoi = "localhost:42069";
 
-var serveurIp = serveurIpAlex;
+var serveurIp = serveurIpMoi;
 
 
 /* -------------------------------------------- TRY CONNEXION ------------------------------------------------ */
@@ -135,13 +135,23 @@ async function getGameState(userId,userPwd) {
     return gameState;
 }
 
-
-
 async function playCard(userId,userPwd,cardId) {
     let result;
     await $.ajax({
         type: 'GET',
         url: 'http://'+serveurIp+'/playCard.c?userId='+userId+'&userPwd='+userPwd+'&cardId='+cardId,
+        dataType: 'json',
+        success: function (r) { result = r; },
+        error: function () { alert("playCard is not working") }
+    })
+    return result;
+}
+
+async function playCardWild(userId,userPwd,cardId,cardColorId) {
+    let result;
+    await $.ajax({
+        type: 'GET',
+        url: 'http://'+serveurIp+'/playCard.c?userId='+userId+'&userPwd='+userPwd+'&cardId='+cardId+"&cardColorId="+cardColorId,
         dataType: 'json',
         success: function (r) { result = r; },
         error: function () { alert("playCard is not working") }
@@ -199,6 +209,7 @@ const ajaxRequests = {
     getConnexion,
     getGameState,
     playCard,
+    playCardWild,
     drawCard,
     login,
     createAccount,

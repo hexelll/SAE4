@@ -129,7 +129,7 @@ function makeMyCards(nbCards, cards, root) {
         )
     ));
 
-    console.log("test : " + nbCards + " overlap : " + overlap);
+    //console.log("test : " + nbCards + " overlap : " + overlap);
     root.render(myCards);
 }
 
@@ -217,35 +217,47 @@ function makeEnemysCards(nbCards, enemyRoot) {
 /* --------------------------------------------- ACTIONS -------------------------------------------------*/
 /* Create new tab from tab cards w/ function filter, the value inside the new tab are the one not played */
 function play(card) {
-    ajaxRequests.playCard(userId,userPwd,card.cardId).then(result => {
-        /*result = JSON.parse(result);*/
-        // If the function on the server return ok = true, we can play the card on the client side
-        if (result.ok) {
-            //console.log("Card played successfully");
-            // Get the state of the game with the sever function
-            /*
-            ajaxRequests.getGameState(userId,userPwd).then(g=>{
-                //console.log("gameState: " + g);
-                // Adding animations
-                console.log("Card played : " + card.cardTypeDesc);
-                showAnimation(card.cardTypeDesc, g.plusCounter);
+    console.log("Card played : " + card.cardTypeDesc);
+        if (card.cardTypeDesc === "wild" || card.cardTypeDesc === "pluswild") {
+            alert("played wild or wildPlus");
+            let html;
+            html += "<button class='colorButton' id='redButton' onClick='chooseColor(1,"+card.cardId+")'></button>";
+            html += "<button class='colorButton' id='blueButton' onClick='chooseColor(2,"+card.cardId+")'></button>";
+            html += "<button class='colorButton' id='greenButton' onClick='chooseColor(3,"+card.cardId+")'></button>";
+            html += "<button class='colorButton' id='yellowButton' onClick='chooseColor(4,"+card.cardId+")'></button>";
+
+            $("#colorChoice").html(html);
+        }else {
+            alert("played not a wild card");
+            ajaxRequests.playCard(userId,userPwd,card.cardId).then(result => {
+                // If the function on the server return ok = true, we can play the card on the client side
+                if (result.ok) {
+                    displayCards();
+                }
+                else {
+                    alert(result.error);
+                }
             });
-            */
             
-
-
-
-
-            displayCards();
-            
-            
-        }
-        else {
-            alert(result.error);
-        }
-    });
+    }
 }
 
+
+function chooseColor(idColor, cardId) {
+    alert("color chosen : " +idColor);
+    ajaxRequests.playCardWild(userId,userPwd,cardId,idColor).then(result => {
+        // If the function on the server return ok = true, we can play the card on the client side
+        if (result.ok) {
+            displayCards();
+        }
+        else {
+             alert(result.error);
+        }
+    });
+    html = "";
+    $("#colorChoice").html(html);
+    
+}
 
 
 
@@ -341,7 +353,7 @@ let temp;
 
 
 async function displayCards() {
-    console.log(userId,userPwd);
+    //console.log(userId,userPwd);
     ajaxRequests.getGameState(userId,userPwd).then(g => {
         gameState = g;
         //console.log(gameState);

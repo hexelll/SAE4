@@ -25,7 +25,7 @@ function joinGame(code) {
     ajaxRequests.joinGame(userId, userPwd, code).then(r => {
         result = r;
         if(result.ok) {
-            alert("Join game!!!");
+            //alert("Join game!!!");
             let newUrl = niceUrl+"/lobby.html?userId="+userId+"&userPwd="+userPwd+"&username="+username+"&code="+code;
             //console.log(newUrl);
             window.location.replace(newUrl);
@@ -43,9 +43,11 @@ function createGame() {
     ajaxRequests.createGame(userId, userPwd).then(r => {
         result = r;
         if(result.ok) {
-            joinGame(result.code);
-            alert("Code : "+result.code);
-            //window.location.replace(currentUrl+"/../lobby.html?userId="+userId+"&userPwd="+userPwd+"&username="+username+"&code="+result.code);
+            //joinGame(result.code);
+            //alert("Code : "+result.code);
+            let newUrl = niceUrl+"/lobby.html?userId="+userId+"&userPwd="+userPwd+"&username="+username+"&code="+result.code;
+            //console.log(newUrl);
+            window.location.replace(newUrl);
         }else {
             alert(result.error);
         }

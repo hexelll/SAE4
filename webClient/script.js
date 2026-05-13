@@ -5,10 +5,19 @@ let params = new URLSearchParams(window.location.search);
 let userId = params.get("userId");
 let userPwd = params.get("userPwd");
 let username = params.get("username");
+let code = params.get("code");
+
+
 
 
 // Try the connexion of debuging
 //ajaxRequests.getConnexion();
+
+
+// Get the current url of the page, get the index of the "/" to not get parameters of the url and gthe actual page
+let currentUrl = window.location.href.toString();
+let lastIndexOfSlash = currentUrl.lastIndexOf('/');
+let niceUrl = currentUrl.substring(0, lastIndexOfSlash);
 
 
 let lastPlusCounter = 0;
@@ -351,59 +360,83 @@ window.addEventListener("load", displayCards);
 let lastCurrentCard;
 let temp;
 
+let lastCurrentPlayerIndex = 0;
+let tempCurrentPlayer = 0;
+
 
 async function displayCards() {
     //console.log(userId,userPwd);
     ajaxRequests.getGameState(userId,userPwd).then(g => {
         gameState = g;
         //console.log(gameState);
-        lastPlusCounter = tempPlusCounter;
-        tempPlusCounter = gameState.plusCounter;
 
-        let roots = [[enemyLeftRoot,"#nameEnemyLeft"], [enemyTopRoot,"#nameEnemyTop"], [enemyRightRoot,"#nameEnemyRight"]];
-        let indexRoot = 0;
+        // If the game is started
+        if (gameState.isStarted == true) {
+            lastPlusCounter = tempPlusCounter;
+            tempPlusCounter = gameState.plusCounter;
 
-        let currentPlayerIndicator = "<p style=\"color:#0ff35b\">\u2b24</p>";
+            let roots = [[enemyLeftRoot,"#nameEnemyLeft"], [enemyTopRoot,"#nameEnemyTop"], [enemyRightRoot,"#nameEnemyRight"]];
+            let indexRoot = 0;
 
-        for (let i = 0; i < gameState.players.length; i++) {
-            // To get the place in the list of the actual player
-            if (parseInt(userId) === gameState.players[i].playerId) {
-                nbCardsMe = gameState.cards.length; 
-                makeMyCards(nbCardsMe, gameState.cards, myRoot);
-                let name = "Player "+ (i+1) + " : " + gameState.players[i].username;
+            let currentPlayerIndicator = "<p style=\"color:#0ff35b\">\u2b24</p>";
 
-                // Check if it's this player's turn
-                if (gameState.currentPlayerIndex === i) {
-                    name += " " + currentPlayerIndicator;
+            for (let i = 0; i < gameState.players.length; i++) {
+                // To get the place in the list of the actual player
+                if (parseInt(userId) === gameState.players[i].playerId) {
+                    nbCardsMe = gameState.cards.length; 
+                    makeMyCards(nbCardsMe, gameState.cards, myRoot);
+                    let name = "Player "+ (i+1) + " : " + gameState.players[i].username;
+
+                    // Check if it's this player's turn
+                    if (gameState.currentPlayerIndex === i) {
+                        name += " " + currentPlayerIndicator;
+                    }
+                    $("#nameMe").html(name);
                 }
-                $("#nameMe").html(name);
-            }
-            // To display all of the others players 
-            else {
-                makeEnemysCards(gameState.players[i].cardCount, roots[indexRoot][0]);
+                // To display all of the others players 
+                else {
+                    makeEnemysCards(gameState.players[i].cardCount, roots[indexRoot][0]);
 
-                let name = "Player "+ (i+1) + " : " +gameState.players[i].username;
+                    let name = "Player "+ (i+1) + " : " +gameState.players[i].username;
 
-                // Check if it's this player's turn
-                if (gameState.currentPlayerIndex === i) {
-                    name += " " + currentPlayerIndicator;
+                    // Check if it's this player's turn
+                    if (gameState.currentPlayerIndex === i) {
+                        name += " " + currentPlayerIndicator;
+                    }
+                    $(roots[indexRoot][1]).html(name);
+                    indexRoot++;
                 }
-                $(roots[indexRoot][1]).html(name);
-                indexRoot++;
             }
+
+            // Get the last and the current card 
+            lastCurrentCard = temp;
+            temp = gameState.currentCard;
+
+            // If the 2 are different, it means somebody has played a card, so we can display the animation of the card
+            if (lastCurrentCard.cardId != gameState.currentCard.cardId) {
+                showAnimation(gameState.currentCard.cardTypeDesc, gameState.plusCounter);
+            }
+
+            // Display the last played card on the played cards pile
+            makePlayedPileCard(gameState.currentCard);
         }
 
-        // Get the last and the current card 
-        lastCurrentCard = temp;
-        temp = gameState.currentCard;
+        // If the game is not started, it means it ended
+        else {
+            lastCurrentPlayerIndex = tempCurrentPlayer;
+            tempCurrentPlayer = gameState.currentPlayerIndex;
+            for(let i = 0; i < gameState.players.length; i++) {
+                winner = lastCurrentPlayerIndex;
+                alert("Game ended! Winner : " + winner);
+                let newUrl = niceUrl+"/lobby.html?userId="+userId+"&userPwd="+userPwd+"&username="+username+"&code="+code;
+                console.log(newUrl);
+                window.location.replace(newUrl);
+            }
 
-        // If the 2 are different, it means somebodt has played a card, so we can display the animation of the card
-        if (lastCurrentCard.cardId != gameState.currentCard.cardId) {
-            showAnimation(gameState.currentCard.cardTypeDesc, gameState.plusCounter);
+            
+
+        
         }
-
-        // Display the last played card on the played cards pile
-        makePlayedPileCard(gameState.currentCard);
                 
     });
 };

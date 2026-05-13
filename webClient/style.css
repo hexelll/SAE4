@@ -733,6 +733,21 @@ option{
     transition: 0.3s;
 }
 
+
+#deleteGameButton{
+    padding: 14px;
+    border: none;
+    bottom: 5vh;
+    right: 5;
+    border-radius: 12px;
+    background: #ff3131;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
 #startGameButton:hover{
     background-color: white;
     color:#ff3131;

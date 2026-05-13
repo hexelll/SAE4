@@ -6,6 +6,8 @@ let userId = params.get("userId");
 let userPwd = params.get("userPwd");
 let username = params.get("username");
 let code = params.get("code");
+let winner = params.get("winner");
+
 
 
 // Get the current url of the page, get the index of the "/" to not get parameters of the url and gthe actual page
@@ -35,7 +37,7 @@ function displayPlayers() {
 
         // Verify if the game is started, to go to the page of the game
         if(gameState.isStarted) {
-            let newUrl = niceUrl+"/play.html?userId="+userId+"&userPwd="+userPwd+"&username="+username;
+            let newUrl = niceUrl+"/play.html?userId="+userId+"&userPwd="+userPwd+"&username="+username+"&code="+code;
             //console.log(newUrl);
             window.location.replace(newUrl);
         }
@@ -73,9 +75,10 @@ function displayPlayers() {
 
 
             // If the user connected is the owner of the game, he can start the game
-            if (userId === gameOwnerId) {
-                console.log("test");
+            if (parseInt(userId) === gameOwnerId) {
+                //console.log("You are the owner : "+userId+" == "+gameOwnerId);
                 $("#startGameButton").removeAttr("hidden");
+                $("#deleteGameButton").removeAttr("hidden");
             }
             else {
                 console.log("Not the owner : "+userId+" != "+gameOwnerId);
@@ -92,7 +95,7 @@ function startGame() {
     ajaxRequests.startGame(userId, userPwd).then(r => {
         result = r;
         if(result.ok) {
-            alert("Start game");
+            //alert("Start game");
             let newUrl = niceUrl+"/play.html?userId="+userId+"&userPwd="+userPwd+"&username="+username+"&code="+code;
             //console.log(newUrl);
             window.location.replace(newUrl);
@@ -104,6 +107,20 @@ function startGame() {
 }
 
 
+function deleteGame() {
+    ajaxRequests.deleteGame(userId, userPwd, code).then(r => {
+        result = r;
+        if(result.ok) {
+            alert("Delete game");
+            let newUrl = niceUrl+"/menu.html?userId="+userId+"&userPwd="+userPwd+"&username="+username;
+            //console.log(newUrl);
+            window.location.replace(newUrl);
+        }else {
+            alert(result.error);
+        }
+    });
+}
+
 
 
 // Caliing the function that get the gameState every 3 seconds
@@ -114,7 +131,10 @@ periodicGetGameState();
 $("#nameGameOwner").html(username);
 $("#idGameOwner").html(userId);*/
 $("#gameNumber").html(code);
+$("#winner").html("Winner : "+winner);
 $("#startGameButton").click(startGame);
+$("#deleteGameButton").click(deleteGame);
+
 
 
 

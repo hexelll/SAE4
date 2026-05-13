@@ -4,7 +4,7 @@ var serveurIpAlexTheo = "10.97.197.104:42069";
 var serveurIpLuc = "10.8.30.27:42069";
 var serveurIpMoi = "localhost:42069";
 
-var serveurIp = serveurIpMoi;
+var serveurIp = serveurIpAlexTheo;
 
 
 /* -------------------------------------------- TRY CONNEXION ------------------------------------------------ */
@@ -107,16 +107,27 @@ async function startGame(userId, userPwd) {
         url: 'http://'+serveurIp+'/startGame.c?',
         data: 'userId='+userId+'&userPwd='+userPwd,
         dataType: 'json',
-        success: function (r) { 
-            result = r; 
-            //console.log(userId);
-        },
+        success: function (r) { result = r; },
         error: function () { alert("startGame is not working") }
     })
     
     return result;
 }
 
+
+async function deleteGame(userId, userPwd, gameId) {
+    let result;
+    await $.ajax({
+        type: 'GET',
+        url: 'http://'+serveurIp+'/deleteGame.c?',
+        data: 'userId='+userId+'&userPwd='+userPwd+'&gameId='+gameId,
+        dataType: 'json',
+        success: function (r) { result = r; },
+        error: function () { alert("deleteGame is not working") }
+    })
+    
+    return result;
+}
 
 
 
@@ -216,6 +227,7 @@ const ajaxRequests = {
     joinGame,
     createGame,
     startGame,
+    deleteGame,
     declareUno
 };
 

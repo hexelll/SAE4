@@ -127,7 +127,7 @@ button a{
     /*background: linear-gradient(135deg, red, yellow); /* style UNO-ish */
     background: white/*linear-gradient(#FFFFFF 60%,rgb(from #FFFFFF calc(r * 0.7) calc(g * 0.6) calc(b * 0.8)))*/;
 
-    box-shadow: -0.2em 0.3em 3px rgba(0,0,0,0.4);
+    box-shadow: -0.1em 0.05em 3px rgba(0,0,0,0.4);
 }
 .enemyCard {
     /*height: 16vh;
@@ -286,6 +286,7 @@ button a{
     border:none;
     width:26vw;
     height:26vh;
+    filter: drop-shadow(-10px 10px 3px rgba(0, 0, 0, 0.453));
 }
 
 #drawPile:active {
@@ -300,9 +301,11 @@ button a{
     bottom: 10vh;
 
     /* Style*/
-    background-color: #de1414;
-    border: 2px solid #000000;
-    color: white;
+    background: rgb(246, 16, 16);
+    box-shadow: -10px 10px 3px rgba(0, 0, 0, 0.453);
+
+    border: none;
+    color: #fffaf6;
     width: 10vw;
     height: 7vh;
     border-radius: 50%;
@@ -310,10 +313,10 @@ button a{
     text-align: center;
    /*display: inline-block;*/
     font-size: 2vh;
+    font-weight:bolder;
 
     cursor: pointer;
 }
-
 
 #counterUno {
     /* Position */ 
@@ -322,21 +325,69 @@ button a{
     bottom: 20vh;
 
     /* Style*/
-    background-color: #de1414;
-    border: 2px solid #000000;
-    color: white;
+    background: rgb(246, 16, 16);
+    box-shadow: -10px 10px 3px rgba(0, 0, 0, 0.453);
+
+    border: none;
+    color: #fffaf6;
     width: 10vw;
-    height: 7vh;
+    height: 8vh;
     border-radius: 50%;
 
     text-align: center;
    /*display: inline-block;*/
     font-size: 2vh;
+    font-weight:bolder;
 
     cursor: pointer;
 }
 
+#lobbyButtons {
+    display:flex;
+    flex-direction: column;
+}
 
+#lobbyButtons button {
+    margin: 5px;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: #ff3131;
+    /*background: linear-gradient(
+        90deg,
+        #ff3131,
+        #ff5e00
+    );*/
+
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.lobbyPlayer {
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-size: 1.8em;
+}
+
+.lobbyPlayerIn {
+    display:flex;
+    background-color: #ddd;
+    border-radius: 10px;
+    margin:5px;
+    width:80%;
+    height:7vh;
+    align-items: center;
+    justify-content: start;
+}
+
+.lobbyPlayer p {
+    margin: 0 20px;
+}
 
 .colorButton {
     position: fixed;
@@ -511,9 +562,32 @@ button a{
 
 
 
-#loginData, #signInData, #createGameData, #playersData{
+#loginData, #signInData, #playersData{
     position: fixed;
     right: 15vw;
+    width: 350px;
+    padding: 40px;
+    border-radius: 25px;
+    background-color: white;
+    text-shadow: none;
+    /*background: linear-gradient(
+        #FFFFFF 50%,
+        rgb(from #FFFFFF calc(r * 0.8) calc(g * 0.7) calc(b * 0.9))
+    );*/
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    display: flex;
+    text-shadow: none;
+    flex-direction: column;
+}
+
+#gameNumber {
+    font-size: 4em;
+}
+
+#createGameData {
+    position: fixed;
+    right: 15vw;
+    top: 30vh;
     width: 350px;
     padding: 40px;
     border-radius: 25px;
@@ -540,7 +614,6 @@ button a{
 
 #loginData p, #signInData p, #createGameData p, #playersData p{
     margin-bottom: 8px;
-    font-weight: bold;
     color: #444;
     text-shadow: none;
 }
@@ -567,7 +640,7 @@ input:focus{
 }
 
 
-#loginButton, #createAccountButton, #joinGameButton, #createGameButton{
+#loginButton, #createAccountButton, #joinGameButton, #createGameButton, #joinRunningGameButton{
     padding: 14px;
     border: none;
     border-radius: 12px;
@@ -579,7 +652,7 @@ input:focus{
     transition: 0.3s;
 }
 
-#loginButton:hover, #createAccountButton:hover, #joinGameButton:hover, #createGameButton:hover{
+#loginButton:hover, #createAccountButton:hover, #joinGameButton:hover, #createGameButton:hover, #joinRunningGameButton:hover{
     /*transform: scale(1.05);*/
     background-color: white;
     color: #ff3131;
@@ -636,7 +709,7 @@ a:hover{
 #welcomeMenu, #welcomeLobby{
     position: fixed;
     left: 0;
-    top: 0;
+    top: 3vh;
     width: 100vw;
     height: 20vh;
     display: flex;
@@ -664,17 +737,33 @@ a:hover{
     flex-direction: column;
 }
 
+#joinRunningGameData {
+    position: fixed;
+    right: 15vw;
+    bottom: 20vh;
+    width: 350px;
+    padding: 40px;
+    border-radius: 25px;
+    background-color: white;
+    /*background: linear-gradient(
+        #FFFFFF 50%,
+        rgb(from #FFFFFF calc(r * 0.8) calc(g * 0.7) calc(b * 0.9))
+    );*/
+    box-shadow: -0.4em 0.5em 3px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+}
 
-#joinGameData h2, #owerGameData h2{
+
+#joinGameData h2, #owerGameData h2, #joinRunningGameData h2{
     text-align: center;
     margin-bottom: 25px;
     color: #ff3131;
     font-size: 35px;
 }
 
-#joinGameData p, #owerGameData p{
+#joinGameData p, #owerGameData p, #joinRunningGameData p{
     margin-bottom: 8px;
-    font-weight: bold;
     color: #444;
     text-shadow: none;
 }
@@ -739,7 +828,6 @@ option{
 /* ----------------------------------------------- LOBBY PAGE --------------------------------------------------- */
 #idGameOwner, #nameGameOwner{
     margin-bottom: 8px;
-    font-weight: bold;
     color: #444;
     display: flex;
     flex-direction: column;
@@ -747,47 +835,6 @@ option{
     align-items: center;
     text-align: center;
 }
-
-#startGameButton{
-    padding: 14px;
-    border: none;
-    bottom: 5vh;
-    right: 5;
-    border-radius: 12px;
-    background: #ff3131;
-    /*background: linear-gradient(
-        90deg,
-        #ff3131,
-        #ff5e00
-    );*/
-
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-
-#deleteGameButton{
-    padding: 14px;
-    border: none;
-    bottom: 5vh;
-    right: 5;
-    border-radius: 12px;
-    background: #ff3131;
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-#startGameButton:hover{
-    background-color: white;
-    color:#ff3131;
-}
-
 
 .playerTitle{
     text-align: center;
@@ -804,7 +851,6 @@ option{
 
 .playerId, .playerName{
     margin-bottom: 8px;
-    font-weight: bold;
     color: #444;
     display: flex;
     flex-direction: column;

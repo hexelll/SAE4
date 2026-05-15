@@ -54,6 +54,18 @@ function createGame() {
     });
 }
 
+function joinRunningGame() {
+    ajaxRequests.getGameState(userId,userPwd).then(r => {
+        if(r.ok) {
+            let newUrl = niceUrl+"/lobby.html?userId="+userId+"&userPwd="+userPwd+"&username="+username;
+            //console.log(newUrl);
+            window.location.replace(newUrl);
+        }else {
+            alert(r.error);
+        }
+    })
+}
+
 
 
 
@@ -61,4 +73,5 @@ function createGame() {
 $("#usernameDisplay").html(username);
 $("#joinGameButton").click(()=>joinGame($("#gameCode").val()));
 $("#createGameButton").click(createGame);
+$("#joinRunningGameButton").click(joinRunningGame);
 

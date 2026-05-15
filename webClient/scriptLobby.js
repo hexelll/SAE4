@@ -35,6 +35,8 @@ function displayPlayers() {
         gameState = g;
         console.log(gameState);
 
+        $("#gameNumber").html(gameState.gameCode);
+
 
         // If the gameState return ok = false, the game has been deleted by the owner, so we return to the menu page
         if(gameState.ok == false) {
@@ -64,17 +66,28 @@ function displayPlayers() {
                     // To display the owner of th game in its own div
                     if(gameOwnerId == gameState.players[i].playerId) {
                         gameOwnerName = gameState.players[i].username;
-                        $("#idGameOwner").html("Player "+ (i+1) + " :");
-                        $("#nameGameOwner").html(gameOwnerName);
+                        if (gameOwnerId == userId) {
+                            $("#idGameOwner").html("<b>"+(i+1)+"</b>");
+                            $("#nameGameOwner").html("<b>"+gameOwnerName+"</b>");
+                        }else {
+                            $("#idGameOwner").html((i+1)+"");
+                            $("#nameGameOwner").html(gameOwnerName);
+                        }
                         //gameOwnerIndex = i;
                     }
                     // To display the other players in their div
                     else {
                         playersId.push(gameState.players[i].playerId);
                         playersName.push(gameState.players[i].username);
-                        playerHtml += "<p class='playerId'> Player "+ (i+1)+" : </p>";
-                        playerHtml += "<p class='playerName'>"+gameState.players[i].username+"</p>";
-                        playerHtml += "<br>";
+                        playerHtml += "<div class='lobbyPlayer'><div class='lobbyPlayerIn'>"
+                        if (userId+"" == gameState.players[i].playerId) {
+                            playerHtml += "<p class='playerId'><b>"+(i+1)+"</b></p>";
+                            playerHtml += "<p class='playerName'><b>"+gameState.players[i].username+"</b></p>";
+                        }else {
+                            playerHtml += "<p class='playerId'>"+(i+1)+"</p>";
+                            playerHtml += "<p class='playerName'>"+gameState.players[i].username+"</p>";
+                        }
+                        playerHtml += "</div></div>"
                     }
                 }
 

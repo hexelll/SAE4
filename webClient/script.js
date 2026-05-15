@@ -55,7 +55,7 @@ function showAnimation(type, plusCounter){
 
     const symbols = {
         "skip":  () => {
-            return "<i class='bi bi-slash-circle'></i>";
+            return "<i class='bi bi-ban'></i>";
         },
         "reverse": () => {
             return "<i class='bi bi-arrow-repeat'></i>";
@@ -88,7 +88,7 @@ let symbolForType = {
     },
     "skip": () => {
         return React.createElement("i", {
-            className: "bi bi-slash-circle"
+            className: "bi bi-ban"
         });
     },
     "reverse": () => {

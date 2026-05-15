@@ -118,17 +118,20 @@ String ServerGetRequest(int clientSocket,int maxRequestSize,struct Arena* arena)
     String buffer = StringAlloc(maxRequestSize,arena);
     buffer.size = 0;
     int len = 1;
+    String request = StringFrom("",arena);
+    //while(len) {
         len = recv(clientSocket,buffer.text,maxRequestSize,0);
-        
-        buffer.size += len;
-
+        buffer.size = len;
+        request = StringConcat(request,buffer,arena);
+    //}
+    printf("request: %s\n",StringToChar(request,arena));
     /*FILE* fp = fopen("./log.txt","a");
     fprintf(fp,"\n[HTTP]\n");
     fprintf(fp,StringToChar(buffer,arena));
     fprintf(fp,"\n[/HTTP]");
     printf("\n[LEN]len:%d[/LEN]",len);
     fclose(fp);*/
-    return buffer;
+    return request;
 }
 
 struct sockaddr_in ServerGetSenderIp(int clientSocket) {
@@ -143,6 +146,20 @@ void ServerSocketWriteTo(int clientSocket,String str,struct Arena* arena) {
 }
 
 void ServerSocketClose(int clientSocket) {
+    char buffer[4096];
+	unsigned int bytesRead=0;
+	int res;
+	for(;;) {
+		res = read(clientSocket, buffer, sizeof(buffer));
+		if(res < 0)  {
+			printf("Read error after %u \n", bytesRead);
+			exit(1);
+		}
+		if(!res) {
+			break;
+		}
+		bytesRead += res;
+	}
     close(clientSocket);
 }
 

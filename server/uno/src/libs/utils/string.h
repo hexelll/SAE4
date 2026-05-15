@@ -1,4 +1,7 @@
 #include "arena.c"
+#include "list.c"
+#include <math.h>
+#include <stdarg.h>
 
 typedef struct {
     char* text;
@@ -56,9 +59,9 @@ StringArr StringSplit(String s,String on,int start,struct Arena* arena);
 
 StringArr ssplit(String s,String on,int start);
 
-String StringMerge(StringArr arr,String on,struct Arena* arena);
+String StringMerge(List* arr,String on,struct Arena* arena);
 
-String smerge(StringArr arr,String on);
+String smerge(List* arr,String on);
 
 String StringFormat(struct Arena*, String format,...);
 

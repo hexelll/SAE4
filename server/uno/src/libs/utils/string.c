@@ -3,9 +3,6 @@
 
 #include "string.h"
 
-#include <math.h>
-#include <stdarg.h>
-
 struct Arena STRING_ARENA = {0};
 
 struct Arena StringInitArena() {
@@ -398,19 +395,19 @@ StringArr ssplit(String s,String on,int start) {
     return StringSplit(s,on,start,&STRING_ARENA);
 }
 
-String StringMerge(StringArr arr,String on,struct Arena* arena) {
+String StringMerge(List* list,String on,struct Arena* arena) {
     int size = 0;
-    for(int i=0;i<arr.size;i++)
-        size += arr.ptr[i].size;
+    for(int i=0;i<list->size;i++)
+        size += ((String*)ListGetPtr(list,i))->size;
     String str = StringAlloc(size,arena);
     int k = 0;
-    for(int i=0;i<arr.size;i++) {
-        String s = arr.ptr[i];
-        for(int j=0;j<s.size;j++) {
-            str.text[k] = s.text[j];
+    for(int i=0;i<list->size;i++) {
+        String* s = ((String*)ListGetPtr(list,i));
+        for(int j=0;j<s->size;j++) {
+            str.text[k] = s->text[j];
             k++;
         }
-        if (i < arr.size-1) {
+        if (i < list->size-1) {
             for(int j=0;j<on.size;j++) {
                 str.text[k] = on.text[j];
                 k++;
@@ -420,8 +417,12 @@ String StringMerge(StringArr arr,String on,struct Arena* arena) {
     return str;
 }
 
-String smerge(StringArr arr,String on) {
-    return StringMerge(arr,on,&STRING_ARENA);
+String StringMergeChar(List* list,char* on,struct Arena* arena) {
+    return StringMerge(list,StringFrom(on,arena),arena);
+}
+
+String smerge(List* list,String on) {
+    return StringMerge(list,on,&STRING_ARENA);
 }
 
 String StringFormat(struct Arena* arena,String format,...) {
@@ -429,42 +430,56 @@ String StringFormat(struct Arena* arena,String format,...) {
     va_start(args,format);
     int i = StringFind(format,StringFrom("%",arena),0);
     int j = 0;
-    String str = StringFrom("",arena);
+    struct Arena scratch = ArenaCreate(1024);
+    List parts = ListNew(&scratch);
+    String* str = ArenaAlloc(&scratch,sizeof(String));
+    *str = StringFrom("",arena);
+    ListAppendPtr(&parts,str);
     while(i >= 0) {
         int size = 2;
         if (!(i > 0 && format.text[i-1] == '\\')) {
-            str = StringConcat(str,StringSub(format,j,i,arena),arena);
+            str = ArenaAlloc(&scratch,sizeof(String));
+            *str = StringSub(format,j,i,arena);
+            ListAppendPtr(&parts,str);
             char c = format.text[i+1];
             switch (c) {
                 case 'S':{
-                    str = StringConcat(str,va_arg(args,String),arena);
+                    str = ArenaAlloc(&scratch,sizeof(String));
+                    *str = va_arg(args,String);
+                    ListAppendPtr(&parts,str);
                     break;}
                 case 's':{
-                    String sc = StringFrom(va_arg(args,char*),arena);
-                    str = StringConcat(str,sc,arena);
+                    str = ArenaAlloc(&scratch,sizeof(String));
+                    *str = StringFrom(va_arg(args,char*),arena);
+                    ListAppendPtr(&parts,str);
                     break;}
                 case 'c': {
-                    String s = StringAlloc(1,arena);
-                    s.text[0] = va_arg(args,int);
-                    str = StringConcat(str,s,arena);
+                    str = ArenaAlloc(&scratch,sizeof(String));
+                    *str = StringAlloc(1,arena);
+                    str->text[0] = va_arg(args,int);
+                    ListAppendPtr(&parts,str);
                     break;}
                 case 'd':{
-                    String d = StringFromInt(va_arg(args,int),arena);
-                    str = StringConcat(str,d,arena);
+                    str = ArenaAlloc(&scratch,sizeof(String));
+                    *str = StringFromInt(va_arg(args,int),arena);
+                    ListAppendPtr(&parts,str);
                     break;}
                 case 'f':{
+                    str = ArenaAlloc(&scratch,sizeof(String));
                     float f = va_arg(args,double);
-                    str = StringConcat(str,StringFromFloat(f,2,arena),arena);
+                    *str = StringFromFloat(f,2,arena);
+                    ListAppendPtr(&parts,str);
                     break;}
                 case 'l':{
                     size = 3;
                     char cnext = format.text[i+2];
+                    str = ArenaAlloc(&scratch,sizeof(String));
                     switch(cnext) {
                         case 'd':{
-                            str = StringConcat(str,StringFromInt(va_arg(args,long),arena),arena);
+                            *str = StringFromInt(va_arg(args,long),arena);
                             break;}
                         case 'f':{
-                            str = StringConcat(str,StringFromDouble(va_arg(args,double),10,arena),arena);
+                            *str = StringFromDouble(va_arg(args,double),10,arena);
                             break;}
                     }
                     break;}
@@ -474,8 +489,12 @@ String StringFormat(struct Arena* arena,String format,...) {
         i = StringFind(format,StringFrom("%",arena),i+1);
     }
     va_end(args);
-    str = StringConcat(str,StringSub(format,j,format.size,arena),arena);
-    return str;
+    str = ArenaAlloc(&scratch,sizeof(String));
+    *str = StringSub(format,j,format.size,arena);
+    ListAppendPtr(&parts,str);
+    String merged = StringMerge(&parts,StringFrom("",arena),arena);
+    ArenaDelete(&scratch);
+    return merged;
 }
 
 String sformat(String format,...) {
@@ -664,42 +683,56 @@ String StringFormatChar(struct Arena* arena,char* charformat,...) {
     String format = StringFrom(charformat,arena);
     int i = StringFind(format,StringFrom("%",arena),0);
     int j = 0;
-    String str = StringFrom("",arena);
+    struct Arena scratch = ArenaCreate(1024);
+    List parts = ListNew(&scratch);
+    String* str = ArenaAlloc(&scratch,sizeof(String));
+    *str = StringFrom("",arena);
+    ListAppendPtr(&parts,str);
     while(i >= 0) {
         int size = 2;
         if (!(i > 0 && format.text[i-1] == '\\')) {
-            str = StringConcat(str,StringSub(format,j,i,arena),arena);
+            str = ArenaAlloc(&scratch,sizeof(String));
+            *str = StringSub(format,j,i,arena);
+            ListAppendPtr(&parts,str);
             char c = format.text[i+1];
             switch (c) {
                 case 'S':{
-                    str = StringConcat(str,va_arg(args,String),arena);
+                    str = ArenaAlloc(&scratch,sizeof(String));
+                    *str = va_arg(args,String);
+                    ListAppendPtr(&parts,str);
                     break;}
                 case 's':{
-                    String sc = StringFrom(va_arg(args,char*),arena);
-                    str = StringConcat(str,sc,arena);
+                    str = ArenaAlloc(&scratch,sizeof(String));
+                    *str = StringFrom(va_arg(args,char*),arena);
+                    ListAppendPtr(&parts,str);
                     break;}
                 case 'c': {
-                    String s = StringAlloc(1,arena);
-                    s.text[0] = va_arg(args,int);
-                    str = StringConcat(str,s,arena);
+                    str = ArenaAlloc(&scratch,sizeof(String));
+                    *str = StringAlloc(1,arena);
+                    str->text[0] = va_arg(args,int);
+                    ListAppendPtr(&parts,str);
                     break;}
                 case 'd':{
-                    String d = StringFromInt(va_arg(args,int),arena);
-                    str = StringConcat(str,d,arena);
+                    str = ArenaAlloc(&scratch,sizeof(String));
+                    *str = StringFromInt(va_arg(args,int),arena);
+                    ListAppendPtr(&parts,str);
                     break;}
                 case 'f':{
+                    str = ArenaAlloc(&scratch,sizeof(String));
                     float f = va_arg(args,double);
-                    str = StringConcat(str,StringFromFloat(f,2,arena),arena);
+                    *str = StringFromFloat(f,2,arena);
+                    ListAppendPtr(&parts,str);
                     break;}
                 case 'l':{
                     size = 3;
                     char cnext = format.text[i+2];
+                    str = ArenaAlloc(&scratch,sizeof(String));
                     switch(cnext) {
                         case 'd':{
-                            str = StringConcat(str,StringFromInt(va_arg(args,long),arena),arena);
+                            *str = StringFromInt(va_arg(args,long),arena);
                             break;}
                         case 'f':{
-                            str = StringConcat(str,StringFromDouble(va_arg(args,double),10,arena),arena);
+                            *str = StringFromDouble(va_arg(args,double),10,arena);
                             break;}
                     }
                     break;}
@@ -709,8 +742,10 @@ String StringFormatChar(struct Arena* arena,char* charformat,...) {
         i = StringFind(format,StringFrom("%",arena),i+1);
     }
     va_end(args);
-    str = StringConcat(str,StringSub(format,j,format.size,arena),arena);
-    return str;
+    str = ArenaAlloc(&scratch,sizeof(String));
+    *str = StringSub(format,j,format.size,arena);
+    ListAppendPtr(&parts,str);
+    return StringMerge(&parts,StringFrom("",arena),arena);
 }
 
 void StringResize(String* str) {

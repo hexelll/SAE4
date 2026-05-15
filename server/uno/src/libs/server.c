@@ -265,107 +265,118 @@ void ServerRun(struct Server* server) {
         */
         String request = ServerGetRequest(clientSocket,MAXREQUESTSIZE,&sarena);
         if (request.size > 1) {
-        printf("%s\n\n",StringToChar(request,&sarena));
+            printf("%s\n\n",StringToChar(request,&sarena));
 
-        if(server->onRequest)
-            server->onRequest(server,request);
+            if(server->onRequest)
+                server->onRequest(server,request);
 
-        String rawPath = ServerRequestRawPath(request,&sarena);
+            String rawPath = ServerRequestRawPath(request,&sarena);
 
-        String path = ServerRequestPath(request,&sarena);
-        printf("path: %s\n",StringToChar(path,&sarena));
-        String strippedPath = ServerStrip(path,&sarena);
+            String path = ServerRequestPath(request,&sarena);
+            printf("path: %s\n",StringToChar(path,&sarena));
+            String strippedPath = ServerStrip(path,&sarena);
 
-        String method = ServerRequestMethod(request,&sarena);
-        printf("method: %s\n",StringToChar(method,&sarena));
+            String method = ServerRequestMethod(request,&sarena);
+            printf("method: %s\n",StringToChar(method,&sarena));
 
-        String extension = ServerPathExtension(path,&sarena);
-        printf("extension: %s\n",StringToChar(extension,&sarena));
+            String extension = ServerPathExtension(path,&sarena);
+            printf("extension: %s\n",StringToChar(extension,&sarena));
 
-        String content = ServerFindContent(request,&sarena);
-        if(content.size <= 0) {
-            content = StringFrom("",&sarena);
-        }
+            String content = ServerFindContent(request,&sarena);
+            if(content.size <= 0) {
+                content = StringFrom("",&sarena);
+            }
 
-        /*FILE* fpl = fopen("./log.txt","a");
-        fprintf(fpl,"\n[CONTENT]");
-        fprintf(fpl,StringToChar(content,&sarena));
-        fprintf(fpl,"[/CONTENT]");
-        fclose(fpl);*/
-        
-        printf("content: %s\n",StringToChar(content,&sarena));
+            /*FILE* fpl = fopen("./log.txt","a");
+            fprintf(fpl,"\n[CONTENT]");
+            fprintf(fpl,StringToChar(content,&sarena));
+            fprintf(fpl,"[/CONTENT]");
+            fclose(fpl);*/
+            
+            printf("content: %s\n",StringToChar(content,&sarena));
 
-        String response;
-        FILE* fp = fopen(StringToChar(ServerStrip(path,&sarena),&sarena),"r");
-        ServerSocketWriteTo(clientSocket,StringFrom("",&sarena),&sarena);
-        if (fp == NULL || ServerPathDepth(path) < 1) {
-            printf("incorrect path\n");
-            String content = StringFrom("<html><body> <h1>404</h1> <h2>no such file</h2> </body></html>",&sarena);
-            response = StringConcat(ServerMakeHeader(404,content.size,StringFrom("{}",&sarena),&sarena),content,&sarena);
-            ServerSocketWriteTo(clientSocket,response,&sarena);
-        }else {
-            if(StringEq(extension,StringFrom("c",&sarena))) {
-                char* binpath = StringToChar(StringSub(path,0,StringFindLast(strippedPath,StringFrom(".",&sarena),0),&sarena),&sarena);
-                printf("binpath: %s\n",binpath);
-                FILE* fp = fopen(binpath,"r");
+            String response;
+            FILE* fp = fopen(StringToChar(ServerStrip(path,&sarena),&sarena),"r");
+            ServerSocketWriteTo(clientSocket,StringFrom("",&sarena),&sarena);
+            if (fp == NULL || ServerPathDepth(path) < 1) {
+                printf("incorrect path\n");
+                String content = StringFrom("<html><body> <h1>404</h1> <h2>no such file</h2> </body></html>",&sarena);
+                response = StringConcat(ServerMakeHeader(404,content.size,StringFrom("{}",&sarena),&sarena),content,&sarena);
+                ServerSocketWriteTo(clientSocket,response,&sarena);
+            }else {
+                if(StringEq(extension,StringFrom("c",&sarena))) {
+                    char* binpath = StringToChar(StringSub(path,0,StringFindLast(strippedPath,StringFrom(".",&sarena),0),&sarena),&sarena);
+                    printf("binpath: %s\n",binpath);
+                    FILE* fp = fopen(binpath,"r");
 
-                if(!fp || DEBUG) {
-                    char* command = StringToChar(StringFormat(&sarena,StringFrom("cd /myserver && gcc %S -o %s -lm -I/usr/include/postgresql -lpq",&sarena),strippedPath,binpath),&sarena);
-                    printf("command: %s\n",command);
-                    FILE* pfp = popen(command,"r");
-                    pclose(pfp);
+                    if(!fp || DEBUG) {
+                        char* command = StringToChar(StringFormat(&sarena,StringFrom("cd /myserver && gcc %S -o %s -lm -I/usr/include/postgresql -lpq",&sarena),strippedPath,binpath),&sarena);
+                        printf("command: %s\n",command);
+                        FILE* pfp = popen(command,"r");
+                        pclose(pfp);
 
-                    fp = fopen(binpath,"r");
-                }
-                
-                if(fp) {
-                    fclose(fp);
-                    char* command = StringToChar(StringFormat(&sarena,StringFrom("cd /myserver && chmod +x %s && %s %S '%S' '%S' ",&sarena),binpath,binpath,method,rawPath,content),&sarena);
-                    /*FILE* fpl = fopen("./log.txt","a");
-                    fprintf(fpl,"\n[COMMAND]");
-                    fprintf(fpl,command);
-                    fprintf(fpl,"[/COMMAND]");
-                    fclose(fpl);*/
-                    printf("command: %s\n",command);
-                    FILE* responsefp = popen(command,"r");
-                    if (responsefp) {
-                        response = StringFrom("",&sarena);
-                        for(char c=getc(responsefp);!feof(responsefp);c=getc(responsefp)) 
-                            response = StringConcat(response,StringFromChar(c,&sarena),&sarena);
-                        pclose(responsefp);
-                        printf("\n\n//response://\n%s\n\n",StringToChar(response,&sarena));
-                        ServerSocketWriteTo(clientSocket,response,&sarena);   
+                        fp = fopen(binpath,"r");
+                    }
+                    
+                    if(fp) {
+                        fclose(fp);
+                        char* command = StringToChar(StringFormat(&sarena,StringFrom("cd /myserver && chmod +x %s && %s %S '%S' '%S' ",&sarena),binpath,binpath,method,rawPath,content),&sarena);
+                        /*FILE* fpl = fopen("./log.txt","a");
+                        fprintf(fpl,"\n[COMMAND]");
+                        fprintf(fpl,command);
+                        fprintf(fpl,"[/COMMAND]");
+                        fclose(fpl);*/
+                        printf("command: %s\n",command);
+                        FILE* responsefp = popen(command,"r");
+                        if (responsefp) {
+
+                            struct Arena scratch = ArenaCreate(1024);
+
+                            List responseParts = ListNew(&scratch);
+                            String* str = ArenaAlloc(&scratch,sizeof(String));
+                            *str = StringFrom("",&scratch);
+                            ListAppendPtr(&responseParts,str);
+                            for(char c=getc(responsefp);!feof(responsefp);c=getc(responsefp)) {
+                                String* str = ArenaAlloc(&scratch,sizeof(String));
+                                *str = StringFromChar(c,&scratch);
+                                ListAppendPtr(&responseParts,str);
+                            }
+                            pclose(responsefp);
+                            response = StringMergeChar(&responseParts,"",&sarena);
+                            ArenaDelete(&scratch);
+                            printf("\n\n//response://\n%s\n\n",StringToChar(response,&sarena));
+                            ServerSocketWriteTo(clientSocket,response,&sarena);   
+                        }else {
+                            String content = StringFrom("<html><body> <h1>500</h1> <h2>server error</h2> </body></html>",&sarena);
+                            response = StringConcat(ServerMakeHeader(500,content.size,StringFrom("{}",&sarena),&sarena),content,&sarena);
+                            ServerSocketWriteTo(clientSocket,response,&sarena);
+                        }
                     }else {
+                        printf("error in file compilation\n");
                         String content = StringFrom("<html><body> <h1>500</h1> <h2>server error</h2> </body></html>",&sarena);
                         response = StringConcat(ServerMakeHeader(500,content.size,StringFrom("{}",&sarena),&sarena),content,&sarena);
                         ServerSocketWriteTo(clientSocket,response,&sarena);
                     }
                 }else {
-                    printf("error in file compilation\n");
-                    String content = StringFrom("<html><body> <h1>500</h1> <h2>server error</h2> </body></html>",&sarena);
-                    response = StringConcat(ServerMakeHeader(500,content.size,StringFrom("{}",&sarena),&sarena),content,&sarena);
+                    fseek(fp, 0, SEEK_END);
+                    long int size = ftell(fp);
+                    fseek(fp,0,0);
+                    String content = StringAlloc(size,&sarena);
+                    for(int i=0;i<size;i++) 
+                        content.text[i] = fgetc(fp);
+                    String contentType = StringConcat(StringFrom("text/",&sarena),extension,&sarena);
+                    response = StringConcat(ServerMakeHeader(200,content.size,StringFormat(&sarena,StringFrom("{\"Content-Type\":\"%S\"}",&sarena),contentType),&sarena),content,&sarena);
+                    printf("\n\n//response://\n%s\n\n",StringToChar(response,&sarena));
                     ServerSocketWriteTo(clientSocket,response,&sarena);
                 }
-            }else {
-                fseek(fp, 0, SEEK_END);
-                long int size = ftell(fp);
-                fseek(fp,0,0);
-                String content = StringAlloc(size,&sarena);
-                for(int i=0;i<size;i++) 
-                    content.text[i] = fgetc(fp);
-                String contentType = StringConcat(StringFrom("text/",&sarena),extension,&sarena);
-                response = StringConcat(ServerMakeHeader(200,content.size,StringFormat(&sarena,StringFrom("{\"Content-Type\":\"%S\"}",&sarena),contentType),&sarena),content,&sarena);
-                printf("\n\n//response://\n%s\n\n",StringToChar(response,&sarena));
-                ServerSocketWriteTo(clientSocket,response,&sarena);
             }
-        }
 
-        if (server->onGET && StringEq(method,StringFrom("GET",&sarena)))
-            server->onGET(server,path);
-        
-        if (server->onPOST && StringEq(method,StringFrom("POST",&sarena)))
-            server->onPOST(server,path);
-    }
+            if (server->onGET && StringEq(method,StringFrom("GET",&sarena)))
+                server->onGET(server,path);
+            
+            if (server->onPOST && StringEq(method,StringFrom("POST",&sarena)))
+                server->onPOST(server,path);
+        }
         gettimeofday(&stop, NULL);
         unsigned long dt = (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec;
         /*FILE* fpl = fopen("./log.txt","a");

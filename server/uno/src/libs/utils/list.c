@@ -32,6 +32,14 @@ void ListAppendVal(List* list,ListValue val){
     ListAppendNode(list,(ListNode){.val=val,.next=NULL});
 }
 
+void ListAppendPtr(List* list,void* ptr) {
+    ListAppendVal(list,((ListValue){.ptr=ptr}));
+}
+
+void* ListGetPtr(List* list,int index) {
+    return ListGetVal(list,index)->ptr;
+}
+
 ListNode* ListPopNode(List* list) {
     if (list->size == 0) {
         return NULL;

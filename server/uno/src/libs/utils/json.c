@@ -10,7 +10,10 @@ struct Arena JsonInitArena() {
 
 String JsonFromList(List* list,struct Arena* arena) {
     struct Arena scratch = ArenaCreate(1024);
-    String str = StringFrom("[",&scratch);
+    List jsonParts = ListNew(&scratch);
+    String* str = ArenaAlloc(&scratch,sizeof(String));
+    *str = StringFrom("[",&scratch);
+    ListAppendPtr(&jsonParts,str);
     ListNode* curr = &list->head;
     for(int i=0;i<list->size;i++) {
         ListValue val = curr->val;
@@ -18,45 +21,60 @@ String JsonFromList(List* list,struct Arena* arena) {
         switch (elem.type) {
             case INT:{
                 int n = *(int*)elem.ptr;
-                str = StringFormat(&scratch,StringFrom("%S %d",&scratch),str,n);
+                str = ArenaAlloc(&scratch,sizeof(String));
+                *str = StringFormat(&scratch,StringFrom(" %d",&scratch),n);
+                ListAppendPtr(&jsonParts,str);
                 break;
             }
             case BOOL:{
                 int b = *(int*)elem.ptr;
-                String boolstr = b?StringFrom(" true",&scratch):StringFrom(" false",&scratch);
-                str = StringConcat(str,boolstr,&scratch);
+                str = ArenaAlloc(&scratch,sizeof(String));
+                *str = b?StringFrom(" true",&scratch):StringFrom(" false",&scratch);
+                ListAppendPtr(&jsonParts,str);
                 break;
             }
             case FLOAT:{
                 float f = *(float*)elem.ptr;
-                str = StringFormat(&scratch,StringFrom("%S %f",&scratch),str,f);
+                str = ArenaAlloc(&scratch,sizeof(String));
+                *str = StringFormat(&scratch,StringFrom(" %f",&scratch),f);
+                ListAppendPtr(&jsonParts,str);
                 break;
             }
             case STRING:{
                 String s = *(String*)elem.ptr;
-                str = StringFormat(&scratch,StringFrom("%S \"%S\"",&scratch),str,s);
+                str = ArenaAlloc(&scratch,sizeof(String));
+                *str = StringFormat(&scratch,StringFrom(" \"%S\"",&scratch),s);
+                ListAppendPtr(&jsonParts,str);
                 break;
             }
             case LIST:{
                 List* list = (List*)elem.ptr;
-                str = StringFormat(&scratch,StringFrom("%S %S",&scratch),str,JsonFromList(list,&scratch));
+                str = ArenaAlloc(&scratch,sizeof(String));
+                *str = StringFormat(&scratch,StringFrom(" %S",&scratch),JsonFromList(list,&scratch));
+                ListAppendPtr(&jsonParts,str);
                 break;
             }
             case OBJECT:{
                 Hashmap* map = (Hashmap*)elem.ptr;
-                str = StringFormat(&scratch,StringFrom("%S %S",&scratch),str,JsonFromHashmap(map,&scratch));
+                str = ArenaAlloc(&scratch,sizeof(String));
+                *str = StringFormat(&scratch,StringFrom(" %S",&scratch),JsonFromHashmap(map,&scratch));
+                ListAppendPtr(&jsonParts,str);
                 break;
             }
         }
         if(i!=list->size-1) {
-            str = StringConcat(str,StringFrom(",",&scratch),&scratch);
+            str = ArenaAlloc(&scratch,sizeof(String));
+            *str = StringFrom(",",&scratch);
+            ListAppendPtr(&jsonParts,str);
         }
         curr = curr->next;
     }
-    str = StringConcat(str,StringFrom(" ]",&scratch),&scratch);
-    str = StringCpy(str,arena);
+    str = ArenaAlloc(&scratch,sizeof(String));
+    *str = StringFrom(" ]",&scratch);
+    ListAppendPtr(&jsonParts,str);
+    String json = StringMergeChar(&jsonParts,"",arena);
     ArenaDelete(&scratch);
-    return str;
+    return json;
 }
 
 String jfromlist(List* list) {
@@ -65,54 +83,73 @@ String jfromlist(List* list) {
 
 String JsonFromHashmap(Hashmap* map,struct Arena *arena) {
     struct Arena scratch = ArenaCreate(1024);
-    String str = StringFrom("{",&scratch);
+    List jsonParts = ListNew(&scratch);
+    String* str = ArenaAlloc(&scratch,sizeof(String));
+    *str = StringFrom("{",&scratch);
+    ListAppendPtr(&jsonParts,str);
     MapKeys keys = HashmapKeys(map);
     for(int i=0;i<keys.size;i++) {
         char* key = keys.keys[i];
-        str = StringFormat(&scratch,StringFrom("%S \"%s\":",&scratch),str,key);
+        str = ArenaAlloc(&scratch,sizeof(String));
+        *str = StringFormat(&scratch,StringFrom(" \"%s\":",&scratch),key);
+        ListAppendPtr(&jsonParts,str);
         JsonElem* elem = HashmapGet(map,key);
         switch (elem->type) {
             case INT:{
                 int n = *(int*)elem->ptr;
-                str = StringConcat(str,StringFromInt(n,&scratch),&scratch);
+                str = ArenaAlloc(&scratch,sizeof(String));
+                *str = StringFromInt(n,&scratch);
+                ListAppendPtr(&jsonParts,str);
                 //str = StringFormat(&scratch,StringFrom("%S %d",&scratch),str,n);
                 break;
             }
             case BOOL:{
                 int b = *(int*)elem->ptr;
-                String boolstr = b?StringFrom(" true",&scratch):StringFrom(" false",&scratch);
-                str = StringConcat(str,boolstr,&scratch);
+                str = ArenaAlloc(&scratch,sizeof(String));
+                *str = b?StringFrom(" true",&scratch):StringFrom(" false",&scratch);
+                ListAppendPtr(&jsonParts,str);
                 break;
             }
             case FLOAT:{
                 float f = *(float*)elem->ptr;
-                str = StringFormat(&scratch,StringFrom("%S %f",&scratch),str,f);
+                str = ArenaAlloc(&scratch,sizeof(String));
+                *str = StringFormat(&scratch,StringFrom(" %f",&scratch),f);
                 break;
             }
             case STRING:{
                 String s = *(String*)elem->ptr;
-                str = StringFormat(&scratch,StringFrom("%S \"%S\"",&scratch),str,s);
+                str = ArenaAlloc(&scratch,sizeof(String));
+                *str = StringFormat(&scratch,StringFrom(" \"%S\"",&scratch),s);
+                ListAppendPtr(&jsonParts,str);
                 break;
             }
             case LIST:{
                 List* list = (List*)elem->ptr;
-                str = StringFormat(&scratch,StringFrom("%S %S",&scratch),str,JsonFromList(list,&scratch));
+                str = ArenaAlloc(&scratch,sizeof(String));
+                *str = StringFormat(&scratch,StringFrom(" %S",&scratch),JsonFromList(list,&scratch));
+                ListAppendPtr(&jsonParts,str);
                 break;
             }
             case OBJECT:{
                 Hashmap* map = (Hashmap*)elem->ptr;
-                str = StringFormat(&scratch,StringFrom("%S %S",&scratch),str,JsonFromHashmap(map,&scratch));
+                str = ArenaAlloc(&scratch,sizeof(String));
+                *str = StringFormat(&scratch,StringFrom(" %S",&scratch),JsonFromHashmap(map,&scratch));
+                ListAppendPtr(&jsonParts,str);
                 break;
             }
         }
         if(i!=keys.size-1) {
-            str = StringConcat(str,StringFrom(",",&scratch),&scratch);
+            str = ArenaAlloc(&scratch,sizeof(String));
+            *str = StringFrom(",",&scratch);
+            ListAppendPtr(&jsonParts,str);
         }
     }
-    str = StringConcat(str,StringFrom("}",&scratch),&scratch);
-    str = StringCpy(str,arena);
+    str = ArenaAlloc(&scratch,sizeof(String));
+    *str = StringFrom("}",&scratch);
+    ListAppendPtr(&jsonParts,str);
+    String json = StringMergeChar(&jsonParts,"",arena);
     ArenaDelete(&scratch);
-    return str;
+    return json;
 }
 
 String jfrommap(Hashmap* map) {

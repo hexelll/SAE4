@@ -127,8 +127,8 @@ String makeResponse(struct Arena* arena,Connection con,char** argv) {
             HashmapSetInt(&cardmap,"cardId",playercard->id);
             HashmapSetInt(&cardmap,"cardValue",playercard->value);
             HashmapSetInt(&cardmap,"cardColorId",playercard->colorId);
-            HashmapSetString(&cardmap,"cardColorHex",playercard->colorHex);
             HashmapSetInt(&cardmap,"cardTypeId",playercard->typeId);
+            HashmapSetString(&cardmap,"cardColorHex",StringCpy(playercard->colorHex,arena));
             HashmapSetString(&cardmap,"cardTypeDesc",playercard->typeDesc);
             ListAppendMap(&responseCards,cardmap);
         }

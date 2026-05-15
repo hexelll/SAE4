@@ -82,7 +82,7 @@ String jfromlist(List* list) {
 }
 
 String JsonFromHashmap(Hashmap* map,struct Arena *arena) {
-    struct Arena scratch = ArenaCreate(1024);
+    struct Arena scratch = ArenaCreate(2048);
     List jsonParts = ListNew(&scratch);
     String* str = ArenaAlloc(&scratch,sizeof(String));
     *str = StringFrom("{",&scratch);
@@ -114,12 +114,13 @@ String JsonFromHashmap(Hashmap* map,struct Arena *arena) {
                 float f = *(float*)elem->ptr;
                 str = ArenaAlloc(&scratch,sizeof(String));
                 *str = StringFormat(&scratch,StringFrom(" %f",&scratch),f);
+                ListAppendPtr(&jsonParts,str);
                 break;
             }
             case STRING:{
                 String s = *(String*)elem->ptr;
                 str = ArenaAlloc(&scratch,sizeof(String));
-                *str = StringFormat(&scratch,StringFrom(" \"%S\"",&scratch),s);
+                *str = StringFormatChar(&scratch," \"%S\"",s);
                 ListAppendPtr(&jsonParts,str);
                 break;
             }

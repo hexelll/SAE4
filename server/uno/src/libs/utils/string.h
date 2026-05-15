@@ -64,6 +64,7 @@ String StringMerge(List* arr,String on,struct Arena* arena);
 String smerge(List* arr,String on);
 
 String StringFormat(struct Arena*, String format,...);
+String StringFormatChar(struct Arena*, char* format,...);
 
 String sformat(String format,...);
 

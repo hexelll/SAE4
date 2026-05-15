@@ -397,8 +397,10 @@ StringArr ssplit(String s,String on,int start) {
 
 String StringMerge(List* list,String on,struct Arena* arena) {
     int size = 0;
-    for(int i=0;i<list->size;i++)
+    for(int i=0;i<list->size;i++) {
         size += ((String*)ListGetPtr(list,i))->size;
+    }
+    size += (list->size-1)*on.size;
     String str = StringAlloc(size,arena);
     int k = 0;
     for(int i=0;i<list->size;i++) {
@@ -490,7 +492,7 @@ String StringFormat(struct Arena* arena,String format,...) {
     }
     va_end(args);
     str = ArenaAlloc(&scratch,sizeof(String));
-    *str = StringSub(format,j,format.size,arena);
+    *str = StringSub(format,j,format.size,&scratch);
     ListAppendPtr(&parts,str);
     String merged = StringMerge(&parts,StringFrom("",arena),arena);
     ArenaDelete(&scratch);

@@ -1,8 +1,8 @@
 #include "server.h"
 
-#define MAXREQUESTSIZE 10000
+#define MAXREQUESTSIZE 4096
 
-#define DEBUG 1
+#define DEBUG 0
 
 struct Arena globalArena;
 Hashmap* defaultHeaders;
@@ -117,20 +117,18 @@ String ServerMakeHeader(int code,int contentLength,String headers,struct Arena* 
 String ServerGetRequest(int clientSocket,int maxRequestSize,struct Arena* arena) {
     String buffer = StringAlloc(maxRequestSize,arena);
     buffer.size = 0;
-    int len = 1;
     String request = StringFrom("",arena);
-    //while(len) {
+    int len;
+    do {
         len = recv(clientSocket,buffer.text,maxRequestSize,0);
         buffer.size = len;
-        request = StringConcat(request,buffer,arena);
-    //}
+        if(len < 0) {
+            printf("error in recv\n");
+        }
+        if(len != 0)
+            request = StringConcat(request,buffer,arena);
+    }while(len == maxRequestSize);
     printf("request: %s\n",StringToChar(request,arena));
-    /*FILE* fp = fopen("./log.txt","a");
-    fprintf(fp,"\n[HTTP]\n");
-    fprintf(fp,StringToChar(buffer,arena));
-    fprintf(fp,"\n[/HTTP]");
-    printf("\n[LEN]len:%d[/LEN]",len);
-    fclose(fp);*/
     return request;
 }
 
@@ -147,19 +145,17 @@ void ServerSocketWriteTo(int clientSocket,String str,struct Arena* arena) {
 
 void ServerSocketClose(int clientSocket) {
     char buffer[4096];
-	unsigned int bytesRead=0;
-	int res;
-	for(;;) {
-		res = read(clientSocket, buffer, sizeof(buffer));
-		if(res < 0)  {
-			printf("Read error after %u \n", bytesRead);
+	int len = 1;
+	while (len > 0) {
+		len = recv(clientSocket, buffer, sizeof(buffer),0);
+        buffer[len] = '\0';
+        printf("waiting for socket closure, buffer: %s\n",buffer);
+		if(len < 0)  {
+			printf("Read error\n");
 			exit(1);
 		}
-		if(!res) {
-			break;
-		}
-		bytesRead += res;
 	}
+    
     close(clientSocket);
 }
 
@@ -282,8 +278,6 @@ void ServerRun(struct Server* server) {
         */
         String request = ServerGetRequest(clientSocket,MAXREQUESTSIZE,&sarena);
         if (request.size > 1) {
-            printf("%s\n\n",StringToChar(request,&sarena));
-
             if(server->onRequest)
                 server->onRequest(server,request);
 

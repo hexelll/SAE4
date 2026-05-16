@@ -102,6 +102,7 @@ function displayPlayers() {
                 }
                 else {
                     console.log("Not the owner : "+userId+" != "+gameOwnerId);
+                    $("#leaveGameButton").removeAttr("hidden");
                 }
             }
         }
@@ -142,6 +143,19 @@ function deleteGame() {
     });
 }
 
+function leaveGame() {
+    ajaxRequests.leaveGame(userId, userPwd).then(r => {
+        result = r;
+        if(result.ok) {
+            alert("Leave game");
+            let newUrl = niceUrl+"/menu.html?userId="+userId+"&userPwd="+userPwd+"&username="+username;
+            //console.log(newUrl);
+            window.location.replace(newUrl);
+        }else {
+            alert(result.error);
+        }
+    });
+}
 
 
 // Caliing the function that get the gameState every 3 seconds
@@ -155,6 +169,7 @@ $("#gameNumber").html(code);
 $("#winner").html("Winner : "+winner);
 $("#startGameButton").click(startGame);
 $("#deleteGameButton").click(deleteGame);
+$("#leaveGameButton").click(leaveGame);
 
 
 

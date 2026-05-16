@@ -215,6 +215,20 @@ async function counterUno(userId, userPwd) {
     return result;
 }
 
+async function leaveGame(userId,userPwd) {
+    let result;
+    await $.ajax({
+        type: 'GET',
+        url: 'http://'+serveurIp+'/quitGame.c?',
+        data: 'userId='+userId+'&userPwd='+userPwd,
+        dataType: 'json',
+        success: function (r) { result = r; },
+        error: function () { alert("leaveGame is not working") }
+    })
+    
+    return result;
+}
+
 
 
 /* -------------------------------------------- CONST ------------------------------------------------ */
@@ -231,6 +245,7 @@ const ajaxRequests = {
     startGame,
     deleteGame,
     declareUno,
-    counterUno
+    counterUno,
+    leaveGame
 };
 

@@ -4,30 +4,44 @@ Player PlayerFindById(int id, Connection con){
     struct Arena sarena = ArenaCreate(1024);
     QueryResult res = ConnectionSelect(con,  StringFormatChar(&sarena, "Select * from player where playerid = %d", id));
     Hashmap* playermap = QueryResultToMap(res,&con.arena);
-    Player player = PlayerFromMap(*playermap,con);
+    Player player = PlayerFromMap(playermap,&con.arena);
     ArenaDelete(&sarena);
     return player;
 };
 
-Player PlayerFromMap(Hashmap playermap, Connection con){
+Player PlayerFromMap(Hashmap* playermap, struct Arena* arena){
     struct Arena scratch = ArenaCreate(1024);
     Player player;
     int* converr = ArenaAlloc(&scratch, sizeof(int));
-    player.id = StringToInt(*(String*)HashmapGet(&playermap,"playerid"), converr);
-    player.username= *(String*)HashmapGet(&playermap,"username");
-    player.userPwd = *(String*)HashmapGet(&playermap,"userpwd");
-    player.imagepath = (String*)HashmapGet(&playermap,"imagepath");
+    player.id = StringToInt(*(String*)HashmapGet(playermap,"playerid"), converr);
+    player.username= *(String*)HashmapGet(playermap,"username");
+    player.userPwd = *(String*)HashmapGet(playermap,"userpwd");
+    player.imagepath = (String*)HashmapGet(playermap,"imagepath");
 
-    player.joinedGameId = ArenaAlloc(&con.arena,sizeof(int));
-    player.createdGameId = ArenaAlloc(&con.arena,sizeof(int));
-    player.gameIndex = ArenaAlloc(&con.arena,sizeof(int));
-    player.saidUno = ArenaAlloc(&con.arena,sizeof(int));
-
-    *player.joinedGameId = StringToInt(*(String*)HashmapGet(&playermap,"joinedgameid"), converr);
-    *player.createdGameId = StringToInt(*(String*)HashmapGet(&playermap,"createdgameid"), converr);
-    *player.gameIndex = StringToInt(*(String*)HashmapGet(&playermap,"gameindex"),converr);
-    *player.saidUno = StringToInt(*(String*)HashmapGet(&playermap,"saiduno"),converr);
-
+    player.joinedGameId = ArenaAlloc(arena,sizeof(int));
+    player.createdGameId = ArenaAlloc(arena,sizeof(int));
+    player.gameIndex = ArenaAlloc(arena,sizeof(int));
+    player.saidUno = ArenaAlloc(arena,sizeof(int));
+    String* joinedGameId = (String*)HashmapGet(playermap,"joinedgameid");
+    if(joinedGameId)
+        *player.joinedGameId = StringToInt(*joinedGameId, converr);
+    else
+        player.joinedGameId = NULL;
+    String* createdGameId = (String*)HashmapGet(playermap,"createdgameid");
+    if(createdGameId)
+        *player.createdGameId = StringToInt(*createdGameId, converr);
+    else
+        player.createdGameId = NULL;
+    String* gameIndex = (String*)HashmapGet(playermap,"gameindex");
+    if (gameIndex && gameIndex->size > 0) 
+        *player.gameIndex = StringToInt(*gameIndex,converr);
+    else
+        player.gameIndex = NULL;
+    String* saidUno = (String*)HashmapGet(playermap,"saiduno");
+    if(saidUno)
+        *player.saidUno = StringToInt(*saidUno,converr);
+    else
+        player.saidUno = NULL;
     ArenaDelete(&scratch);
     return player;
 };

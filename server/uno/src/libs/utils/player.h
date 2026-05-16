@@ -14,7 +14,7 @@ typedef struct {
 
 Player PlayerFindById(int id, Connection con);
 
-Player PlayerFromMap(Hashmap playermap, Connection con);
+Player PlayerFromMap(Hashmap* playermap, struct Arena* arena);
 
 List GetPlayersInGame(int gameID, Connection con);
 

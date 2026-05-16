@@ -40,7 +40,7 @@ const playedPileRoot = ReactDOM.createRoot(document.getElementById("playedPile")
 let lastPlusCounter = 0;
 let tempPlusCounter = 0;
 let isMeSkipped = false;
-let roots = [[enemyLeftRoot,"nameEnemyLeft"], [enemyTopRoot,"nameEnemyTop"], [enemyRightRoot,"nameEnemyRight"]];
+let roots = [[enemyLeftRoot,"nameEnemyLeft", "enemyLeftHand"], [enemyTopRoot,"nameEnemyTop", "enemyTopHand"], [enemyRightRoot,"nameEnemyRight", "enemyRightHand"]];
 let indexPlayer = [];
 
 
@@ -55,7 +55,7 @@ function showAnimation(type, plusCounter){
 
     const symbols = {
         "skip":  () => {
-            return "<i class='bi bi-ban'></i>";
+            return "<i class='bi bi-slash-circle'></i>";
         },
         "reverse": () => {
             return "<i class='bi bi-arrow-repeat'></i>";
@@ -67,7 +67,7 @@ function showAnimation(type, plusCounter){
             return "+"+(plusCounter == 0? lastPlusCounter+4 : plusCounter);
         },
         "wild": () => {
-            return "Change of color";
+            return "<p id='changeColor'>Change of color</p>";
         }
     };
 
@@ -88,7 +88,7 @@ let symbolForType = {
     },
     "skip": () => {
         return React.createElement("i", {
-            className: "bi bi-ban"
+            className: "bi bi-slash-circle"
         });
     },
     "reverse": () => {
@@ -144,10 +144,13 @@ function getPlayerHandElement(playerTargetedIndex, myIndex){
         handPlayerTargeted = "myHand";
     }
     else {
+        console.log(indexPlayer);
+        let indexPlayerTargeted;
         for (let i = 0; i < gameState.players.length; i++) {
             for(let j=0; j < indexPlayer.length; j++) {
                 if (i == indexPlayer[j]) {
-                    handPlayerTargeted = roots[j][1];
+                    indexPlayerTargeted = indexPlayer[j];
+                    handPlayerTargeted = roots[indexPlayerTargeted][2];
                     break;
                 }
             }
@@ -295,7 +298,7 @@ function makeEnemysCards(nbCards, enemyRoot) {
 /* --------------------------------------------- ACTIONS -------------------------------------------------*/
 /* Create new tab from tab cards w/ function filter, the value inside the new tab are the one not played */
 function play(card) {
-    console.log("Card played : " + card.cardTypeDesc);
+    //console.log("Card played : " + card.cardTypeDesc);
         if (card.cardTypeDesc === "wild" || card.cardTypeDesc === "pluswild") {
             //alert("played wild or wildPlus");
             let html;
@@ -463,10 +466,10 @@ async function displayCards() {
                     }
                     $("#nameMe").html(name);
                     $("#nbCardsMe").html("Number of cards : "+nbCardsMe);
+                    //indexPlayer.push(i);
                     break;
                 }
             }
-            indexPlayer = [];
             for (let i = (indexMe+1)%gameState.players.length; i!=indexMe; i=(i+1)%gameState.players.length) {
                 makeEnemysCards(gameState.players[i].cardCount, roots[indexRoot][0]);
                 let name = "Player "+ (i+1) + " : " +gameState.players[i].username;
@@ -494,22 +497,10 @@ async function displayCards() {
                     if (gameState.isReversed === false){
                         skippedPlayerIndex = (gameState.currentPlayerIndex - 1) % gameState.players.length;
                         skippedPlayerIndex = skippedPlayerIndex < 0 ? skippedPlayerIndex + gameState.players.length : skippedPlayerIndex;
-                        /*
-                        console.log("Current player:" + gameState.currentPlayerIndex);
-                        console.log("Current player +1:" + gameState.currentPlayerIndex+1);
-                        console.log("Current player % :" +(gameState.currentPlayerIndex) % gameState.players.length);
-                        console.log("Current player +1 %:" +(gameState.currentPlayerIndex+1) % gameState.players.length);
-                        */
                     }
                     else {
                         skippedPlayerIndex = (gameState.currentPlayerIndex+1) % gameState.players.length;
                         skippedPlayerIndex = skippedPlayerIndex < 0 ? skippedPlayerIndex + gameState.players.length : skippedPlayerIndex;
-                        /*
-                        console.log("Current player:" + gameState.currentPlayerIndex);
-                        console.log("Current player +1:" + gameState.currentPlayerIndex+1);
-                        console.log("Current player % :" +(gameState.currentPlayerIndex) % gameState.players.length);
-                        console.log("Current player +1 %:" +(gameState.currentPlayerIndex+1) % gameState.players.length);
-                        */
                     }
                     console.log("Skiped player index : "+ skippedPlayerIndex);
 
@@ -517,7 +508,33 @@ async function displayCards() {
                     triggerSkipEffect(skippedHand);
                 }
 
+                if ((gameState.currentCard.cardTypeDesc === "plus" || gameState.currentCard.cardTypeDesc === "pluswild") && lastPlusCounter >= 0 && gameState.plusCounter === 0) {
+                    console.log("Current card played : " + gameState.currentCard.cardTypeDesc);
+                    console.log("Plus counter : " + gameState.plusCounter);
+                    console.log("Last Plus counter : " +lastPlusCounter);
+
+                    let skippedPlayerIndex;
+                    if (gameState.isReversed === false){
+                        skippedPlayerIndex = (gameState.currentPlayerIndex-1) % gameState.players.length;
+                        skippedPlayerIndex = skippedPlayerIndex < 0 ? skippedPlayerIndex + gameState.players.length : skippedPlayerIndex;
+                    }
+                    else {
+                        skippedPlayerIndex = (gameState.currentPlayerIndex+1) % gameState.players.length;
+                        skippedPlayerIndex = skippedPlayerIndex < 0 ? skippedPlayerIndex + gameState.players.length : skippedPlayerIndex;
+                    }
+                    console.log("Skiped player index : "+ skippedPlayerIndex);
+
+                    let skippedHand = getPlayerHandElement(skippedPlayerIndex, indexMe);
+                    triggerSkipEffect(skippedHand);
+                    
+                }
+
             }
+
+
+            
+
+
 
             // Display the last played card on the played cards pile
             makePlayedPileCard(gameState.currentCard);
@@ -538,6 +555,7 @@ async function displayCards() {
             }
         
         }
+        indexPlayer = [];
                 
     });
 };

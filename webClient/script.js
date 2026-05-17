@@ -238,7 +238,7 @@ function makeEnemysCards(nbCards, enemyRoot) {
     var enemyCards = [];
 
     /* Create the overlap dynamicaly */
-    const containerWidth = window.innerWidth*0.3; /* Container width set in vw in css */
+    const containerWidth = window.innerWidth*0.2; /* Container width set in vw in css */
     cardWidthPx = Math.min(window.innerHeight * 0.2 * 2/3, 180*2/3); 
     const totalCards = nbCards;
 

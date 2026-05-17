@@ -12,14 +12,14 @@
 ---------- DATA DECLARATION  ------------------------------------------------------------------------------------------
 */
 // Server connection data
-const char server[] = "10.97.197.132";//"10.106.120.104";//10.106.120.33
+const char server[] = "10.243.202.33";
 const int port = 42069; // 42069
 
 // Request queue
 struct Request {
   String method;
   String path;
-  String data;
+  long timeSent = -1;
   void (*callback)(Request*,JsonDocument*);
 };
 Request requestQueue[30];
@@ -29,7 +29,7 @@ bool LAST_RESPONSE_ABORTED = false;
 Request lastSentRequest = {
   .method = String("NONE"),
   .path = String("/"),
-  .data = String(""),
+  .timeSent = -1,
   .callback = [](Request* requestSent,JsonDocument* responseData){
     Serial.println(F("NOT SUPPOSED TO BE CALLED"));
   }
@@ -40,7 +40,6 @@ WiFiClient client;
 
 // request responses errors
 bool requestWorked = true;
-String requestError = ""; // error received by request
 
 // requests data
 long timeGetGameState = millis();
@@ -74,7 +73,7 @@ Card lastPlayedCard = {
     .typeId = -1,
     .colorId = -1,
     .value = -1,
-    .colorHex = 0x8888,
+    .colorHex = 0x0000,
     .typeDescription = String("")
   };
 int currentPlayerIndex;
@@ -82,20 +81,24 @@ bool isReversed = false;
 bool isStarted = false;
 int creatorId = -1;
 String gameCode = "";
-byte inputGameCode[6] = {0,0,0,0,0,0};
 int playingPlayerId = -1;
 
 // user data
-int myId = 2;
+int myId = 1;
 String myPassword = "enorme";
 
 // Menu data
 enum MenuStates {NONE,TITLE_SCREEN,PAUSE,IN_GAME,MAIN,JOIN_GAME,CREATE_GAME,CONTROLS};
 enum MenuStates wantedMenuState = TITLE_SCREEN; // TITLE_SCREEN : default menu (when restarting)
-enum MenuStates currentMenuState = NONE;
+enum MenuStates currentMenuState = NONE;  
 short positionInHand = 0;
 short positionInMenu = 0;
 short positionInGameCode = 0;
+bool isInputingWild = false;
+byte inputGameCode[6] = {0,0,0,0,0,0};
+
+// other
+short ping = 0;
 
 // Screen
 #define TFT_DC 9
@@ -113,11 +116,12 @@ void setup() {
   // I/O PINS
   pinMode(A0,INPUT);        // joystick x
   pinMode(A1,INPUT);        // joystick y
-  pinMode(2,INPUT_PULLUP);  // menu
-  pinMode(3,INPUT_PULLUP);  // ok
-  pinMode(4,INPUT_PULLUP);  // no
-  pinMode(5,INPUT_PULLUP);  // uno
-  pinMode(7,INPUT_PULLUP);  // joystick pressed
+  pinMode(2,INPUT_PULLUP);  // uno
+  pinMode(3,INPUT_PULLUP);  // menu
+  pinMode(4,INPUT_PULLUP);  // ok
+  pinMode(5,INPUT_PULLUP);  // no
+  pinMode(8,INPUT_PULLUP);  // joystick pressed
+  pinMode(7,OUTPUT);
 
   // Initialize serial and wait for port to open:
   Serial.begin(500000);
@@ -132,6 +136,7 @@ void setup() {
   
   // connect to wifi
   initWifi(SECRET_SSID,SECRET_PASS);
+  eraseWifiError();
 
   // TEST
   //queueNewRequest("GET","/getGameState.c?userId=1&userPwd=enorme","", callback_getGameState );
@@ -146,36 +151,52 @@ void setup() {
   DECLARE COUNTER UNO
   queueNewRequest("GET","/counterUno.c?userId=1&userPwd=jaja","", Callback::errorHandler );
   PLAY CARD
-  queueNewRequest("GET","/playCard.c?userId=1&userPwd=jaja&cardId=8","", Callback::errorHandler );
+  queueNewRequest("GET","/playCard.c?userId=1&userPwd=jaja&cardId=8","cardColorId" 1 2 3 4, Callback::errorHandler );
   DRAW CARD
   
   JOIN GAME
   queueNewRequest("GET","/joinGame.c?userId=1&userPwd=jaja&gameCode=123","", Callback::callback_joinGame );
   */
 
+  queueNewRequest("GET","/getGameState.c?userId="+String(myId)+"&userPwd="+myPassword, callback_redirectToGame );
+
 }
 
 void loop(){
-  // process http requests/responses
-  processResponses();
+  
+  static long time = millis();
 
   // inputs
   handleInputs();
+
+  // process http requests/responses
+  processResponses();
 
   // change Interface if necessary
   changeInterface();
   // update visual effects (blinking,...)
   updateActiveEffects();
 
-  // call getGameState every 1.5s
+  // call getGameState every 2 s
   if (currentMenuState == IN_GAME || currentMenuState == PAUSE){
     long currentTime = millis();
     if (currentTime - timeGetGameState > 2000){
       timeGetGameState = millis();
-      queueNewRequest("GET","/getGameState.c?userId="+String(myId)+"&userPwd="+myPassword,"", callback_getGameState );
+      queueNewRequest("GET","/getGameState.c?userId="+String(myId)+"&userPwd="+myPassword, callback_getGameState );
     }
   }
 
+  long newTime = millis();
+  long dif = newTime-time;
+  /*
+  if (dif < 6){
+    Serial.print(".");
+  }else{
+    Serial.println();
+    Serial.println(newTime-time);
+  }
+  */
+  time = newTime;
 }
 
 

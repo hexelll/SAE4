@@ -90,15 +90,23 @@ short getBestTextSize(String text, short maxSize, short maxWidth, short maxHeigh
 }
 
 // displays player profile (on the left)
-void displayPlayerProfile(short y,short nbCards,String username,uint16_t backgroundColor, bool isLocalPlayer, bool isPlaying){  
+void displayPlayerProfile(short y,short nbCards,String username,uint16_t backgroundColor, bool isLocalPlayer, bool isPlaying, bool isOwner){  
   // background
   tft.fillRect(0, y, 80, 50, backgroundColor); 
   
-  // image
+  // highlight if currently playing
   if (isPlaying){
     tft.fillRoundRect(5, y+4, 30, 30,2, ILI9341_RED); 
   }
-  tft.fillRect(8, y+7, 24, 24, tft.color565(0, 255, 0)); 
+
+  // "image"
+  static uint16_t colors[8] = {tft.color565(101, 191, 136),tft.color565(0,255,0),tft.color565(0,0,255),tft.color565(255,255,0),tft.color565(255,0,255),tft.color565(0,255,255),tft.color565(255,128,0),tft.color565(137, 81, 41)};
+  
+  byte colorIndex = min( max( 0, floor( (hexCharToByte( username.charAt(0) )-10)/3)),7 );
+  uint16_t IconColor = colors[colorIndex];
+  tft.fillRect(8, y+7, 24, 17, 0x0000 ); 
+  tft.fillRect(8, y+24, 24, 7, IconColor ); 
+  tft.fillCircle(20, y+17, 7, IconColor ); 
 
   if (wantedMenuState == IN_GAME){
     // side cards
@@ -131,6 +139,10 @@ void displayPlayerProfile(short y,short nbCards,String username,uint16_t backgro
       tft.setTextSize(2);
       tft.print(nbCards);
     }
+  }else if (wantedMenuState == PAUSE && isOwner){
+    tft.fillTriangle(46,y+12,46,y+26,56,y+26,tft.color565(255, 255, 0));
+    tft.fillTriangle(56,y+26,66,y+12,66,y+26,tft.color565(255, 255, 0));
+    tft.fillTriangle(51,y+26,61,y+26,56,y+12,tft.color565(255, 255, 0));
   }
 
   // username 
@@ -197,16 +209,24 @@ void updateActiveEffects(){
   static bool blinkState = true;
 
   long currentTime = millis();
-  if ( currentTime - lastUpdateTime > 1500){
+  if ( currentTime - lastUpdateTime > 1000){
     lastUpdateTime = currentTime;
     blinkState = ! blinkState;
     switch (currentMenuState){
       case IN_GAME: {
-      
+        tft.fillRect(35, 220, 45, 20, tft.color565(128, 128, 128));
+        tft.setTextSize(1);
+        tft.setCursor(35, 227);
+        tft.print(min(9999,ping));
+        tft.print("ms");
         break;
       }
       case PAUSE: {
-        
+        tft.fillRect(35, 220, 45, 20, tft.color565(128, 128, 128));
+        tft.setTextSize(1);
+        tft.setCursor(35, 227);
+        tft.print(min(9999,ping));
+        tft.print("ms");
         break;
       }
       case TITLE_SCREEN: {
@@ -238,9 +258,23 @@ void initCreateGame(){
   tft.setTextSize(1);
   tft.setCursor(75, 43);
   tft.print("Rejoignez la avec le code :");
+
+  // TEMP
+  //updateGameCodeDisplay();
 }
 void updateGameCodeDisplay(){
+  static uint16_t colors[4] = {ILI9341_RED,ILI9341_GREEN,ILI9341_BLUE,ILI9341_YELLOW};
 
+  if (wantedMenuState == CREATE_GAME){
+    // actual code
+    tft.setTextSize(8);
+    tft.setCursor(20, 105);
+    for (byte i=0 ; i<6 ; i++){
+      tft.setTextColor( colors[i%4] );
+      tft.print( gameCode.charAt(i) );
+    }
+    tft.setTextColor(ILI9341_WHITE);
+  }
 }
 
 /*
@@ -313,10 +347,10 @@ void updateInputGameCode(){
 
   // actual code
   tft.setTextSize(6);
-  tft.setCursor(50, 125);
+  tft.setCursor(50, 121);
   for (byte i=0 ; i<6 ; i++){
     if (i == positionInGameCode){
-      tft.fillRect( 50+i*36, 125, 30, 44, ILI9341_BLACK );
+      tft.fillRect( 50+i*36, 121, 30, 44, ILI9341_BLACK );
     }
     tft.setTextColor( colors[i%4] );
     tft.print( String(inputGameCode[i]) );
@@ -326,42 +360,55 @@ void updateInputGameCode(){
   // numbers above
   tft.setTextColor(tft.color565(128, 128, 128));
 
-  tft.fillRect( 56+positionInGameCode*36, 63, 15, 21, ILI9341_BLACK );
+  tft.fillRect( 56+positionInGameCode*36, 59, 15, 21, ILI9341_BLACK );
   if ( inputGameCode[positionInGameCode] >= 2 ){
     tft.setTextSize(3);
-    tft.setCursor(56+positionInGameCode*36, 63);
+    tft.setCursor(56+positionInGameCode*36, 59);
     tft.print( inputGameCode[positionInGameCode]-2 );
   }
 
-  tft.fillRect( 54+positionInGameCode*36, 89, 20, 28, ILI9341_BLACK );
+  tft.fillRect( 54+positionInGameCode*36, 85, 20, 28, ILI9341_BLACK );
   if ( inputGameCode[positionInGameCode] >= 1 ){
     tft.setTextSize(4);
-    tft.setCursor(54+positionInGameCode*36, 89);
+    tft.setCursor(54+positionInGameCode*36, 85);
     tft.print( inputGameCode[positionInGameCode]-1 );
   }
 
-  tft.fillRect( 54+positionInGameCode*36, 173, 20, 28, ILI9341_BLACK );
+  tft.fillRect( 54+positionInGameCode*36, 169, 20, 28, ILI9341_BLACK );
   if ( inputGameCode[positionInGameCode] <= 8 ){
     tft.setTextSize(4);
-    tft.setCursor(54+positionInGameCode*36, 173);
+    tft.setCursor(54+positionInGameCode*36, 169);
     tft.print( inputGameCode[positionInGameCode]+1 );
   }
 
-  tft.fillRect( 56+positionInGameCode*36, 207, 15, 21, ILI9341_BLACK );
+  tft.fillRect( 56+positionInGameCode*36, 203, 15, 21, ILI9341_BLACK );
   if ( inputGameCode[positionInGameCode] <= 7 ){
     tft.setTextSize(3);
-    tft.setCursor(56+positionInGameCode*36, 207);
+    tft.setCursor(56+positionInGameCode*36, 203);
     tft.print( inputGameCode[positionInGameCode]+2 );
   }
 
 }
 void eraseInputGameCode(){
-  tft.fillRect( 56+positionInGameCode*36, 63, 15, 21, ILI9341_BLACK );
-  tft.fillRect( 54+positionInGameCode*36, 89, 20, 28, ILI9341_BLACK );
-  tft.fillRect( 54+positionInGameCode*36, 173, 20, 28, ILI9341_BLACK );
-  tft.fillRect( 56+positionInGameCode*36, 207, 15, 21, ILI9341_BLACK );
+  tft.fillRect( 56+positionInGameCode*36, 59, 15, 21, ILI9341_BLACK );
+  tft.fillRect( 54+positionInGameCode*36, 85, 20, 28, ILI9341_BLACK );
+  tft.fillRect( 54+positionInGameCode*36, 169, 20, 28, ILI9341_BLACK );
+  tft.fillRect( 56+positionInGameCode*36, 203, 15, 21, ILI9341_BLACK );
 }
-
+void displayJoinError(){
+  if (currentMenuState == JOIN_GAME){
+    tft.setTextColor(ILI9341_RED);
+    tft.setTextSize(1);
+    tft.setCursor(140, 227);
+    tft.print("Aucune partie avec ce code !");
+    tft.setTextColor(ILI9341_WHITE);
+  }
+}
+void eraseJoinError(){
+  if (currentMenuState == JOIN_GAME){
+    tft.fillRect(140, 227, 180, 13,ILI9341_BLACK );
+  }
+}
 
 /*
 ---------- TITLE_SCREEN INTERFACE ------------------------------------------------------------------------------------------
@@ -403,6 +450,20 @@ void updateSplashText(){
   tft.print( spashText[ random(nbSplashTexts) ] );
   tft.setTextColor(ILI9341_WHITE);
 }
+void displayWifiError(){
+  if (currentMenuState == TITLE_SCREEN){
+    tft.setTextColor(ILI9341_RED);
+    tft.setTextSize(1);
+    tft.setCursor(220, 220);
+    tft.print("Erreur de wifi");
+    tft.setTextColor(ILI9341_WHITE);
+  }
+}
+void eraseWifiError(){
+  if (currentMenuState == TITLE_SCREEN){
+    tft.fillRect(220, 220, 100, 20, 0x0000);
+  }
+}
 
 /*
 ---------- PAUSE INTERFACE ------------------------------------------------------------------------------------------
@@ -419,18 +480,67 @@ void initPauseInterface(){
     tft.setCursor(17, 7);
     tft.print("Joueurs");
     tft.fillRect(0, 220, 80, 20, tft.color565(128, 128, 128));
-    // fill players with data
-    updatePlayers();
+    tft.setTextSize(1);
+    tft.setCursor(5, 227);
+    tft.print("ping: ");
   }
 
+  // fill players with data
+  updatePlayers();
+
   // Pause text
-  tft.setTextSize(3);
-  tft.setCursor(156, 3);
+  tft.setTextSize(4);
+  tft.setCursor(142, 5);
   tft.print("Pause");
+
+  // display game code
+  updatePauseGameCode();
+
+  updatePauseMenu();
+}
+
+void updatePauseGameCode(){
+  if (wantedMenuState == PAUSE && !gameCode.equals("") ){
+    tft.fillRect(113, 55, 200, 40, ILI9341_BLACK);
+    static uint16_t colors[4] = {ILI9341_RED,ILI9341_GREEN,ILI9341_BLUE,ILI9341_YELLOW};
+    tft.setTextSize(5);
+    tft.setCursor(113, 55);
+    for (byte i=0 ; i<6 ; i++){
+      tft.setTextColor( colors[i%4] );
+      tft.print( gameCode.charAt(i) );
+    }
+    tft.setTextColor(ILI9341_WHITE);
+  }
 }
 
 void updatePauseMenu(){
+  if (wantedMenuState == PAUSE){
+    if (creatorId == myId){
+      uint16_t color1 = tft.color565(128, 128, 128);
+      uint16_t color2 = tft.color565(255, 0, 0);
+      if (positionInMenu == 0){
+        uint16_t temp = color2;
+        color2 = color1;
+        color1 = temp;
+      }
+      tft.fillRoundRect(100, 127, 206, 31,10,color1 );
+      tft.setTextSize(2);
+      tft.setCursor(110, 135);
+      if (!isStarted){
+        tft.print("Demarer");
+      }else{
+        tft.print("Arreter");
+      }
 
+      tft.fillRoundRect(100, 179, 206, 31,10,color2 );
+      tft.setTextSize(2);
+      tft.setCursor(110, 187);
+      tft.print("Supprimer");
+    }else{
+      tft.fillRoundRect(100, 127, 206, 31,10,ILI9341_BLACK );
+      tft.fillRoundRect(100, 179, 206, 31,10,ILI9341_BLACK );
+    }
+  }
 }
 
 /*
@@ -448,9 +558,12 @@ void initGameInterface(){
     tft.setCursor(17, 7);
     tft.print("Joueurs");
     tft.fillRect(0, 220, 80, 20, tft.color565(128, 128, 128));
-    // fill players with data
-    updatePlayers();
+    tft.setTextSize(1);
+    tft.setCursor(5, 227);
+    tft.print("ping: ");
   }
+
+  updatePlayers();
 
   // build cards in hand
   tft.setTextSize(1);
@@ -487,7 +600,8 @@ void updatePlayers(){
 
         bool playerIsPlaying = playingPlayerId == playerToDisplay.id;
         bool playerIsMe = myId == playerToDisplay.id;
-        displayPlayerProfile(y,playerToDisplay.nbCards,playerToDisplay.username,backgroundColor,playerIsMe,playerIsPlaying);
+        bool playerIsOwner = playerToDisplay.id == creatorId;
+        displayPlayerProfile(y,playerToDisplay.nbCards,playerToDisplay.username,backgroundColor,playerIsMe,playerIsPlaying,playerIsOwner);
 
       }else{
         tft.fillRect(0, y, 80, 50, backgroundColor); 
@@ -495,6 +609,7 @@ void updatePlayers(){
       y += 50;
     }
 
+    /* unused because only 4 players in game
     if (nbPlayers > 4){
       tft.setTextSize(1);
       tft.setCursor(5, 227);
@@ -502,10 +617,11 @@ void updatePlayers(){
       tft.print(nbPlayers-4);
       tft.print(" autres");
     }
+    */
   }
 }
 
-void updateCards(){
+void updateNbCards(){
   if (wantedMenuState == IN_GAME){
     // nb cartes
     tft.fillRect(270,185,50,40,ILI9341_BLACK);
@@ -516,19 +632,26 @@ void updateCards(){
       tft.setCursor(281, 195);
     }
     tft.print(myNbCards);
+  }
+}
+
+void updateCards(){
+  if (wantedMenuState == IN_GAME){
+    
+    updateNbCards();
 
     // right cards
-    if ( !( positionInHand+3 >= myNbCards) ){
+    if ( !( positionInHand+3 >= min(myNbCards,31) ) ){
       displayCard(205,190,60,5,myCards[positionInHand+3]); 
     }else{
       tft.fillRoundRect(205, 190, 60, 60*3/2, 60/6, ILI9341_BLACK);
     }
-    if ( !( positionInHand+2 >= myNbCards) ){
+    if ( !( positionInHand+2 >= min(myNbCards,31)) ){
       displayCard(180,170,70,5,myCards[positionInHand+2]); 
     }else{
       tft.fillRoundRect(180, 170, 70, 70*3/2, 70/6, ILI9341_BLACK);
     }
-    if ( !( positionInHand+1 >= myNbCards) ){
+    if ( !( positionInHand+1 >= min(myNbCards,31)) ){
       displayCard(150,150,80,5,myCards[positionInHand+1]); 
     }else{
       tft.fillRoundRect(150, 150, 80, 80*3/2, 80/6, ILI9341_BLACK);
@@ -542,12 +665,44 @@ void updateCards(){
     }
     
     // Biggest card
-    //displayCard(112,125,90,6,myCards[positionInHand]); 
-    if (myNbCards > 0 &&
+    if (isInputingWild){
+      // outer card
+      tft.fillRoundRect(112, 125, 90, 90*3/2, 90/6, ILI9341_WHITE);
+      tft.drawRoundRect(112, 125, 90, 90*3/2, 90/6, ILI9341_BLACK);
+
+      // empty inner card
+      tft.fillRoundRect(
+          112 + 6,
+          125 + 6,
+          90 - 2*6,
+          90*3/2 -2*6,
+          90/8,
+          ILI9341_BLACK
+      );
+
+      // temp
+      short decal_y = 18;
+      short h = 14;
+      short w = 28;
+
+      short middle_x = 112+6+(90-2*6)/2;
+      short middle_y = 125+6+(90*3/2-2*6)*2/4;
+
+      // triangles
+      tft.fillTriangle( middle_x, middle_y -h -decal_y , middle_x - w/2 , middle_y-decal_y , middle_x + w/2, middle_y-decal_y,ILI9341_RED );
+      tft.fillTriangle( middle_x, middle_y +h +decal_y , middle_x - w/2 , middle_y+decal_y , middle_x + w/2, middle_y+decal_y,ILI9341_GREEN );
+
+      tft.fillTriangle( middle_x-decal_y, middle_y+w/2 , middle_x-decal_y , middle_y-w/2 , middle_x-decal_y-h, middle_y,ILI9341_BLUE );
+      tft.fillTriangle( middle_x+decal_y, middle_y+w/2 , middle_x+decal_y , middle_y-w/2 , middle_x+decal_y+h, middle_y, ILI9341_YELLOW );
+
+      tft.drawRect(middle_x-10, middle_y-10, 20,20, ILI9341_WHITE);
+      tft.fillRect(middle_x-6, middle_y-6, 12,12, ILI9341_WHITE);
+
+    }else if (myNbCards > 0 &&
       positionInHand >= 0 &&
-      positionInHand < myNbCards) {
+      positionInHand < min(myNbCards,31)) {
       displayCard(112,125,90,6,myCards[positionInHand]);
-    } else {
+    }else{
       tft.fillRoundRect(112, 125, 90, 90*3/2, 90/6, ILI9341_BLACK);
     }
   }

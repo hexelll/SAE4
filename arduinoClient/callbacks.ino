@@ -5,7 +5,7 @@
 // debug callback
 void callback_dumpResponse(Request* requestSent,JsonDocument* responseData){
   Serial.println(F("\n\n-------------\n>>> Request sent :"));
-  Serial.println((*requestSent).method + F(" ") + (*requestSent).path + F(" HTTP/1.1\nHost: ") + String(server) + F("\nConnection: close\n\n") + (*requestSent).data);
+  Serial.println((*requestSent).method + F(" ") + (*requestSent).path + F(" HTTP/1.1\nHost: ") + String(server) + F("\nConnection: close\n\n"));
   Serial.println(F("> Response data received :"));
   serializeJson(*responseData, Serial);
 }
@@ -14,9 +14,9 @@ void callback_dumpResponse(Request* requestSent,JsonDocument* responseData){
 void callback_errorHandler(Request* requestSent,JsonDocument* responseData){
   requestWorked = (*responseData)["ok"];
   if ( (*responseData).containsKey("error")){
-    requestError = (*responseData)["error"].as<String>();
+    //requestError = (*responseData)["error"].as<String>();
     Serial.println(F("\n[WARNING] Request returned not ok with error :"));
-    Serial.println(requestError);
+    Serial.println((*responseData)["error"].as<String>());
   }
 }
 
@@ -25,6 +25,7 @@ void callback_createGame(Request* requestSent,JsonDocument* responseData){
   callback_errorHandler(requestSent,responseData);
   if (requestWorked){
     gameCode = (*responseData)["code"].as<String>();
+    updateGameCodeDisplay();
   }
 }
 
@@ -32,87 +33,150 @@ void callback_joinGame(Request* requestSent,JsonDocument* responseData){
   callback_errorHandler(requestSent,responseData);
   if (requestWorked){
     wantedMenuState = PAUSE;
+    eraseJoinError();
+  }else{
+    displayJoinError();
+  }
+}
+
+void callback_deleteGame(Request* requestSent,JsonDocument* responseData){
+  callback_errorHandler(requestSent,responseData);
+  if (requestWorked){
+    wantedMenuState = TITLE_SCREEN;
+  }
+}
+
+void callback_redirectToGame(Request* requestSent,JsonDocument* responseData){
+  callback_errorHandler(requestSent,responseData);
+  if (requestWorked){
+    if (isStarted){
+      wantedMenuState = IN_GAME;
+    }else{
+      wantedMenuState = PAUSE;
+    }
   }
 }
 
 // getGameState callback
-void callback_getGameState(Request* requestSent,JsonDocument* responseData){
-  callback_errorHandler(requestSent,responseData);
-  if (requestWorked){
-    
-    // update last played card
-    Card newLastCard = newCardFromJson( (*responseData)["currentCard"] );
-    bool lastCard_CHANGED = newLastCard.id != lastPlayedCard.id;
-    lastPlayedCard = newLastCard;
+void callback_getGameState(Request* requestSent, JsonDocument* responseData){
+  callback_errorHandler(requestSent, responseData);
+  if (requestWorked) {
 
-    // update current player index
-    bool currentPlayerIndex_CHANGED = false;
-    if (currentPlayerIndex != (*responseData)["currentPlayerIndex"]){
-      currentPlayerIndex_CHANGED = true;
-      currentPlayerIndex = (*responseData)["currentPlayerIndex"];
-    }
+    JsonObject root = responseData->as<JsonObject>();
 
-    // update is reversed
-    isReversed = (*responseData)["isReversed"];
-
-    // update is Started
-    if ( !isStarted && (*responseData)["isStarted"] && currentMenuState == PAUSE ){
-      wantedMenuState = IN_GAME;
-    }else if (isStarted && !(*responseData)["isStarted"] && currentMenuState == IN_GAME){
-      wantedMenuState = PAUSE;
-    }
-    isStarted = (*responseData)["isStarted"];
-
-    // creator id
-    creatorId = (*responseData)["creatorId"];
-
-    // update my cards
+    bool nbCards_CHANGED = false;
     bool cards_CHANGED = false;
-    myNbCards = 0;
-    JsonArray cardsArray = (*responseData)["cards"];
-    for (JsonObject cardData : cardsArray ){
-      if (myNbCards >= 30) {
-        Serial.println("Too many cards!");
-        break;
-      }
-      Card newCard = newCardFromJson(cardData);
-      if (myCards[myNbCards].id != newCard.id){
-        cards_CHANGED = true;
-      }
-      myCards[myNbCards] = newCard;
-      myNbCards++;
+    bool players_CHANGED = false;
+    bool lastCard_CHANGED = false;
+    bool currentPlayerIndex_CHANGED = false;
+    bool gameCode_CHANGED = false;
+    bool isStarted_CHANGED = false;
+
+    // Last played card
+    Card newLastCard;
+    newPointerCardFromJson(root["currentCard"], &newLastCard);
+    if (newLastCard.id != lastPlayedCard.id) {
+        lastPlayedCard = newLastCard;
+        lastCard_CHANGED = true;
     }
 
-    // update players
-    bool players_CHANGED = false;
+    // Current player index
+    int newCurrentPlayerIndex = root["currentPlayerIndex"];
+    if (currentPlayerIndex != newCurrentPlayerIndex) {
+        currentPlayerIndex = newCurrentPlayerIndex;
+        currentPlayerIndex_CHANGED = true;
+    }
+
+    // Simple values
+    isReversed = root["isReversed"];
+    creatorId = root["creatorId"];
+
+    // Game code
+    String newGameCode = root["gameCode"].as<String>();
+    if ( ! newGameCode.equals(gameCode) ) {
+        gameCode = newGameCode;
+        gameCode_CHANGED = true;
+    }
+
+    // Started state
+    bool newIsStarted = root["isStarted"];
+    if (!isStarted && newIsStarted && currentMenuState == PAUSE) {
+      wantedMenuState = IN_GAME;
+      changeInterface();
+    }
+    else if (isStarted && !newIsStarted && currentMenuState == IN_GAME) {
+      wantedMenuState = PAUSE;
+      changeInterface();
+    }
+    if (newIsStarted != isStarted){
+      isStarted = newIsStarted;
+      isStarted_CHANGED = true;
+    }
+
+    // Cards
+    myNbCards = 0;
+    for (JsonObjectConst cardData : root["cards"].as<JsonArrayConst>()) {
+
+        if (myNbCards >= 30) {
+            break;
+        }
+
+        Card& dst = myCards[myNbCards];
+        int oldId = dst.id;
+
+        newPointerCardFromJson(cardData, &dst);
+
+        cards_CHANGED |= (oldId != dst.id);
+
+        myNbCards++;
+    }
+
+    // Players
     nbPlayers = 0;
-    JsonArray playersArray = (*responseData)["players"];
-    for (JsonObject playerData : playersArray ){
+    for (JsonObjectConst playerData : root["players"].as<JsonArrayConst>()) {
       if (nbPlayers >= 4) {
         break;
       }
-      Player newPlayer = newPlayerFromJson(playerData);
 
-      if (nbPlayers == currentPlayerIndex ){
-        playingPlayerId = newPlayer.id;
+      Player& dst = playerList[nbPlayers];
+
+      int oldId = dst.id;
+      int oldNbCards = dst.nbCards;
+
+      newPointerPlayerFromJson(playerData, &dst);
+
+      if (nbPlayers == currentPlayerIndex) {
+        playingPlayerId = dst.id;
       }
-      
-      if (playerList[nbPlayers].id != newPlayer.id || playerList[nbPlayers].nbCards != newPlayer.nbCards){
-        players_CHANGED = true;
+
+      if (dst.id == myId && dst.nbCards != myNbCards){
+        nbCards_CHANGED = true;
+        myNbCards = dst.nbCards;
       }
-      playerList[nbPlayers] = newPlayer;
+
+      players_CHANGED |= (oldId != dst.id || oldNbCards != dst.nbCards);
+
       nbPlayers++;
     }
 
-    // update display if data changed
+    // UI updates
     if (lastCard_CHANGED){
       updatePile();
     }
     if (cards_CHANGED){
       updateCards();
     }
+    if (nbCards_CHANGED){
+      updateNbCards();
+    }
     if (players_CHANGED || currentPlayerIndex_CHANGED){
       updatePlayers();
+    }
+    if (gameCode_CHANGED){
+      updatePauseGameCode();
+    }
+    if (isStarted_CHANGED){
+      updatePauseMenu();
     }
   }
 }

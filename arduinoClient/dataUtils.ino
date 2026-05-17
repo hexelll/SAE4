@@ -19,6 +19,37 @@ Player newPlayerFromJson(JsonObject cardData){
   };
 }
 
+
+/*
+---------- STRUCT BUILDERS WITH POINTERS------------------------------------------------------------------------------------------
+*/
+void newPointerCardFromJson(JsonObjectConst cardData, Card* out){
+  out->id = cardData["cardId"] | 0;
+  out->typeId = cardData["cardTypeId"] | 0;
+  out->colorId = cardData["cardColorId"] | 0;
+  out->value = cardData["cardValue"] | 0;
+  out->colorHex = colorFromHex( cardData["cardColorHex"] | "" );
+  out->typeDescription = cardData["cardTypeDesc"] | "";
+}
+
+void newPointerPlayerFromJson(JsonObjectConst playerData, Player* out){
+  out->id = playerData["playerId"] | 0;
+  out->username = playerData["username"] | "";
+  out->nbCards = playerData["cardCount"] | 0;
+}
+
+
+/*
+---------- OTHER UTILS ------------------------------------------------------------------------------------------
+*/
+void fuseGameId(){
+  gameCode = "";
+  for (byte i=0 ; i<6 ; i++){
+    gameCode += String(inputGameCode[i]);
+  }
+}
+
+
 /*
 ---------- COLOR CONVERTION ------------------------------------------------------------------------------------------
 */

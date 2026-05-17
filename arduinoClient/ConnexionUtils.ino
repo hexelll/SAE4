@@ -22,7 +22,10 @@ void initWifi(char ssid[],char pass[]){
     // Connect to WPA/WPA2 network
     status = WiFi.begin(ssid, pass);
     // wait a few seconds for connection:
-    Serial.println(F("[WARNING] WIFI connection failed, retrying in 2s"));
+    if (status != WL_CONNECTED){
+      Serial.println(F("[WARNING] WIFI connection failed, retrying in 1s"));
+      displayWifiError();
+    }
     delay(1000);
   }
   Serial.println(F("[OK] WIFI connected"));
@@ -37,11 +40,14 @@ void initWifi(char ssid[],char pass[]){
 // Sends given http Request, returns connection success/failure
 bool sendHTTPRequest(Request requestToSend){
   if (client.connect(server, port)) {
-    String request = requestToSend.method + F(" ") + requestToSend.path + F(" HTTP/1.1\nHost: ") + String(server) + F("\nConnection: close\r\n\r\n") + requestToSend.data ;
+    String request = requestToSend.method + F(" ") + requestToSend.path + F(" HTTP/1.1\r\nHost: ") + String(server) + F("\nConnection: close\r\n\r\n") ;
     client.print(request); 
     return true;
   }else{
     Serial.println(F("[ERROR] Could not connect to server"));
+    if (WiFi.status() != WL_CONNECTED){
+      initWifi(SECRET_SSID,SECRET_PASS);
+    }
     return false;
   }
 }
@@ -97,7 +103,7 @@ JsonDocument receiveHTTPResponse(){
   // buffers
   static char contentLengthBuffer[10];
   static int contentLengthBufferLength = 0;
-  static char responseBuffer[6000];
+  static char responseBuffer[6000];// 6000
   static int responseBufferLength = 0;
   static bool RESPONSE_ABORTED = false;
   static int contentLength = 0;
@@ -175,6 +181,9 @@ JsonDocument receiveHTTPResponse(){
       return responseData; // null document
   }
   if (!RESPONSE_ONGOING && responseBufferLength > 0) {
+      ping = millis()-lastSentRequest.timeSent;
+
+      responseBuffer[responseBufferLength] = '\0';
       DeserializationError err = deserializeJson(responseData, responseBuffer);
       if (err) {
           Serial.print(F("[ERROR] JSON parse failed: "));
@@ -203,11 +212,11 @@ bool queueRequest(Request requestToSend){
 }
 
 // queueRequest wraper that builds new Request from easy to use args
-bool queueNewRequest(char* method, String path, char* data, void (*callback)(Request*,JsonDocument*)){
+bool queueNewRequest(char* method, String path, void (*callback)(Request*,JsonDocument*)){
   return queueRequest({
     .method = String(method),
     .path = path,
-    .data = String(data),
+    .timeSent = -1,
     .callback = callback
   });
 }
@@ -239,6 +248,7 @@ void processResponses(){
     if (requestQueueSize > 0){
       lastSentRequest = popRequest();
       sendHTTPRequest(lastSentRequest);
+      lastSentRequest.timeSent = millis();
       IS_WAITING_FOR_RESPONSE = true;
     }else{
       IS_WAITING_FOR_RESPONSE = false;
@@ -247,6 +257,7 @@ void processResponses(){
   if ( ! IS_WAITING_FOR_RESPONSE && requestQueueSize > 0){
     lastSentRequest = popRequest();
     sendHTTPRequest(lastSentRequest);
+    lastSentRequest.timeSent = millis();
     IS_WAITING_FOR_RESPONSE = true;
   }
   

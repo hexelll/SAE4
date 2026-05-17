@@ -144,17 +144,7 @@ function getPlayerHandElement(playerTargetedIndex, myIndex){
         handPlayerTargeted = "myHand";
     }
     else {
-        console.log(indexPlayer);
-        let indexPlayerTargeted;
-        for (let i = 0; i < gameState.players.length; i++) {
-            for(let j=0; j < indexPlayer.length; j++) {
-                if (i == indexPlayer[j]) {
-                    indexPlayerTargeted = indexPlayer[j];
-                    handPlayerTargeted = roots[indexPlayerTargeted][2];
-                    break;
-                }
-            }
-        }
+        handPlayerTargeted = indexPlayer[playerTargetedIndex][2]
     }
 
     console.log("Hand skiped : "+ handPlayerTargeted);
@@ -470,6 +460,7 @@ async function displayCards() {
                     break;
                 }
             }
+            indexPlayer = []
             for (let i = (indexMe+1)%gameState.players.length; i!=indexMe; i=(i+1)%gameState.players.length) {
                 makeEnemysCards(gameState.players[i].cardCount, roots[indexRoot][0]);
                 let name = "Player "+ (i+1) + " : " +gameState.players[i].username;
@@ -478,7 +469,7 @@ async function displayCards() {
                     name += " " + currentPlayerIndicator;
                 }
                 $("#"+roots[indexRoot][1]).html(name);
-                indexPlayer.push(i);
+                indexPlayer[i] = roots[indexRoot]
 
                 indexRoot++;
             }
@@ -555,7 +546,6 @@ async function displayCards() {
             }
         
         }
-        indexPlayer = [];
                 
     });
 };

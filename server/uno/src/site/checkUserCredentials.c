@@ -13,7 +13,7 @@ List getAllPlayersByGameId(int gameId , struct Arena* arena, Connection theconne
 int getPlayerGameId(String playerid, struct Arena* arena, Connection theconnection){
     QueryResult resPlayers = ConnectionSelect(theconnection, StringFormatChar(arena, "select * from player where playerid =%S", playerid));
     if(!(resPlayers.count > 0 || resPlayers.message.size == 0)){
-        return -1
+        return -1;
     }
     List tuples = QueryResultToList(resPlayers,arena);
     Hashmap* user = ListGetVal(&tuples,0)->ptr;

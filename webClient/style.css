@@ -47,6 +47,7 @@ button a{
     display: flex;
     justify-content: center;
     align-items: center;
+    width:80vw;
 }
 
 /* White line around card */
@@ -108,8 +109,8 @@ button a{
 .enemyCardBack {
      /*height: 16vh;
     max-height: 180px;*/
-    width: 7vw;
-    max-width: 100px;
+    height: 20vh;
+    max-height: 180px;
     aspect-ratio: 2 / 3;
     flex-shrink: 0;
 

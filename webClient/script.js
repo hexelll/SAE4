@@ -159,8 +159,7 @@ function getPlayerHandElement(playerTargetedIndex, myIndex){
 /* ------------------------------------------- ACTUAL PLAYER -------------------------------------------------*/
 // Creating obj json to create fake cards while wating for the server to be done
 /* Width calculations and value for the overlap of all the enemies */
-const myCardWidthPx = Math.min(window.innerWidth * 0.09, 120); 
-const myCardWidthVw = (myCardWidthPx / window.innerWidth) * 100;
+let myCardWidthPx = Math.min(window.innerWidth * 0.09, 200*2/3); 
 
 
 /* Value for the actual player */
@@ -179,20 +178,21 @@ function makeMyCards(nbCards, cards, root) {
     console.log(cards);
 
     /* Create the overlap dynamicaly */
-    const containerWidthVw = 40; /* Container width set in vw in css */
+    const containerWidth = window.innerWidth*0.5; /* Container width set in vw in css */
+    myCardWidthPx = Math.min(window.innerHeight * 0.24 * 2/3, 200*2/3); 
     const totalCards = nbCards;
 
     let overlap;
     if (totalCards > 1) {
-        const stepVw = (containerWidthVw - myCardWidthVw) / (totalCards - 1);
+        const step = (containerWidth - myCardWidthPx) / (totalCards - 1);
 
-        overlap = stepVw - myCardWidthVw;
+        overlap = step - myCardWidthPx;
     } else {
         overlap = 0; /* Usual overlap */
     }
-    
     // Ensure minimum overlap of -1vw for better display
     overlap = Math.min(overlap, -1);
+    console.log(overlap);
     /* Display cards */
     myCards = cards.map((card, index) =>(
         React.createElement("div", {
@@ -201,7 +201,7 @@ function makeMyCards(nbCards, cards, root) {
                 "cardInnerWhite " +
                 (isMeSkipped ? "playerSkipped" : ""),
             style: {
-                marginLeft: index === 0 ? "0vw" : overlap + "vw",
+                marginLeft: index === 0 ? "0vw" : overlap + "px",
                 zIndex: index
             },
             onClick: () => play(card, index)
@@ -227,8 +227,7 @@ function makeMyCards(nbCards, cards, root) {
 /* --------------------------------------------- ENEMIES -------------------------------------------------*/
 /* Width calculations and value for the overlap of all the enemies */
 //const cardWidthVw = 9; /* Card width set in vw in css */
-const cardWidthPx = Math.min(window.innerWidth * 0.09, 120); 
-const cardWidthVw = (cardWidthPx / window.innerWidth) * 100;
+let cardWidthPx = Math.min(window.innerHeight * 0.2 * 2/3, 180*2/3); 
 
 
 
@@ -239,20 +238,21 @@ function makeEnemysCards(nbCards, enemyRoot) {
     var enemyCards = [];
 
     /* Create the overlap dynamicaly */
-    const containerWidthVw = 40; /* Container width set in vw in css */
+    const containerWidth = window.innerWidth*0.3; /* Container width set in vw in css */
+    cardWidthPx = Math.min(window.innerHeight * 0.2 * 2/3, 180*2/3); 
     const totalCards = nbCards;
 
     let overlapEnemy;
     if (totalCards > 1) {
-        const stepVw = (containerWidthVw - cardWidthVw) / (totalCards - 1);
+        const step = (containerWidth - cardWidthPx) / (totalCards - 1);
 
-        overlapEnemy = stepVw - cardWidthVw;
+        overlapEnemy = step - cardWidthPx;
     } else {
         overlapEnemy = 0; /* Usual overlap */
     }
-
+    console.log(Math.min(overlapEnemy, -5),-cardWidthPx)
     // Ensure minimum overlap of -5vw for better display
-    overlapEnemy = Math.min(overlapEnemy, -5);
+    overlapEnemy = Math.max(Math.min(overlapEnemy, -5),-cardWidthPx);
 
     /* Display cards */
     for (let i = 0; i < totalCards; i++) {
@@ -261,7 +261,7 @@ function makeEnemysCards(nbCards, enemyRoot) {
                     key:i,
                     className: "enemyCardBack",
                     style:{
-                        marginLeft: i === 0 ? "0vw" : overlapEnemy + "vw",
+                        marginLeft: i === 0 ? "0vw" : overlapEnemy + "px",
                         zIndex: i
                     }
                 },

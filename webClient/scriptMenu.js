@@ -66,7 +66,19 @@ function joinRunningGame() {
     })
 }
 
+function periodicGetGameState(){
+    ajaxRequests.getGameState(userId,userPwd).then(r=>{
+        if (r.ok) {
+            $("#joinRunningGameData").css("display","flex");
+        }else {
+            $("#joinRunningGameData").css("display","none");
+        }
+    })
+    setTimeout(periodicGetGameState, 3000); 
+}
 
+// Caliing the function that get the gameState every 3 seconds
+periodicGetGameState();
 
 
 /* Calling the functions for the right buttons */

@@ -473,6 +473,12 @@ button a{
     }
 }
 
+#menuRight {
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 5vh;
+}
 
 /* Animation on the player when the skip card is played */
 .playerSkipped{
@@ -503,6 +509,7 @@ button a{
     margin: 0;
     padding: 0;
     height: 100vh;
+    width:100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -562,7 +569,7 @@ button a{
 
 
 
-#loginData, #signInData, #playersData{
+#loginData, #signInData{
     position: fixed;
     right: 15vw;
     width: 350px;
@@ -580,14 +587,28 @@ button a{
     flex-direction: column;
 }
 
+#playersData{
+    width: 350px;
+    padding: 40px;
+    border-radius: 25px;
+    margin-left: 5vw;
+    background-color: white;
+    text-shadow: none;
+    /*background: linear-gradient(
+        #FFFFFF 50%,
+        rgb(from #FFFFFF calc(r * 0.8) calc(g * 0.7) calc(b * 0.9))
+    );*/
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    display: flex;
+    text-shadow: none;
+    flex-direction: column;
+}
+
 #gameNumber {
     font-size: 4em;
 }
 
 #createGameData {
-    position: fixed;
-    right: 15vw;
-    top: 30vh;
     width: 350px;
     padding: 40px;
     border-radius: 25px;
@@ -721,11 +742,10 @@ a:hover{
 }
 
 
-#joinGameData, #owerGameData{
-    position: fixed;
-    left: 15vw;
+#joinGameData, #ownerGameData{
     width: 350px;
     padding: 40px;
+    margin: 5vh;
     border-radius: 25px;
     background-color: white;
     /*background: linear-gradient(
@@ -738,31 +758,29 @@ a:hover{
 }
 
 #joinRunningGameData {
-    position: fixed;
-    right: 15vw;
-    bottom: 20vh;
     width: 350px;
     padding: 40px;
+    margin-top: 40px;
     border-radius: 25px;
     background-color: white;
+    display:none;
     /*background: linear-gradient(
         #FFFFFF 50%,
         rgb(from #FFFFFF calc(r * 0.8) calc(g * 0.7) calc(b * 0.9))
     );*/
     box-shadow: -0.4em 0.5em 3px rgba(0,0,0,0.4);
-    display: flex;
     flex-direction: column;
 }
 
 
-#joinGameData h2, #owerGameData h2, #joinRunningGameData h2{
+#joinGameData h2, #ownerGameData h2, #joinRunningGameData h2{
     text-align: center;
     margin-bottom: 25px;
     color: #ff3131;
     font-size: 35px;
 }
 
-#joinGameData p, #owerGameData p, #joinRunningGameData p{
+#joinGameData p, #ownerGameData p, #joinRunningGameData p{
     margin-bottom: 8px;
     color: #444;
     text-shadow: none;

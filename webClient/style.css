@@ -319,6 +319,11 @@ button a{
     cursor: pointer;
 }
 
+#uno:hover {
+    color: rgb(246, 16, 16);
+    background-color: #fffaf6;
+}
+
 #counterUno {
     /* Position */ 
     position: fixed;
@@ -341,6 +346,11 @@ button a{
     font-weight:bolder;
 
     cursor: pointer;
+}
+
+#counterUno:hover {
+    color: rgb(246, 16, 16);
+    background-color: #fffaf6;
 }
 
 #lobbyButtons {

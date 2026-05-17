@@ -53,7 +53,7 @@ String makeResponse(struct Arena* arena,Connection con,Hashmap map) {
     }
 
     List cardlst = QueryResultToList(ConnectionSelect(con,StringFrom("select * from deckcard where deckid = 1",arena)),arena);
-    if(!(cardlst || cardlst.size > 0)){
+    if(cardlst.size == 0){
         return StringFormatChar(arena,"{\"ok\":false,\"error\":\"could not retrieve card from deck\"}");
     }
     srand(time(NULL));

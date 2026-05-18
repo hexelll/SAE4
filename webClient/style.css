@@ -1,0 +1,891 @@
+/* ----------------------------------------------- General --------------------------------------------------- */
+:root {
+    --shadow-col:#3f3a57;
+}
+
+body{
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+    height: 100vh;
+    width: 100vw;
+    
+}
+
+p{
+    margin-top: 0%;
+    margin-bottom: 0%;
+    color:white;
+    text-shadow: -0.2em 0.3em 3px rgba(0,0,0,0.4);
+}
+
+
+button a{
+    color: white;
+}
+
+
+
+/* ----------------------------------------------- Me --------------------------------------------------- */
+/* size allowed to the actual player info (name, nb of cards, cards)*/
+#me {
+    position: fixed;
+    bottom: 1vh; /* So that it's not to close tp the bottom */
+    left: 0;
+    width: 100vw;
+    height: 30vh;
+
+    display: flex;
+    flex-direction: column; /* Align the content varticaly */
+    align-items: center;
+    gap: 10px;
+
+    padding: 10px;
+}
+
+/* div of my hand */
+#myHand {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width:80vw;
+}
+
+/* White line around card */
+.cardInnerWhite {
+    height: 24vh;
+    max-height: 200px;
+    aspect-ratio: 2 / 3;
+
+    /*background: linear-gradient(
+        #FFFFFF 40%,
+        rgb(from #FFFFFF calc(r * 0.7) calc(g * 0.6) calc(b * 0.8))
+    );*/
+    background-color: white;
+    border-radius: 18px;
+    border: 1px solid black;  /* Outer black and visisble */
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+    box-shadow: -0.4em 0.5em 3px rgba(0,0,0,0.4);
+}
+
+/* Real color of the card */
+.cardInnerColor {
+    width: 90%;
+    height: 90%;
+
+    border-radius: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 6vh;
+    font-weight: bold;
+    border-radius: 30% 10% 30% 10%;
+    color: white;
+}
+
+
+
+/* Actions on the cards*/
+/* Put cards over each other */
+.cardInnerWhite:not(:first-child) {
+    margin-left: -40px;
+}
+
+/* When you pass on a card it put itseft before all the other and show up so you can see it better before playing it */
+.cardInnerWhite:hover {
+    transform: translateY(-20px);
+    z-index: 1000 !important;
+    transition: 0.2s;
+}
+
+
+
+
+/* ----------------------------------------------- ENEMIES --------------------------------------------------- */
+.enemyCardBack {
+     /*height: 16vh;
+    max-height: 180px;*/
+    height: 20vh;
+    max-height: 180px;
+    aspect-ratio: 2 / 3;
+    flex-shrink: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 5vh;
+    font-weight: bold;
+    
+
+    border-radius: 20px;
+    border: 3px solid rgb(0, 0, 0);
+
+    /*background: linear-gradient(135deg, red, yellow); /* style UNO-ish */
+    background: white/*linear-gradient(#FFFFFF 60%,rgb(from #FFFFFF calc(r * 0.7) calc(g * 0.6) calc(b * 0.8)))*/;
+
+    box-shadow: -0.1em 0.05em 3px rgba(0,0,0,0.4);
+}
+.enemyCard {
+    /*height: 16vh;
+    max-height: 180px;*/
+    width: 95%;
+    height: 95%;
+    aspect-ratio: 2 / 3;
+    flex-shrink: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 5vh;
+    font-weight: bold;
+    color: white;
+
+    border-radius: 15% 15% 15% 15%;
+    border: none;
+
+    /*background: linear-gradient(135deg, red, yellow); /* style UNO-ish */
+    background: rgb(165, 5, 5)/*linear-gradient(#b42626 60%,rgb(from #b42626 calc(r * 0.7) calc(g * 0.6) calc(b * 0.8)))*/;
+}
+
+
+
+/* ----------------------------------------------- Enenmy's top --------------------------------------------------- */
+#enemyTop {
+    position: fixed;
+    top: 5vh;
+    width: 100vw;
+
+    height: 25vh;
+    margin-top: 0%;
+    margin-bottom: 0%;
+
+
+    display: flex;
+    flex-direction: column; /* Align the content varticaly */
+    align-items: center; 
+}
+
+
+#enemyTopHand {
+    width: 40vw;
+    height: 25vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+
+
+
+
+/* ----------------------------------------------- Enenmy's right --------------------------------------------------- */
+#enemyRight {
+    position: fixed;
+    top: 30vh;
+    right: -5vw;
+
+    width: 50vw;
+    height: 25vh;
+    margin-top: 0%;
+    margin-bottom: 0%;
+
+
+    display: flex;
+    flex-direction: column; /* Align the content varticaly */
+    align-items: center; 
+}
+
+
+#enemyRightHand {
+    width: 40vw;
+    height: 25vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+
+
+/* ----------------------------------------------- Enenmy's left --------------------------------------------------- */
+#enemyLeft {
+    position: fixed;
+    top: 30vh;
+    right: 55vw;
+
+    width: 50vw;
+    height: 25vh;
+    margin-top: 0%;
+    margin-bottom: 0%;
+
+
+    display: flex;
+    flex-direction: column; /* Align the content varticaly */
+    align-items: center; 
+}
+
+
+#enemyLeftHand {
+    width: 40vw;
+    height: 25vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+
+
+
+
+
+
+
+
+/* ---------------------------------------------- Assets Pile --------------------------------------------------- */
+#assets {
+    position: fixed;
+    top: 40vh;
+    left: 0;
+    width: 100vw;
+
+    height: 25vh;
+    margin-top: 0%;
+    margin-bottom: 0%;
+
+
+    display: flex;
+    flex-direction: column; /* Align the content varticaly */
+    align-items: center; 
+}
+
+
+
+#playedPile {
+    position: fixed;
+    left: 45vw;
+    top: 35vh;
+    height: 20vh;
+    width: 10vw;
+}
+
+#drawPile {
+    position: fixed;
+    left: 2vw;
+    top: 4vh;
+    background-color: #ffffff00;
+    border:none;
+    width:26vw;
+    height:26vh;
+    filter: drop-shadow(-10px 10px 3px rgba(0, 0, 0, 0.453));
+}
+
+#drawPile:active {
+    width:40vw;
+    height:20vh;
+}
+
+#uno {
+    /* Position */ 
+    position: fixed;
+    right: 7vw;
+    bottom: 10vh;
+
+    /* Style*/
+    background: rgb(246, 16, 16);
+    box-shadow: -10px 10px 3px rgba(0, 0, 0, 0.453);
+
+    border: none;
+    color: #fffaf6;
+    width: 10vw;
+    height: 7vh;
+    border-radius: 50%;
+
+    text-align: center;
+   /*display: inline-block;*/
+    font-size: 2vh;
+    font-weight:bolder;
+
+    cursor: pointer;
+}
+
+#uno:hover {
+    color: rgb(246, 16, 16);
+    background-color: #fffaf6;
+}
+
+#counterUno {
+    /* Position */ 
+    position: fixed;
+    right: 7vw;
+    bottom: 20vh;
+
+    /* Style*/
+    background: rgb(246, 16, 16);
+    box-shadow: -10px 10px 3px rgba(0, 0, 0, 0.453);
+
+    border: none;
+    color: #fffaf6;
+    width: 10vw;
+    height: 8vh;
+    border-radius: 50%;
+
+    text-align: center;
+   /*display: inline-block;*/
+    font-size: 2vh;
+    font-weight:bolder;
+
+    cursor: pointer;
+}
+
+#counterUno:hover {
+    color: rgb(246, 16, 16);
+    background-color: #fffaf6;
+}
+
+#lobbyButtons {
+    display:flex;
+    flex-direction: column;
+}
+
+#lobbyButtons button {
+    margin: 5px;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: #ff3131;
+    /*background: linear-gradient(
+        90deg,
+        #ff3131,
+        #ff5e00
+    );*/
+
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.lobbyPlayer {
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-size: 1.8em;
+}
+
+.lobbyPlayerIn {
+    display:flex;
+    background-color: #ddd;
+    border-radius: 10px;
+    margin:5px;
+    width:80%;
+    height:7vh;
+    align-items: center;
+    justify-content: start;
+}
+
+.lobbyPlayer p {
+    margin: 0 20px;
+}
+
+.colorButton {
+    position: fixed;
+    z-index: 1000;
+
+    background-color: #de1414;
+    border: 2px solid #000000;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-color: white;
+    border-width: 3px;
+
+    text-align: center;
+   /*display: inline-block;*/
+    font-size: 2vh;
+
+    cursor: pointer;
+}
+
+#redButton {
+    left: 40vw;
+    top: 37vh;
+    background-color: #de1414;
+}
+
+#blueButton {
+    left: 40vw;
+    top: 47vh;
+    background-color: #1414de;
+}
+
+#greenButton {
+    left: 55vw;
+    top: 37vh;
+    background-color: #14de14;
+}
+
+#yellowButton {
+    left: 55vw;
+    top: 47vh;
+    background-color: #ded114;
+}
+
+
+
+
+
+/* --------------------------------------------- ANIMATIONS --------------------------------------------------- */
+/* Animations that popup when a card is played*/
+#effectContainer{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 99999;
+    pointer-events: none;
+}
+
+.effectOverlay{
+    font-size: 120px;
+    font-weight: bold;
+    color: white;
+    animation: effectPopup 1.5s ease forwards;
+}
+
+@keyframes effectPopup{
+    0%{
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    20%{
+        opacity: 1;
+        transform: scale(1.2);
+    }
+    80%{
+        opacity: 1;
+        transform: scale(1);
+    }
+    100%{
+        opacity: 0;
+        transform: scale(2);
+    }
+}
+
+#menuRight {
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 5vh;
+}
+
+/* Animation on the player when the skip card is played */
+.playerSkipped{
+    filter: grayscale(1) brightness(0.4) !important;
+    animation: skippedAnimation 1.5s ease;
+}
+
+@keyframes skippedAnimation{
+    0%{
+        transform: scale(1);
+    }
+    20%{
+        transform: scale(1.05);
+    }
+    40%{
+        transform: scale(0.97);
+    }
+    100%{
+        transform: scale(1);
+    }
+}
+
+
+
+
+/* --------------------------------------------- LOGIN / CREATE ACCOUNT / MENU PAGE --------------------------------------------------- */
+#loginBody, #createAccountBody, #menuBody, #lobbyBody,#playBody{
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width:100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, Helvetica, sans-serif;
+    text-shadow: none;
+    /*background: linear-gradient(
+        135deg,
+        #ff3131,
+        #ff5e00,
+        #ffd000
+    );*/
+    background: radial-gradient(
+        #ff9327 10%,
+        rgb(165, 5, 5)
+    );
+    /*background-image:radial-gradient(#ff8b8b55,#00000033),url("./Assets/unobg.jpg");*/
+    background-repeat: no-repeat;
+    background-size: cover;
+    overflow: hidden;
+}
+
+#playTitle {
+    position:absolute;
+    left:10%;
+    top:2%;
+    color:white;
+    font-weight: bold;
+}
+
+
+#welcome{
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 50vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+}
+
+#welcome h1, #welcomeMenu h1{
+    font-size: 90px;
+    margin: 0;
+    font-weight: bold;
+    text-shadow: 4px 4px 10px rgba(0,0,0,0.3);
+}
+
+#welcome h2, #welcomeMenu h2{
+    margin-top: 10px;
+    font-size: 30px;
+    font-weight: normal;
+}
+
+
+
+#loginData, #signInData{
+    position: fixed;
+    right: 15vw;
+    width: 350px;
+    padding: 40px;
+    border-radius: 25px;
+    background-color: white;
+    text-shadow: none;
+    /*background: linear-gradient(
+        #FFFFFF 50%,
+        rgb(from #FFFFFF calc(r * 0.8) calc(g * 0.7) calc(b * 0.9))
+    );*/
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    display: flex;
+    text-shadow: none;
+    flex-direction: column;
+}
+
+#playersData{
+    width: 350px;
+    padding: 40px;
+    border-radius: 25px;
+    margin-left: 5vw;
+    background-color: white;
+    text-shadow: none;
+    /*background: linear-gradient(
+        #FFFFFF 50%,
+        rgb(from #FFFFFF calc(r * 0.8) calc(g * 0.7) calc(b * 0.9))
+    );*/
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    display: flex;
+    text-shadow: none;
+    flex-direction: column;
+}
+
+#gameNumber {
+    font-size: 4em;
+}
+
+#createGameData {
+    width: 350px;
+    padding: 40px;
+    border-radius: 25px;
+    background-color: white;
+    text-shadow: none;
+    /*background: linear-gradient(
+        #FFFFFF 50%,
+        rgb(from #FFFFFF calc(r * 0.8) calc(g * 0.7) calc(b * 0.9))
+    );*/
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    display: flex;
+    text-shadow: none;
+    flex-direction: column;
+}
+
+
+#loginData h2, #signInData h2, #createGameData h2, #playersData h2{
+    text-align: center;
+    margin-bottom: 25px;
+    color: #ff3131;
+    font-size: 35px;
+}
+
+
+#loginData p, #signInData p, #createGameData p, #playersData p{
+    margin-bottom: 8px;
+    color: #444;
+    text-shadow: none;
+}
+
+
+input{
+    padding: 14px;
+    margin-bottom: 20px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: 0.3s;
+    box-shadow: inset 0 0 4px #c8c8c8;
+}
+
+input:hover{
+    background-color: #e0dede;
+}
+
+input:focus{
+    outline: none;
+    border-color: #ff3131;
+    /*box-shadow: 0 0 10px rgba(255,49,49,0.3);*/
+}
+
+
+#loginButton, #createAccountButton, #joinGameButton, #createGameButton, #joinRunningGameButton{
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: #ff3131;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#loginButton:hover, #createAccountButton:hover, #joinGameButton:hover, #createGameButton:hover, #joinRunningGameButton:hover{
+    /*transform: scale(1.05);*/
+    background-color: white;
+    color: #ff3131;
+    box-shadow: 0 10px 10px #e0dede;
+}
+
+
+a{
+    color: #ff3131;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover{
+    text-decoration: underline;
+}
+
+
+/* ---------- RESPONSIVE ---------- */
+@media screen and (max-width: 900px){
+    #welcome{
+        display: none;
+    }
+    #loginData{
+        position: relative;
+        right: 0;
+        width: 80vw;
+    }
+}
+
+
+
+
+/* ----------------------------------------------- CREATE ACCOUNT PAGE --------------------------------------------------- */
+/* Responsive*/
+@media screen and (max-width: 900px){
+
+    #welcome{
+        display: none;
+    }
+
+    #createAccountData{
+        position: relative;
+        right: 0;
+        width: 80vw;
+    }
+}
+
+
+
+
+
+/* ----------------------------------------------- MENU PAGE --------------------------------------------------- */
+#welcomeMenu, #welcomeLobby{
+    position: fixed;
+    left: 0;
+    top: 3vh;
+    width: 100vw;
+    height: 20vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+}
+
+
+#joinGameData, #ownerGameData{
+    width: 350px;
+    padding: 40px;
+    margin: 5vh;
+    border-radius: 25px;
+    background-color: white;
+    /*background: linear-gradient(
+        #FFFFFF 50%,
+        rgb(from #FFFFFF calc(r * 0.8) calc(g * 0.7) calc(b * 0.9))
+    );*/
+    box-shadow: -0.4em 0.5em 3px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+}
+
+#joinRunningGameData {
+    width: 350px;
+    padding: 40px;
+    margin-top: 40px;
+    border-radius: 25px;
+    background-color: white;
+    display:none;
+    /*background: linear-gradient(
+        #FFFFFF 50%,
+        rgb(from #FFFFFF calc(r * 0.8) calc(g * 0.7) calc(b * 0.9))
+    );*/
+    box-shadow: -0.4em 0.5em 3px rgba(0,0,0,0.4);
+    flex-direction: column;
+}
+
+
+#joinGameData h2, #ownerGameData h2, #joinRunningGameData h2{
+    text-align: center;
+    margin-bottom: 25px;
+    color: #ff3131;
+    font-size: 35px;
+}
+
+#joinGameData p, #ownerGameData p, #joinRunningGameData p{
+    margin-bottom: 8px;
+    color: #444;
+    text-shadow: none;
+}
+
+
+select{
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 20px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    background-color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='%23ff3131' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 20px;
+    padding-right: 45px;
+}
+
+
+select:hover{
+    border-color: #ff5e00;
+}
+
+
+select:focus{
+    outline: none;
+    border-color: #ff3131;
+    box-shadow: 0 0 10px rgba(255,49,49,0.3);
+}
+
+
+option{
+    font-size: 16px;
+}
+
+
+
+
+/* Responsive */
+@media screen and (max-width: 900px){
+
+    #welcome{
+        display: none;
+    }
+
+    #gameCodeData{
+        position: relative;
+        right: 0;
+        width: 80vw;
+    }
+}
+
+
+
+/* ----------------------------------------------- LOBBY PAGE --------------------------------------------------- */
+#idGameOwner, #nameGameOwner{
+    margin-bottom: 8px;
+    color: #444;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.playerTitle{
+    text-align: center;
+    margin-bottom: 25px;
+    color: #ff3131;
+    font-size: 35px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+
+.playerId, .playerName{
+    margin-bottom: 8px;
+    color: #444;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+

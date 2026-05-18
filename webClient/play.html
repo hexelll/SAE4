@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+
+    <head>
+        <title>Playing!</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="./style.css" type="text/css" rel="stylesheet"/>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"></link>
+
+    </head>
+    
+    
+    <body id="playBody">
+        <!---------------------------------------------- HTML -------------------------------------------------->
+        <h1 id="playTitle">Playing UNO</h1>
+        <!--<p id="theConnexion"></p>-->
+
+
+
+        <!---------- Me ----------->
+        <div id="me">
+            <div>
+                <!-- For the player's username-->
+                <p id="nameMe"></p>
+                <p id="nbCardsMe"></p>
+            </div>
+            
+            <div id="myHand"></div>
+            <button id="uno">UNO!</button>
+            <button id="counterUno">COUNTER UNO</button>
+        </div>
+
+
+        <!--------- Assets ---------->            
+        <div id="playedPile"></div>    
+        <div id="effectContainer"></div> 
+        <div id="colorChoice"></div> 
+
+
+
+
+        <!----------- Enemy ------------>
+        <div id="enemyTop">
+            <button id="drawPile"> <img style="width:100%;height:100%" src="./Assets/drawPile.png"> </button>
+
+            <!-- So that the info of a player are on a line and not on columns -->
+            <div>
+                <!-- For the player's username-->
+                 <p id="nameEnemyTop"></p>
+            </div>
+
+            <div id="enemyTopHand"></div>
+        </div>
+
+
+        <div id="enemyLeft">
+            <!-- So that the info of a player are on a line and not on columns -->
+            <div>
+                <!-- For the player's username-->
+                <p id="nameEnemyLeft"></p>
+                <p id="nbCardsEnemyLeft"></p>
+            </div>
+
+            <div id="enemyLeftHand">
+            </div>
+        </div>
+
+
+        <div id="enemyRight">
+            <!-- So that the info of a player are on a line and not on columns -->
+            <div>
+                <!-- For the player's username-->
+                <p id="nameEnemyRight"></p>
+                <p id="nbCardsEnenyRight"></p>
+            </div>
+
+            <div id="enemyRightHand">
+            </div>
+        </div>
+        
+
+
+
+
+
+        <!---------------------------------------------- LIBRARIES -------------------------------------------------->
+        <!-- React and React DOM -->
+        <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"> </script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"> </script>
+
+        <script src="./ajaxRequests.js"></script>
+        <script src="./script.js"></script>
+
+
+    </body>
+
+
+</html>

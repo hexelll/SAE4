@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+
+    <head>
+        <title>Lobby</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="./style.css" type="text/css" rel="stylesheet"/>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"></link>
+
+    </head>
+    
+    
+    <body id="lobbyBody">
+        <!---------------------------------------------- HTML -------------------------------------------------->
+        <div id="welcomeLobby">
+            <h1>Welcome to game</h1>
+            <h2 id="gameNumber">number</h2>
+        </div>
+        
+
+        <div id="ownerGameData">
+            <h2>Game Owner</h2>
+            <div class="lobbyPlayer">
+                <div class="lobbyPlayerIn">
+            <p id="idGameOwner"></p>
+            <p id="nameGameOwner"></p>
+                </div>
+            </div>
+        </div>
+
+        <div id="lobbyButtons">
+        <button id="startGameButton" hidden>Start Game</button>
+        <button id="deleteGameButton" hidden>Destroy Game</button>
+        <button id="leaveGameButton" hidden>Leave Game</button>
+        </div>
+
+        <div id="playersData">
+        </div>
+
+
+
+
+        <!---------------------------------------------- LIBRARIES -------------------------------------------------->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"> </script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"> </script>
+
+        <script src="./ajaxRequests.js"></script>
+        <script src="./scriptLobby.js"></script>
+    </body>
+</html>

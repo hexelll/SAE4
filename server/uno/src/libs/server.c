@@ -1,6 +1,6 @@
 #include "server.h"
 
-#define MAXREQUESTSIZE 4096
+#define MAXREQUESTSIZE 100
 
 #define DEBUG 0
 
@@ -144,7 +144,7 @@ void ServerSocketWriteTo(int clientSocket,String str,struct Arena* arena) {
 }
 
 void ServerSocketClose(int clientSocket) {
-    char buffer[4096];
+    /*char buffer[4096];
 	int len = 1;
 	while (len > 0) {
 		len = recv(clientSocket, buffer, sizeof(buffer),0);
@@ -154,7 +154,7 @@ void ServerSocketClose(int clientSocket) {
 			printf("Read error\n");
 			exit(1);
 		}
-	}
+	}*/
     
     close(clientSocket);
 }

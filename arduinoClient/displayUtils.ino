@@ -259,8 +259,12 @@ void initCreateGame(){
   tft.setCursor(75, 43);
   tft.print("Rejoignez la avec le code :");
 
-  // TEMP
-  //updateGameCodeDisplay();
+  // arrow 
+  tft.fillRect(140,200,140,30,ILI9341_RED);
+  tft.fillTriangle(280, 200, 280, 229, 310, 214, ILI9341_RED);
+  tft.setTextSize(2);
+  tft.setCursor(145, 207);
+  tft.print("C'est parti!");
 }
 void updateGameCodeDisplay(){
   static uint16_t colors[4] = {ILI9341_RED,ILI9341_GREEN,ILI9341_BLUE,ILI9341_YELLOW};
@@ -477,13 +481,15 @@ void initPauseInterface(){
     // build players
     tft.fillRect(0, 0, 80, 20, tft.color565(80, 80, 80));
     tft.setTextSize(1);
+    tft.setTextColor(ILI9341_WHITE);
     tft.setCursor(17, 7);
     tft.print("Joueurs");
     tft.fillRect(0, 220, 80, 20, tft.color565(128, 128, 128));
-    tft.setTextSize(1);
-    tft.setCursor(5, 227);
-    tft.print("ping: ");
   }
+  tft.setTextSize(1);
+  tft.setTextColor(ILI9341_WHITE);
+  tft.setCursor(5, 227);
+  tft.print("ping: ");
 
   // fill players with data
   updatePlayers();
@@ -537,7 +543,14 @@ void updatePauseMenu(){
       tft.setCursor(110, 187);
       tft.print("Supprimer");
     }else{
-      tft.fillRoundRect(100, 127, 206, 31,10,ILI9341_BLACK );
+      if (isStarted==false){
+        tft.fillRoundRect(100, 127, 206, 31,10,ILI9341_RED );
+        tft.setTextSize(2);
+        tft.setCursor(110, 135);
+        tft.print("Quiter");
+      }else{
+        tft.fillRoundRect(100, 127, 206, 31,10,ILI9341_BLACK );
+      }
       tft.fillRoundRect(100, 179, 206, 31,10,ILI9341_BLACK );
     }
   }
@@ -555,13 +568,16 @@ void initGameInterface(){
     // build players
     tft.fillRect(0, 0, 80, 20, tft.color565(80, 80, 80));
     tft.setTextSize(1);
+    tft.setTextColor(ILI9341_WHITE);
     tft.setCursor(17, 7);
     tft.print("Joueurs");
     tft.fillRect(0, 220, 80, 20, tft.color565(128, 128, 128));
-    tft.setTextSize(1);
-    tft.setCursor(5, 227);
-    tft.print("ping: ");
+    
   }
+  tft.setTextSize(1);
+  tft.setTextColor(ILI9341_WHITE);
+  tft.setCursor(5, 227);
+  tft.print("ping: ");
 
   updatePlayers();
 

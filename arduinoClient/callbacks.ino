@@ -33,13 +33,13 @@ void callback_joinGame(Request* requestSent,JsonDocument* responseData){
   callback_errorHandler(requestSent,responseData);
   if (requestWorked){
     wantedMenuState = PAUSE;
-    eraseJoinError();
+    //eraseJoinError();
   }else{
     displayJoinError();
   }
 }
 
-void callback_deleteGame(Request* requestSent,JsonDocument* responseData){
+void callback_toTitleScreen(Request* requestSent,JsonDocument* responseData){
   callback_errorHandler(requestSent,responseData);
   if (requestWorked){
     wantedMenuState = TITLE_SCREEN;

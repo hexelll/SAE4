@@ -12,7 +12,7 @@
 ---------- DATA DECLARATION  ------------------------------------------------------------------------------------------
 */
 // Server connection data
-const char server[] = "10.243.202.33";
+const char server[] = "10.243.202.104";
 const int port = 42069; // 42069
 
 // Request queue
@@ -84,7 +84,7 @@ String gameCode = "";
 int playingPlayerId = -1;
 
 // user data
-int myId = 1;
+int myId = 2;
 String myPassword = "enorme";
 
 // Menu data
@@ -163,11 +163,6 @@ void setup() {
 }
 
 void loop(){
-  
-  static long time = millis();
-
-  // inputs
-  handleInputs();
 
   // process http requests/responses
   processResponses();
@@ -186,17 +181,9 @@ void loop(){
     }
   }
 
-  long newTime = millis();
-  long dif = newTime-time;
-  /*
-  if (dif < 6){
-    Serial.print(".");
-  }else{
-    Serial.println();
-    Serial.println(newTime-time);
-  }
-  */
-  time = newTime;
+  // inputs
+  handleInputs();
+
 }
 
 

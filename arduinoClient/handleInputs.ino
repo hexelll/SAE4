@@ -220,18 +220,20 @@ void handleInputs(){
         }
       }
 
-      if ( joystick_x > 900 && currentTime - timeLastJoystickAction > TIME_BETWEEN_JOYSTICK_INPUTS ){
-        timeLastJoystickAction = currentTime;
-        if (positionInMenu < 1){
-          positionInMenu++;
-          updatePauseMenu();
+      if (creatorId == myId){
+        if ( joystick_x > 900 && currentTime - timeLastJoystickAction > TIME_BETWEEN_JOYSTICK_INPUTS ){
+          timeLastJoystickAction = currentTime;
+          if (positionInMenu < 1){
+            positionInMenu++;
+            updatePauseMenu();
+          }
         }
-      }
-      if ( joystick_x < 75 && currentTime - timeLastJoystickAction > TIME_BETWEEN_JOYSTICK_INPUTS ){
-        timeLastJoystickAction = currentTime;
-        if (positionInMenu > 0){
-          positionInMenu--;
-          updatePauseMenu();
+        if ( joystick_x < 75 && currentTime - timeLastJoystickAction > TIME_BETWEEN_JOYSTICK_INPUTS ){
+          timeLastJoystickAction = currentTime;
+          if (positionInMenu > 0){
+            positionInMenu--;
+            updatePauseMenu();
+          }
         }
       }
 
@@ -241,21 +243,26 @@ void handleInputs(){
       }else{
         if (WAS_PRESSED_OK){
           WAS_PRESSED_OK = false;
-          if (positionInMenu == 0){
-            if (isStarted){
-              queueNewRequest("GET","/stopGame.c?userId="+String(myId)+"&userPwd="+myPassword, callback_errorHandler );
-              timeGetGameState = millis();
-              queueNewRequest("GET","/getGameState.c?userId="+String(myId)+"&userPwd="+myPassword, callback_getGameState );
+          if (creatorId == myId){
+            if (positionInMenu == 0){
+              if (isStarted){
+                queueNewRequest("GET","/stopGame.c?userId="+String(myId)+"&userPwd="+myPassword, callback_errorHandler );
+                timeGetGameState = millis();
+                queueNewRequest("GET","/getGameState.c?userId="+String(myId)+"&userPwd="+myPassword, callback_getGameState );
+              }else{
+                queueNewRequest("GET","/startGame.c?userId="+String(myId)+"&userPwd="+myPassword, callback_errorHandler );
+                timeGetGameState = millis();
+                queueNewRequest("GET","/getGameState.c?userId="+String(myId)+"&userPwd="+myPassword, callback_getGameState );
+                updatePauseMenu();
+              }
+              tone(7,240,100);
             }else{
-              queueNewRequest("GET","/startGame.c?userId="+String(myId)+"&userPwd="+myPassword, callback_errorHandler );
-              timeGetGameState = millis();
-              queueNewRequest("GET","/getGameState.c?userId="+String(myId)+"&userPwd="+myPassword, callback_getGameState );
-              updatePauseMenu();
+              queueNewRequest("GET","/stopGame.c?userId="+String(myId)+"&userPwd="+myPassword, callback_errorHandler );
+              queueNewRequest("GET","/deleteGame.c?userId="+String(myId)+"&userPwd="+myPassword, callback_toTitleScreen );
+              tone(7,140,100);
             }
-            tone(7,240,100);
           }else{
-            queueNewRequest("GET","/stopGame.c?userId="+String(myId)+"&userPwd="+myPassword, callback_errorHandler );
-            queueNewRequest("GET","/deleteGame.c?userId="+String(myId)+"&userPwd="+myPassword, callback_deleteGame );
+            queueNewRequest("GET","/quitGame.c?userId="+String(myId)+"&userPwd="+myPassword, callback_toTitleScreen );
             tone(7,140,100);
           }
         }

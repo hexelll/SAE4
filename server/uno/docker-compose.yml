@@ -2,7 +2,7 @@ services:
   unoserver:
     build: .
     ports:
-      - 42069:9999
+      - 9999:9999
     volumes:
       - ./src/:/myserver/
     command: 

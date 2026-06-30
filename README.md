@@ -12,4 +12,4 @@ Personnes ayant collaborées sur le projet:
   - [Alexandre Gouin](https://github.com/hexelll)  
 - partie serveur:  
   - [Alexandre Gouin](https://github.com/hexelll)  
-  - [Luc Casassus-Latrille](https://github.com/skiaz-p)   
+  - [Luc Casassus Latrille](https://github.com/skiaz-p)   
